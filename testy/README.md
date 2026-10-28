@@ -36,9 +36,10 @@ Naplní emulátor 14 fiktivními poptávkami a otevře přehled na PC 1440, 1280
 - Zkontroluje oddělený panel „Dnes zavolat“ a nízkou hlavičku na mobilu.
 - Ověří, že zůstaly všechny ovládací prvky, a vyzkouší hledání a filtry.
 - Ověří, že formulář a detail mají dál úzký sloupec.
+- V detailu zkontroluje „← Přehled“: na mobilu plovoucí dole vlevo, s odstupem od okraje, při psaní schované a po dorolování nic nezakrývá. Na PC zůstává nahoře.
 - Snímky uloží do `SCREEN_DIR`.
 
 ```bash
 SOUBOR=poptavky_v1.3.html SCREEN_DIR=/kam/snimky FIREBASE10=/cesta/k/node_modules/firebase node testy/test_vzhled.js
 ```
-Výsledek 2026-10-28: **35 / 35**.
+Výsledek 2026-10-28: **49 / 49**.

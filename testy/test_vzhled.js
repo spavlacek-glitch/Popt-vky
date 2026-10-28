@@ -68,6 +68,43 @@ async function kontrolyV13(p, nazev, sirka, {hl, dz, ev}){
     return (f.width <= 720 && d.width <= 720) || {f: f.width, d: d.width}; });
 }
 
+// „← Přehled“ v detailu: na mobilu plovoucí dole vlevo, na PC nahoře; nesmí trvale zakrýt ovládací prvky
+async function kontrolyDetail(p, nazev, sirka, jmeno){
+  const mobil = sirka <= 600, vyska = p.viewportSize().height;
+  await p.locator('.dnes .card', {hasText:'Pavel Testovací'}).click(); await p.waitForSelector('button:has-text("← Přehled")');
+  const tl = p.locator('button:has-text("← Přehled")');
+  const prekryte = () => p.evaluate(() => {          // ovládací prvky v detailu, které tlačítko právě překrývá
+    const z = document.querySelector('.zpet button').getBoundingClientRect();
+    return [...document.querySelectorAll('#view button, #view a, #view input, #view textarea, #view .chip')]
+      .filter(e => !e.closest('.zpet')).filter(e => { const r = e.getBoundingClientRect();
+        return r.width && r.left < z.right && r.right > z.left && r.top < z.bottom && r.bottom > z.top; })
+      .map(e => (e.textContent || e.placeholder || e.type).trim().slice(0, 30));
+  });
+  const r = await tl.boundingBox(), pos = await tl.evaluate(e => getComputedStyle(e.parentElement).position);
+  await T(`${nazev}: „← Přehled“ ${mobil ? 'plovoucí dole vlevo, menší, s odstupem od spodního okraje' : 'zůstává nahoře v detailu'}`, async () =>
+    (mobil ? pos === 'fixed' && r.x <= 20 && vyska - (r.y + r.height) >= 16 && r.height <= 44 && r.width <= 130
+           : pos !== 'fixed' && r.y < 120) || {r, pos, vyska});
+  if (mobil) {
+    M(`${nazev}: odstup tlačítka od spodního okraje`, Math.round(vyska - (r.y + r.height)) + ' px');
+    M(`${nazev}: při otevření detailu tlačítko překrývá`, JSON.stringify(await prekryte()));
+    await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}_detail.png`)});
+    await p.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
+    await T(`${nazev}: po dorolování dolů tlačítko nezakrývá nic (Upravit údaje, Smazat, …)`, async () => {
+      const x = await prekryte(); return x.length === 0 || x; });
+    await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}_detail_dole.png`)});
+    await T(`${nazev}: při psaní poznámky se tlačítko schová a po dopsání vrátí`, async () => {
+      await p.focus('#d-pozn'); const pri = await tl.isVisible();
+      await p.evaluate(() => document.activeElement.blur()); const po = await tl.isVisible();
+      await p.focus('input[type=date]'); const datum = await tl.isVisible(); await p.evaluate(() => document.activeElement.blur());
+      return (!pri && po && !datum) || {pri, po, datum}; });
+  } else await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}_detail.png`)});
+  await T(`${nazev}: „← Přehled“ vrátí na přehled; formulář nové poptávky tlačítko nemá`, async () => {
+    await tl.click(); const doma = await p.locator('section.dnes').isVisible();
+    await p.click('#fab'); const veFormulari = await p.locator('.zpet').count();
+    await p.click('#view button:has-text("Zpět")');
+    return (doma && veFormulari === 0) || {doma, veFormulari}; });
+}
+
 (async () => {
   await fetch(`${EMU}/.settings/rules.json?ns=${NS}`, {method:'PUT', headers:{Authorization:'Bearer owner'}, body:PRAVIDLA});
   await fetch(`${AUTH}/emulator/v1/projects/demo-poptavky/accounts`, {method:'DELETE'});
@@ -79,6 +116,8 @@ async function kontrolyV13(p, nazev, sirka, {hl, dz, ev}){
       dalsiKontakt: off === null ? null : den(off), vytvoreno: Date.now() - i * 86400000, upraveno: Date.now(), prodejce:'stanislav.prodejce@suw.example.cz',
       historie:{h:{t:Date.now(), kdo:'stanislav.prodejce@suw.example.cz', text:'Založeno'}}};
   });
+  for (let k = 1; k <= 8; k++)   // delší historie u první poptávky, aby se detail na mobilu posouval
+    poptavky.p00.historie['h' + k] = {t:Date.now() - k * 3600000, kdo:'stanislav.prodejce@suw.example.cz', text:`Volal jsem (${k}), chce ještě srovnat s leasingem a poslat kalkulaci na e-mail.`};
   await admin('', 'PUT', {uzivatele:{[u.localId]:{schvalen:true, email:'stanislav.prodejce@suw.example.cz'}}, poptavky});
 
   const br = await chromium.launch();
@@ -107,7 +146,7 @@ async function kontrolyV13(p, nazev, sirka, {hl, dz, ev}){
     M('šířka vyhledávání', Math.round(hledat.width) + ' px');
     M('karet viditelných bez posouvání', await p.evaluate(() => [...document.querySelectorAll('.card')].filter(c => c.getBoundingClientRect().bottom <= innerHeight).length));
     await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}.png`)});
-    if (SOUBOR !== 'poptavky_v1.2.html') await kontrolyV13(p, nazev, opts.viewport.width, {hl, dz, ev});
+    if (SOUBOR !== 'poptavky_v1.2.html') { await kontrolyV13(p, nazev, opts.viewport.width, {hl, dz, ev}); await kontrolyDetail(p, nazev, opts.viewport.width, jmeno); }
     await T(`${nazev}: žádné chyby, nic se neposouvá do stran`, async () =>
       (p.chyby.length === 0 && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth)) || p.chyby);
     await p.context().close();
