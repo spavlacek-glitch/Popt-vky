@@ -37,9 +37,10 @@ Naplní emulátor 14 fiktivními poptávkami a otevře přehled na PC 1440, 1280
 - Ověří, že zůstaly všechny ovládací prvky, a vyzkouší hledání a filtry.
 - Ověří, že formulář a detail mají dál úzký sloupec.
 - V detailu zkontroluje „← Přehled“. Na mobilu je v pevné neprůhledné spodní liště s rezervou pro bezpečnou oblast iPhonu a při psaní se schová. Ověří ji při posouvání dlouhého detailu nahoře, uprostřed i dole a zkontroluje, že celý obsah jde odrolovat nad lištu. Na PC zůstává nahoře.
+- Zkontroluje sbalenou historii v detailu: výchozí stav, nadpis s počtem a poslední událostí, klepací plochu, rozbalení ve stejném pořadí a opětovné sbalení. Ověří, že po zápisu poznámky zůstane rozbalená a že původní záznamy ve Firebase se nezměnily.
 - Snímky uloží do `SCREEN_DIR`.
 
 ```bash
 SOUBOR=poptavky_v1.3.html SCREEN_DIR=/kam/snimky FIREBASE10=/cesta/k/node_modules/firebase node testy/test_vzhled.js
 ```
-Výsledek 2026-10-28: **59 / 59**.
+Výsledek 2026-10-28: **84 / 84**.

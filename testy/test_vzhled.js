@@ -74,6 +74,7 @@ async function kontrolyDetail(p, nazev, sirka, jmeno){
   await p.locator('.dnes .card', {hasText:'Pavel Testovací'}).click(); await p.waitForSelector('button:has-text("← Přehled")');
   const tl = p.locator('button:has-text("← Přehled")');
   const r = await tl.boundingBox(), pos = await tl.evaluate(e => getComputedStyle(e.parentElement).position);
+  await kontrolyHistorie(p, nazev);     // končí s rozbalenou historií, aby byl detail dlouhý
   if (!mobil) {
     await T(`${nazev}: „← Přehled“ zůstává nahoře v detailu`, async () => (pos !== 'fixed' && r.y < 120) || {r, pos});
   } else {
@@ -114,6 +115,42 @@ async function kontrolyDetail(p, nazev, sirka, jmeno){
     await p.click('#fab'); const veFormulari = await p.locator('.zpet').count();
     await p.click('#view button:has-text("Zpět")');
     return (doma && veFormulari === 0) || {doma, veFormulari}; });
+  await T(`${nazev}: po návratu na přehled a u jiné poptávky je historie zase sbalená`, async () => {
+    await p.locator('.dnes .card', {hasText:'Pavel Testovací'}).click(); await p.waitForSelector('details.historie');
+    const pavel = await p.locator('details.historie').evaluate(d => d.open);
+    await p.click('button:has-text("← Přehled")'); await p.locator('.dnes .card', {hasText:'Novák Stavby'}).click(); await p.waitForSelector('details.historie');
+    const novak = await p.locator('details.historie').evaluate(d => d.open);
+    await p.click('button:has-text("← Přehled")');
+    return (!pavel && !novak) || {pavel, novak}; });
+}
+
+// Historie v detailu: výchozí stav sbalený, klepnutím rozbalit/sbalit, záznamy ve Firebase beze změny
+async function kontrolyHistorie(p, nazev){
+  const db0 = await admin('poptavky/p00/historie');
+  const ocek = Object.values(db0).sort((a, b) => (b.t||0) - (a.t||0)).map(h => h.text), n = ocek.length;
+  const det = p.locator('details.historie'), sum = p.locator('details.historie summary');
+  const viditelne = () => p.evaluate(() => [...document.querySelectorAll('.historie .hist')].filter(e => e.checkVisibility()).map(e => e.firstChild.textContent));
+  await T(`${nazev}: historie je ve výchozím stavu sbalená, nadpis „Historie kontaktů (${n} záznamů)“ a poslední událost`, async () => {
+    const t = await sum.innerText(), otevreno = await det.evaluate(d => d.open), vid = await viditelne();
+    return (!otevreno && vid.length === 0 && t.includes(`Historie kontaktů (${n} záznamů)`) && t.includes('Naposledy') && t.includes(ocek[0])) || {t, otevreno, vid}; });
+  if (OUT) await p.screenshot({path: path.join(OUT, `historie_sbalena_${nazev.replace(/\s/g, '')}.png`)});
+  await T(`${nazev}: nadpis je pohodlný na klepnutí (výška aspoň 44 px, přes celou šířku boxu)`, async () => {
+    const b = await sum.boundingBox(), box = await p.locator('details.historie').boundingBox();
+    return (b.height >= 44 && b.width >= box.width - 1) || {b, box}; });
+  await T(`${nazev}: klepnutí rozbalí všech ${n} záznamů ve stejném pořadí, další klepnutí sbalí`, async () => {
+    await sum.click(); const po1 = await viditelne();
+    await sum.click(); const po2 = await viditelne();
+    await sum.click(); const po3 = await viditelne();
+    return (JSON.stringify(po1) === JSON.stringify(ocek) && po2.length === 0 && po3.length === n) || {po1, po2: po2.length, po3: po3.length}; });
+  await T(`${nazev}: po zápisu poznámky zůstane historie rozbalená; ve Firebase přibyl 1 záznam, původní beze změny`, async () => {
+    const text = `Ověření historie (${nazev})`;
+    await p.fill('#d-pozn', text); await p.click('button:has-text("Zapsat")');
+    await p.waitForFunction(t => [...document.querySelectorAll('.historie .hist')].some(e => e.textContent.includes(t)), text);
+    await p.waitForTimeout(300);
+    const otevreno = await det.evaluate(d => d.open), vid = await viditelne(), db1 = await admin('poptavky/p00/historie');
+    const puvodni = Object.keys(db0).every(k => JSON.stringify(db1[k]) === JSON.stringify(db0[k]));
+    return (otevreno && vid.length === n + 1 && vid[0] === text && Object.keys(db1).length === n + 1 && puvodni
+      && (await sum.innerText()).includes(`(${n + 1} záznamů)`)) || {otevreno, vid: vid.length, db: Object.keys(db1).length, puvodni}; });
 }
 
 (async () => {

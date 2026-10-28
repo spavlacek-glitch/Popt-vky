@@ -5,7 +5,7 @@
      v1.1: hecovací věta dne v „Dnes zavolat“
      v1.2: známý zákazník u nové poptávky (/zakaznici) – vyhledání, Vybrat, „Je to nový zákazník“; převzato z ověřeného experimentu v0.5
      v1.3: jen vzhled přehledu – „Dnes zavolat“ odděleně od evidence, na PC dva sloupce, nízká hlavička na mobilu;
-           v detailu na mobilu „← Přehled“ v pevné spodní liště -->
+           v detailu na mobilu „← Přehled“ v pevné spodní liště; historie kontaktů v detailu sbalená -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -55,6 +55,13 @@ label.f{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
 .box{background:var(--card);border-radius:12px;padding:14px;margin-bottom:10px}
 .hist{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:8px 0;font-size:14px}
 .hist small{color:var(--muted);display:block}
+/* v1.3: historie v detailu sbalená – klepnutím na nadpis rozbalit / sbalit */
+.historie{margin-top:12px;border-top:1px solid var(--line)}
+.historie summary{list-style:none;cursor:pointer;position:relative;min-height:44px;padding:10px 28px 8px 0;font-size:15px;font-weight:600}
+.historie summary::-webkit-details-marker{display:none}
+.historie summary::after{content:'▾';position:absolute;right:4px;top:10px;color:var(--muted);transition:transform .15s}
+.historie[open] summary::after{transform:rotate(180deg)}
+.historie .posledni{display:block;font-weight:400;font-size:13px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .err{color:var(--red);font-size:14px;margin-top:8px}
 .tools{display:flex;gap:8px;margin-top:8px}
 /* v1.2: známý zákazník */
@@ -137,6 +144,7 @@ const TS = () => firebase.database.ServerValue.TIMESTAMP;
 
 let data = {}, view = 'home', curId = null, filtr = 'otevrene', hledat = '', user = null, ref = null;
 let ZAKAZNICI = [], zakRef = null, vybrany = null, novy = null, poUlozeni = null;   // v1.2: známý zákazník
+let historieOtevrena = null;   // v1.3: id poptávky s rozbalenou historií – živé překreslení detailu ji nesbalí, návrat na přehled ano
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -194,7 +202,7 @@ function prihlasit(){
 function vsechny(){ return Object.entries(data).map(([id,p]) => ({id, ...p})); }
 
 function renderHome(){
-  view = 'home'; curId = null; poUlozeni = null; $('#fab').classList.remove('hidden');
+  view = 'home'; curId = null; poUlozeni = null; historieOtevrena = null; $('#fab').classList.remove('hidden');
   const t = dnes();
   const volat = vsechny().filter(p => OTEVRENE.includes(p.stav) && p.dalsiKontakt && p.dalsiKontakt <= t)
                          .sort((a,b) => a.dalsiKontakt.localeCompare(b.dalsiKontakt));
@@ -353,7 +361,11 @@ function renderDetail(id){
       <label class="f" style="margin-top:0">Zapsat kontakt / poznámku</label>
       <textarea id="d-pozn" placeholder="Volal jsem, chce ještě srovnat s leasingem…" style="min-height:60px"></textarea>
       <div class="row"><button class="btn" onclick="pridejPozn('${id}')">Zapsat</button></div>
-      ${hist.map(h => `<div class="hist">${esc(h.text)}<small>${fmtTs(h.t)} · ${esc(h.kdo||'')}</small></div>`).join('')}
+      <details class="historie" ${historieOtevrena === id ? 'open' : ''} ontoggle="historieOtevrena = this.open ? '${id}' : null">
+        <summary>Historie kontaktů (${hist.length} ${zaznamu(hist.length)})
+          ${hist[0] ? `<span class="posledni">Naposledy ${fmtTs(hist[0].t)}: ${esc(hist[0].text)}</span>` : ''}</summary>
+        ${hist.map(h => `<div class="hist">${esc(h.text)}<small>${fmtTs(h.t)} · ${esc(h.kdo||'')}</small></div>`).join('')}
+      </details>
     </div>
 
     <div class="row">
@@ -361,6 +373,8 @@ function renderDetail(id){
       <button class="btn red" onclick="smazat('${id}')">Smazat</button>
     </div>`;
 }
+
+const zaznamu = n => n === 1 ? 'záznam' : n >= 2 && n <= 4 ? 'záznamy' : 'záznamů';
 
 function log(id, text){ return db.ref(`poptavky/${id}/historie`).push({t: TS(), kdo: user.email, text}); }
 
