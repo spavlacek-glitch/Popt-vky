@@ -78,31 +78,29 @@ async function kontrolyDetail(p, nazev, sirka, jmeno){
   if (!mobil) {
     await T(`${nazev}: „← Přehled“ zůstává nahoře v detailu`, async () => (pos !== 'fixed' && r.y < 120) || {r, pos});
   } else {
-    const lista = await p.locator('.zpet').boundingBox();
-    await T(`${nazev}: „← Přehled“ v pevné spodní liště přes celou šířku, tlačítko aspoň 44 px`, async () =>
-      (pos === 'fixed' && lista.x === 0 && Math.round(lista.width) === sirka && Math.round(lista.y + lista.height) === vyska && r.height >= 44) || {lista, r, pos});
-    await T(`${nazev}: lišta je neprůhledná a odlišená od obsahu`, async () => p.evaluate(() => {
-      const bg = getComputedStyle(document.querySelector('.zpet')).backgroundColor;
-      return bg !== getComputedStyle(document.body).backgroundColor && !/rgba\(.*, 0\)|transparent/.test(bg) || bg; }));
-    await T(`${nazev}: lišta respektuje bezpečnou oblast iPhonu (odstup obsahu stačí i pro 34 px spodní zóny)`, async () => {
+    await T(`${nazev}: „← Přehled“ plovoucí dole vlevo s odstupem od okraje, žádná lišta přes celou šířku`, async () => {
+      const obal = await p.locator('.zpet').boundingBox();
+      return (pos === 'fixed' && r.x >= 12 && r.x <= 20 && vyska - (r.y + r.height) >= 16 && obal.width < sirka / 2 && r.height >= 40 && r.height <= 52) || {r, obal, pos}; });
+    await T(`${nazev}: tlačítko je výrazné – modré s bílým textem jako „+ Nová poptávka“`, async () => p.evaluate(() => {
+      const b = getComputedStyle(document.querySelector('.zpet button')), fab = getComputedStyle(document.querySelector('#fab'));
+      return (b.backgroundColor === fab.backgroundColor && b.color === 'rgb(255, 255, 255)' && b.borderTopLeftRadius === fab.borderTopLeftRadius) || [b.backgroundColor, b.color, b.borderTopLeftRadius]; }));
+    await T(`${nazev}: odstup obsahu stačí i pro 34 px bezpečné oblasti iPhonu`, async () => {
       const css = await p.evaluate(() => [...document.styleSheets[0].cssRules].map(x => x.cssText).join(' '));
       const odstup = await p.evaluate(() => parseFloat(getComputedStyle(document.querySelector('main#view')).paddingBottom));
-      return (/\.zpet[^}]*padding[^}]*safe-area-inset-bottom/.test(css) && odstup >= lista.height + 34) || {odstup, lista: lista.height}; });
+      return (/\.zpet[^}]*bottom[^}]*safe-area-inset-bottom/.test(css) && odstup >= (vyska - r.y) + 34) || {odstup, potreba: vyska - r.y + 34}; });
     // Posouvání dlouhého detailu: nahoře, uprostřed, dole
     const max = await p.evaluate(() => document.documentElement.scrollHeight - innerHeight);
     for (const [kde, y] of [['nahoře', 0], ['uprostřed', Math.round(max / 2)], ['dole', max]]) {
       await p.evaluate(y => scrollTo(0, y), y); await p.waitForTimeout(100);
-      await T(`${nazev}: při posouvání (${kde}) je lišta na místě a nahoře v ní je jen lišta (obsah pod ní neprosvítá)`, async () => {
-        const l = await p.locator('.zpet').boundingBox();
-        const navrchu = await p.evaluate(({x, y}) => !!document.elementFromPoint(x, y)?.closest('.zpet'), {x: sirka - 20, y: l.y + l.height / 2});
-        return (Math.round(l.y + l.height) === vyska && navrchu) || {l, navrchu}; });
+      await T(`${nazev}: při posouvání (${kde}) zůstává tlačítko dole vlevo`, async () => {
+        const b = await tl.boundingBox(); return (Math.round(b.y) === Math.round(r.y) && Math.round(b.x) === Math.round(r.x)) || b; });
       await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}_detail_${kde}.png`)});
     }
-    await T(`${nazev}: dole jde celý obsah (historie, Upravit údaje, Smazat) odrolovat nad lištu`, async () => {
-      const l = await p.locator('.zpet').boundingBox();
+    await T(`${nazev}: dole jde celý obsah (historie, Upravit údaje, Smazat) odrolovat nad tlačítko`, async () => {
+      const b = await tl.boundingBox();
       const spodek = await p.evaluate(() => Math.max(...[...document.querySelectorAll('#view > *')].filter(e => !e.classList.contains('zpet')).map(e => e.getBoundingClientRect().bottom)));
-      return spodek <= l.y || {spodek, lista: l.y}; });
-    await T(`${nazev}: při psaní poznámky se lišta schová a po dopsání vrátí`, async () => {
+      return spodek <= b.y || {spodek, tlacitko: b.y}; });
+    await T(`${nazev}: při psaní poznámky se tlačítko schová a po dopsání vrátí`, async () => {
       await p.focus('#d-pozn'); const pri = await tl.isVisible();
       await p.evaluate(() => document.activeElement.blur()); const po = await tl.isVisible();
       await p.focus('input[type=date]'); const datum = await tl.isVisible(); await p.evaluate(() => document.activeElement.blur());

@@ -77,8 +77,8 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 ## Rozložení přehledu (v1.3)
 - **PC (od 960 px):** dva sloupce. Vlevo panel „Dnes zavolat“ (teplé podbarvení, až 400 px), vpravo evidence: hledání, filtry, seznam, export. Formulář a detail zůstávají v úzkém sloupci 720 px.
 - **Mobil:** jeden sloupec, panel „Dnes zavolat“ nahoře, pod ním evidence. Hlavička je na jeden řádek a e-mail přihlášeného se pod 600 px nezobrazuje.
-- **Detail na mobilu (do 600 px):** „← Přehled“ je v pevné tmavé spodní liště přes celou šířku. Lišta respektuje bezpečnou oblast iPhonu a při psaní do pole se schová. Obsah detailu jde celý odrolovat nad lištu. Na PC zůstává tlačítko nahoře.
-  Plovoucí tlačítko překrývalo historii a ztrácelo se, proto bylo nahrazeno lištou (vyzkoušeno na skutečném iPhonu).
+- **Detail na mobilu (do 600 px):** „← Přehled“ je modré plovoucí tlačítko dole vlevo, stejného stylu jako „+ Nová poptávka“. Sedí 16 px nad bezpečnou oblastí iPhonu a při psaní do pole se schová. Obsah detailu jde celý odrolovat nad něj. Na PC zůstává tlačítko nahoře.
+  Vyzkoušeno na skutečném iPhonu: tmavá spodní lišta zabírala moc místa, proto je zpět plovoucí tlačítko, jen výraznější. Plovoucí bílé tlačítko se ztrácelo.
 - **Historie kontaktů v detailu:** ve výchozím stavu sbalená. Nadpis „Historie kontaktů (X záznamů)“ ukazuje i poslední událost a klepnutím se historie rozbalí nebo sbalí. Při živém překreslení detailu, třeba po „Zapsat“, zůstane rozbalená, po návratu na přehled se znovu sbalí. Ukládání a pořadí záznamů se nemění.
 - **Místo pro budoucí ceny** (zatím se nic nezobrazuje):
   - cena obchodu na kartě vpravo u štítku stavu (`.card .top`),
