@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 1.1 (2026-10-28)
+Verze dokumentu: 1.2 (2026-10-28)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -23,7 +23,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 ## Cílový řetězec (stavět postupně)
 1. **Sběr** ✅ v1.0
 2. **Evidence + připomínky „Dnes zavolat"** ✅ v1.0
-3. Kalkulace (sleva, cena) – další krok
+3. Kalkulace (sleva, cena) – **pozastaveno**: v Poptávkách nevznikne vlastní kalkulačka, výpočty řeší Mercedes Offer Studio SOLO. Případné propojení zatím neimplementovat, podklady jsou v `POSOUZENI_OfferStudio.md`.
 4. Nabídka – napojení na existující VBA makro `Nabidka_MB_final.bas` (Word nabídky z MB Configurator API)
 5. Odeslání nabídky e-mailem
 6. Automatické připomínky po odeslání
