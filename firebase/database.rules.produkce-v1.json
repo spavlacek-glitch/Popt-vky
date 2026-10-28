@@ -1,0 +1,1 @@
+{ "rules": { "poptavky": { ".read": "auth != null", ".write": "auth != null" } } }

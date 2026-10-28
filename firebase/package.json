@@ -1,0 +1,16 @@
+{
+  "name": "poptavky-firebase-rules",
+  "version": "0.1.0",
+  "description": "Návrh a testy pravidel Realtime Database pro Poptávky (jen lokální emulátor)",
+  "scripts": {
+    "test": "firebase emulators:exec --only database --project demo-poptavky \"node --test rules.test.mjs\"",
+    "test:bezici-emulator": "node --test rules.test.mjs"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "firebase": "^13.1.0",
+    "firebase-tools": "^15.34.1"
+  },
+  "private": true
+}
