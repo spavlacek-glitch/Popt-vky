@@ -1,0 +1,8 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Testovací;Jan;;;
+FN:Jan Testovací
+TEL;TYPE=CELL,VOICE:+420 777 123 456
+EMAIL;TYPE=INTERNET:jan@example.com
+NOTE:Shání Mercedes-Benz GLE\, rozpočet do 2 mil. Kč\, chce leasing.
+END:VCARD
