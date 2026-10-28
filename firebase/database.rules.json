@@ -30,10 +30,12 @@
         "upravil":  { ".validate": "newData.val() === auth.uid" },
 
         "klice": {
+          ".validate": "newData.hasChildren()",
           "$klic": { ".validate": "$klic.matches(/^(ph|em|id):.{1,100}$/) && newData.val() === true" }
         },
 
         "vozidla": {
+          ".validate": "newData.hasChildren()",
           "$vozidlo": {
             ".validate": "$vozidlo.length <= 80 && (newData.hasChild('model') || newData.hasChild('trida') || newData.hasChild('vin'))",
             "model":   { ".validate": "newData.isString() && newData.val().length <= 80" },

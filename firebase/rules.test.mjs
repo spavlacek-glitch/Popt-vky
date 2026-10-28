@@ -125,6 +125,22 @@ describe('Navrhovaná pravidla (database.rules.json)', () => {
     test('neplatný vyhledávací klíč', () => assertFails(zkus({ klice: { 'xx:123': true } })));
     test('příliš dlouhé jméno', () => assertFails(zkus({ jmeno: 'x'.repeat(101) })));
   });
+
+  describe('Schválený uživatel – /zakaznici: nesprávná struktura klice a vozidla', () => {
+    const zkus = extra => set(ref(db(SCHVALENY), 'zakaznici/k2'), zakaznik(SCHVALENY, extra));
+    const prepis = (cesta, hodnota) => set(ref(db(SCHVALENY), 'zakaznici/k1/' + cesta), hodnota);
+    for (const [popis, hodnota] of [['řetězec', 'marže 45 000'], ['číslo', 45000], ['boolean', true]]) {
+      test(`klice jako ${popis} (nový zákazník)`, () => assertFails(zkus({ klice: hodnota })));
+      test(`vozidla jako ${popis} (nový zákazník)`, () => assertFails(zkus({ vozidla: hodnota })));
+      test(`klice jako ${popis} (přepsání u existujícího)`, () => assertFails(prepis('klice', hodnota)));
+      test(`vozidla jako ${popis} (přepsání u existujícího)`, () => assertFails(prepis('vozidla', hodnota)));
+      test(`jedno vozidlo jako ${popis}`, () => assertFails(zkus({ vozidla: { v1: hodnota } })));
+    }
+    test('klíč s objektem místo true', () => assertFails(zkus({ klice: { 'ph:777000111': { marze: '1' } } })));
+    test('klíč s řetězcem místo true', () => assertFails(zkus({ klice: { 'ph:777000111': 'ano' } })));
+    test('vozidla jako pole', () => assertFails(zkus({ vozidla: ['GLC', 'GLE'] })));
+    test('vozidlo s polem uvnitř místo textu', () => assertFails(zkus({ vozidla: { v1: { model: { nazev: 'GLC' } } } })));
+  });
 });
 
 describe('Současná produkční pravidla v1.0 (pro srovnání)', () => {

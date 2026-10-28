@@ -8,7 +8,7 @@
 |---|---|
 | `database.rules.json` | navrhovaná pravidla: schválené účty, `/poptavky` beze změny tvaru, `/zakaznici` jen s povolenými poli |
 | `database.rules.produkce-v1.json` | současná pravidla podle `CLAUDE.md`, jen pro srovnávací testy |
-| `rules.test.mjs` | 62 testů pravidel (Node test runner + `@firebase/rules-unit-testing`) |
+| `rules.test.mjs` | 81 testů pravidel (Node test runner + `@firebase/rules-unit-testing`) |
 | `firebase.json` | nastavení emulátoru (port 9000) |
 
 ## Co pravidla dělají
@@ -39,7 +39,7 @@ npm test
 `npm test` spustí emulátor, testy a emulátor zase vypne. Při prvním spuštění si stáhne emulátor (asi 30 MB).
 
 ## Výsledek testů (2026-10-28)
-**62 / 62 prošlo** (emulátor databáze v4.11.2).
+**81 / 81 prošlo** (emulátor databáze v4.11.2).
 
 | skupina | testů | výsledek |
 |---|---|---|
@@ -48,9 +48,12 @@ npm test
 | schválený: všechny operace Poptávek v1.0 fungují, mimo povolené cesty nezapíše nic | 11 | ✔ |
 | schválený: platný zákazník a vozidlo se zapíší | 5 | ✔ |
 | schválený: marže, poznámky dealera, adresa, DIČ, prodejce a neplatné hodnoty se odmítnou | 23 | ✔ |
+| schválený: `klice` a `vozidla` jako řetězec, číslo, boolean, pole nebo s chybnou vnitřní strukturou se odmítnou | 19 | ✔ |
 | současná pravidla v1.0 pro srovnání: potvrzené slabiny | 4 | ✔ |
 
 **Kontrola testů:** po odebrání seznamu povolených polí z pravidel selhalo přesně 11 testů zakázaných polí. Testy tedy chybu skutečně zachytí.
+
+**Oprava (2026-10-28):** původní návrh propustil do `klice` a `vozidla` místo objektu přímo řetězec, číslo nebo boolean (12 nových testů selhalo). Doplněna validace `newData.hasChildren()` u obou uzlů, poté 81 / 81.
 
 ## Zjištění o současném stavu
 - `poptavky_v1.html` používá jen přihlášení e-mailem a heslem a jen cestu `/poptavky`. **Pro nová pravidla se nemusí měnit.**
