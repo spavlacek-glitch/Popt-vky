@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 1.3 (2026-10-28)
+Verze dokumentu: 1.4 (2026-10-28)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -36,7 +36,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 - Firebase SDK compat 10.12.2 z gstatic CDN.
 - Přihlášení: Firebase Auth e-mail/heslo, **samoregistrace je vypnutá**. Pravidla DB (nasazená, zdroj `firebase/database.rules.json`):
   - `/poptavky`: čtení i zápis jen pro schválené účty, tj. `/uzivatele/{UID}/schvalen: true`. Seznam schválených účtů se upravuje jen v konzoli Firebase, z aplikace zapsat nejde.
-  - `/zakaznici`: pravidla jsou nasazená (jen schválené účty a jen povolená pole), ale zákaznická evidence zatím **není implementovaná**.
+  - `/zakaznici`: pravidla jsou nasazená (jen schválené účty a jen povolená pole). Od **v1.2** se používají pro známého zákazníka u nové poptávky. Evidence začíná prázdná a zákazníci přibývají z poptávek. Import z Fenclotéky je odložený: musí spárovat zákazníky podle telefonu a e-mailu, jinak vzniknou dvojí záznamy.
   - Nová pravidla prošla 81 testy v emulátoru (`firebase/rules.test.mjs`). Po nasazení bylo ověřeno čtení i zápis v Poptávkách v1.0.
 - Firebase `apiKey` v klientském kódu je OK. Žádné privátní klíče do repa.
 
@@ -51,6 +51,10 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 | vytvoreno, upraveno | server timestamp |
 | prodejce | e-mail přihlášeného uživatele |
 | historie/{pushId} | `{t, kdo, text}` – log kontaktů a změn stavu |
+| zakaznik | klíč v `/zakaznici` (nepovinné, od v1.2). Vazba je jen jednosměrná, seznam poptávek zákazníka se dopočítá. Starší poptávky ho nemají. |
+
+## Datový model – `/zakaznici/{key}` (od v1.2)
+Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`, `zdroj` (`dfe` | `poptavka`), `vytvoreno`, `upraveno`, `upravil` (UID), `klice/{ph:…|em:…}: true`, `vozidla/*`. Zákazník z poptávky má `zdroj: poptavka`, jméno rozdělené na jméno a příjmení a klíč telefonu nebo e-mailu. E-mail má v klíči „.“ → „,“.
 
 ## Pravidla chování (musí platit)
 - Nová poptávka → stav `nova`, další kontakt = zítra.
@@ -61,6 +65,18 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 - Zápis poptávky musí jít do 30 vteřin – nepřidávat povinná pole.
 - Parser e-mailu: jméno z řádku `Od:`/`From:`, e-mail (mimo vlastní doménu přihlášeného), telefon (9 číslic, volitelně +420), text do „Co chce". Vyplňuje jen prázdná pole.
 - Při živé aktualizaci z DB nepřekreslovat detail, když uživatel píše do pole.
+- **Známý zákazník (v1.2, rozhodnutí uživatele):** zákazníka hledat automaticky podle jména a telefonu. Poptávku k němu přiřadit **jen po klepnutí na Vybrat**, protože telefon nebo e-mail může mít víc lidí.
+  - Možná shoda bez výběru → poptávka se uloží bez zákazníka a nový zákazník nevznikne.
+  - „Je to nový zákazník“ založí nového i při podobném jménu nebo stejném telefonu (manželé, firemní linka). Platí jen proti zákazníkům, které prodejce viděl. Když údaje sedí i na někoho dalšího, uloží se bez zákazníka.
+  - Žádná shoda + jméno + platný telefon nebo e-mail → nový zákazník.
+  - Když `/zakaznici` nejde načíst, poptávka se uloží bez zákazníka jako ve v1.1.
+- **Přijatá rizika (rozhodnutí uživatele, podklady v repu Fenclotéka, `experimenty/zakaznik_poptavka_v0.5/SOUBEH_v0.5.md`):**
+  - Duplicitní zákazník při současném uložení na dvou zařízeních. Jeden prodejce na obou zařízeních současně nepracuje. Řešit až při více prodejcích.
+  - Při výpadku připojení appka neukáže chybu a po zavření se neuložené změny ztratí. Výpadek je v praxi vzácný, neopravuje se.
+
+## Testy
+- `testy/test_v1.2.js`: celé chování v1.2 v lokálních emulátorech Firebase (databáze + Auth), jen fiktivní data. Návod je v `testy/README.md`.
+- `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence
 - **Verzovat vše**: číslo verze v názvu souboru, v `<title>`, v hlavičce i v komentáři na začátku souboru.
