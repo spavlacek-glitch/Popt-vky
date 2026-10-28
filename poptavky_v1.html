@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<!-- Poptávky – evidence poptávek | verze 1.0 | 2026-10-28 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Poptávky">
+<meta name="theme-color" content="#111111">
+<title>Poptávky v1.0</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+:root{--bg:#f3f4f6;--card:#fff;--ink:#111;--muted:#6b7280;--line:#e5e7eb;--acc:#0078d6;--red:#dc2626;--green:#16a34a;--amber:#d97706}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px}
+.hidden{display:none!important}
+header{background:#111;color:#fff;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+header h1{font-size:18px;margin:0;flex:1;cursor:pointer}
+header small{color:#9ca3af;font-size:12px}
+header button{background:none;border:1px solid #444;color:#ddd;border-radius:8px;padding:5px 9px;font-size:13px}
+main{max-width:720px;margin:0 auto;padding:14px 14px 100px}
+h2{font-size:16px;margin:18px 0 8px}
+.card{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.06);cursor:pointer}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.card .name{font-weight:600}
+.card .sub{color:var(--muted);font-size:14px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{font-size:12px;padding:2px 8px;border-radius:99px;background:#e5e7eb;white-space:nowrap}
+.b-nova{background:#dbeafe;color:#1e40af}.b-nabidka{background:#fef3c7;color:#92400e}.b-jednani{background:#ede9fe;color:#5b21b6}
+.b-prodano{background:#dcfce7;color:#166534}.b-ztraceno{background:#f3f4f6;color:#6b7280}
+.late{color:var(--red);font-weight:600}
+.empty{color:var(--muted);text-align:center;padding:14px}
+input,textarea,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+textarea{min-height:80px;resize:vertical}
+label.f{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 12px;font-size:14px;cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chips input{display:none}
+.btn{display:inline-block;border:0;border-radius:10px;padding:11px 16px;font:inherit;font-weight:600;background:var(--acc);color:#fff;cursor:pointer;text-decoration:none;text-align:center}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.red{background:#fff;color:var(--red);border:1px solid #fecaca}
+.btn.sm{padding:7px 11px;font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row .btn{flex:1}
+#fab{position:fixed;right:16px;bottom:max(16px,env(safe-area-inset-bottom));border-radius:99px;padding:14px 20px;box-shadow:0 4px 14px rgba(0,0,0,.25);font-size:16px}
+.box{background:var(--card);border-radius:12px;padding:14px;margin-bottom:10px}
+.hist{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:8px 0;font-size:14px}
+.hist small{color:var(--muted);display:block}
+.err{color:var(--red);font-size:14px;margin-top:8px}
+.tools{display:flex;gap:8px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div id="login" class="hidden"><main>
+  <h1 style="margin-top:40px">Poptávky</h1>
+  <p style="color:var(--muted)">Přihlas se firemním účtem z Firebase.</p>
+  <label class="f">E-mail</label><input id="l-mail" type="email" autocomplete="username">
+  <label class="f">Heslo</label><input id="l-pass" type="password" autocomplete="current-password">
+  <div class="row"><button class="btn" onclick="prihlasit()">Přihlásit</button></div>
+  <div id="l-err" class="err"></div>
+</main></div>
+
+<div id="app" class="hidden">
+  <header>
+    <h1 onclick="renderHome()">Poptávky <small>v1.0</small></h1>
+    <small id="who"></small>
+    <button onclick="auth.signOut()">Odhlásit</button>
+  </header>
+  <main id="view"></main>
+  <button id="fab" class="btn" onclick="renderForm()">+ Nová poptávka</button>
+</div>
+
+<script>
+/* ===== NASTAVENÍ – doplň z Firebase konzole (Project settings → Your apps → Web) ===== */
+const firebaseConfig = {
+  apiKey: "DOPLNIT",
+  authDomain: "DOPLNIT.firebaseapp.com",
+  databaseURL: "https://DOPLNIT-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "DOPLNIT",
+  appId: "DOPLNIT"
+};
+/* ================================================================================== */
+
+const STAVY = {nova:'Nová', nabidka:'Nabídka odeslána', jednani:'Jednáme', prodano:'Prodáno', ztraceno:'Ztraceno'};
+const OTEVRENE = ['nova','nabidka','jednani'];
+const KANALY = {showroom:'🏢 Showroom', telefon:'📞 Telefon', email:'✉️ E-mail'};
+const TS = () => firebase.database.ServerValue.TIMESTAMP;
+
+let data = {}, view = 'home', curId = null, filtr = 'otevrene', hledat = '', user = null, ref = null;
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s/g,'');
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+function dnes(off = 0){ const d = new Date(); d.setDate(d.getDate() + off);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function fmtD(iso){ if(!iso) return '—'; const [y,m,d] = iso.split('-'); return `${+d}. ${+m}. ${y}`; }
+function fmtTs(ts){ if(!ts) return ''; const d = new Date(ts);
+  return d.toLocaleDateString('cs-CZ') + ' ' + d.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'}); }
+function kdyKontakt(p){ if(!p.dalsiKontakt || !OTEVRENE.includes(p.stav)) return '';
+  const t = dnes(); const late = p.dalsiKontakt < t;
+  return `<span class="${late?'late':''}">${p.dalsiKontakt===t?'dnes':fmtD(p.dalsiKontakt)}${late?' ⚠':''}</span>`; }
+const psani = () => ['INPUT','TEXTAREA'].includes(document.activeElement?.tagName);
+
+/* ===== Start + přihlášení ===== */
+if (firebaseConfig.apiKey === 'DOPLNIT') {
+  document.body.innerHTML = '<main><h2>Chybí nastavení Firebase</h2><p>Otevři soubor v editoru a doplň <b>firebaseConfig</b> nahoře ve skriptu.</p></main>';
+  throw new Error('firebaseConfig není vyplněn');
+}
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth(), db = firebase.database();
+
+auth.onAuthStateChanged(u => {
+  user = u;
+  if (u) {
+    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+    $('#who').textContent = u.email;
+    ref = db.ref('poptavky');
+    ref.on('value', s => {
+      data = s.val() || {};
+      if (view === 'home') renderHome();
+      else if (view === 'detail' && !psani()) renderDetail(curId);
+    }, e => alert('Chyba databáze: ' + e.message));
+    renderHome();
+  } else {
+    if (ref) ref.off();
+    $('#app').classList.add('hidden'); $('#login').classList.remove('hidden');
+  }
+});
+
+function prihlasit(){
+  $('#l-err').textContent = '';
+  auth.signInWithEmailAndPassword($('#l-mail').value.trim(), $('#l-pass').value)
+    .catch(e => $('#l-err').textContent = 'Přihlášení se nepovedlo: ' + e.code);
+}
+
+/* ===== Přehled ===== */
+function vsechny(){ return Object.entries(data).map(([id,p]) => ({id, ...p})); }
+
+function renderHome(){
+  view = 'home'; curId = null; $('#fab').classList.remove('hidden');
+  const t = dnes();
+  const volat = vsechny().filter(p => OTEVRENE.includes(p.stav) && p.dalsiKontakt && p.dalsiKontakt <= t)
+                         .sort((a,b) => a.dalsiKontakt.localeCompare(b.dalsiKontakt));
+  const chip = (k, txt) => `<span class="chip ${filtr===k?'on':''}" onclick="filtr='${k}';renderHome()">${txt}</span>`;
+  $('#view').innerHTML = `
+    <h2>📞 Dnes zavolat (${volat.length})</h2>
+    ${volat.length ? volat.map(karta).join('') : '<div class="empty">Dnes nikomu. Kafe si zasloužíš ☕</div>'}
+    <h2>Poptávky</h2>
+    <input id="hledat" placeholder="Hledat jméno, telefon, e-mail, model…" value="${esc(hledat)}" oninput="hledat=this.value;renderSeznam()">
+    <div class="chips">${chip('otevrene','Otevřené')}${chip('prodano','Prodáno')}${chip('ztraceno','Ztraceno')}${chip('vse','Vše')}</div>
+    <div id="seznam"></div>
+    <div class="tools"><button class="btn sec sm" onclick="exportCSV()">⬇ Export do Excelu (CSV)</button></div>`;
+  renderSeznam();
+}
+
+function renderSeznam(){
+  let list = vsechny().filter(p => filtr==='otevrene' ? OTEVRENE.includes(p.stav) : filtr==='vse' ? true : p.stav===filtr);
+  if (hledat.trim()) { const q = norm(hledat); list = list.filter(p => norm([p.jmeno,p.telefon,p.email,p.zajem].join(' ')).includes(q)); }
+  list.sort((a,b) => (b.vytvoreno||0) - (a.vytvoreno||0));
+  $('#seznam').innerHTML = list.length ? list.map(karta).join('') : '<div class="empty">Nic tu není.</div>';
+}
+
+function karta(p){
+  const k = kdyKontakt(p);
+  return `<div class="card" onclick="renderDetail('${p.id}')">
+    <div class="top"><span class="name">${esc(p.jmeno || p.telefon || p.email || '(bez jména)')}</span>
+      <span class="badge b-${p.stav}">${STAVY[p.stav]||p.stav}</span></div>
+    <div class="sub">${(KANALY[p.kanal]||'').split(' ')[0]} ${esc(p.zajem || '')}</div>
+    ${k ? `<div class="sub">Další kontakt: ${k}</div>` : ''}
+  </div>`;
+}
+
+/* ===== Formulář (nová / úprava) ===== */
+function renderForm(id){
+  view = 'form'; $('#fab').classList.add('hidden');
+  const p = id ? data[id] : {kanal:'showroom', dalsiKontakt:dnes(1)};
+  const kanal = k => `<label class="chip ${p.kanal===k?'on':''}"><input type="radio" name="kanal" value="${k}" ${p.kanal===k?'checked':''} onchange="kanalZmena()">${KANALY[k]}</label>`;
+  $('#view').innerHTML = `
+    <h2>${id ? 'Upravit poptávku' : 'Nová poptávka'}</h2>
+    <div class="chips" id="kanaly">${Object.keys(KANALY).map(kanal).join('')}</div>
+    <div id="paste" class="box ${p.kanal==='email' && !id ? '' : 'hidden'}">
+      <label class="f" style="margin-top:0">Vlož celý text e-mailu (včetně řádku Od:)</label>
+      <textarea id="f-paste" placeholder="Ctrl+V z Outlooku…"></textarea>
+      <div class="row"><button class="btn sec" onclick="vytahni()">✨ Vytáhnout údaje</button></div>
+    </div>
+    <label class="f">Jméno</label><input id="f-jmeno" value="${esc(p.jmeno)}" autocomplete="off">
+    <label class="f">Telefon</label><input id="f-tel" type="tel" value="${esc(p.telefon)}">
+    <label class="f">E-mail</label><input id="f-mail" type="email" value="${esc(p.email)}">
+    <label class="f">Co chce / poptávka</label><textarea id="f-zajem">${esc(p.zajem)}</textarea>
+    <label class="f">Další kontakt</label><input id="f-dalsi" type="date" value="${esc(p.dalsiKontakt||'')}">
+    ${id ? '' : '<label class="f">Poznámka (nepovinné)</label><textarea id="f-pozn" style="min-height:50px"></textarea>'}
+    <div id="f-err" class="err"></div>
+    <div class="row">
+      <button class="btn sec" onclick="${id ? `renderDetail('${id}')` : 'renderHome()'}">Zpět</button>
+      <button class="btn" onclick="ulozit(${id ? `'${id}'` : ''})">Uložit</button>
+    </div>`;
+}
+
+function kanalZmena(){
+  const k = document.querySelector('input[name=kanal]:checked').value;
+  document.querySelectorAll('#kanaly .chip').forEach(c => c.classList.toggle('on', c.querySelector('input').checked));
+  $('#paste')?.classList.toggle('hidden', k !== 'email');
+}
+
+function vytahni(){
+  const t = $('#f-paste').value; if (!t.trim()) return;
+  const myDom = (user.email.split('@')[1] || '').toLowerCase();
+  const mails = (t.match(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g) || []).filter(m => !m.toLowerCase().endsWith('@' + myDom));
+  const tel = (t.match(/(\+420[\s-]?)?\b\d{3}[\s-]?\d{3}[\s-]?\d{3}\b/) || [])[0];
+  let jm = ''; const m = t.match(/^(?:Od|From)\s*:\s*"?([^"<\[\n\r]+?)"?\s*[<\[]/m);
+  if (m) jm = m[1].trim();
+  if (!jm && mails[0]) { const lp = mails[0].split('@')[0]; if (/^[a-z]+[._][a-z]+$/i.test(lp)) jm = lp.split(/[._]/).map(cap).join(' '); }
+  const fill = (sel, v) => { if (v && !$(sel).value.trim()) $(sel).value = v; };
+  fill('#f-jmeno', jm); fill('#f-mail', mails[0]); fill('#f-tel', tel); fill('#f-zajem', t.trim().slice(0, 1500));
+}
+
+function ulozit(id){
+  const v = {
+    kanal: document.querySelector('input[name=kanal]:checked').value,
+    jmeno: $('#f-jmeno').value.trim(), telefon: $('#f-tel').value.trim(), email: $('#f-mail').value.trim(),
+    zajem: $('#f-zajem').value.trim(), dalsiKontakt: $('#f-dalsi').value || null, upraveno: TS()
+  };
+  if (!v.telefon && !v.email) { $('#f-err').textContent = 'Vyplň aspoň telefon nebo e-mail – jinak se mu neozveš 🙂'; return; }
+  if (id) { db.ref('poptavky/' + id).update(v).then(() => renderDetail(id)); return; }
+  const novy = db.ref('poptavky').push();
+  const pozn = $('#f-pozn').value.trim();
+  const zaznam = {...v, stav:'nova', vytvoreno: TS(), prodejce: user.email, historie: {}};
+  zaznam.historie[db.ref().push().key] = {t: TS(), kdo: user.email, text: 'Založeno (' + KANALY[v.kanal] + ')'};
+  if (pozn) zaznam.historie[db.ref().push().key] = {t: TS(), kdo: user.email, text: pozn};
+  novy.set(zaznam).then(() => renderDetail(novy.key)).catch(e => $('#f-err').textContent = 'Uložení selhalo: ' + e.message);
+}
+
+/* ===== Detail ===== */
+function renderDetail(id){
+  const p = data[id]; if (!p) { renderHome(); return; }
+  view = 'detail'; curId = id; $('#fab').classList.add('hidden');
+  const hist = Object.values(p.historie || {}).sort((a,b) => (b.t||0) - (a.t||0));
+  const telCist = (p.telefon||'').replace(/[^\d+]/g,'');
+  $('#view').innerHTML = `
+    <div class="row" style="margin-top:0"><button class="btn sec sm" style="flex:0" onclick="renderHome()">← Přehled</button></div>
+    <div class="box">
+      <div class="top" style="display:flex;justify-content:space-between;gap:8px">
+        <h2 style="margin:0">${esc(p.jmeno || '(bez jména)')}</h2><span class="badge b-${p.stav}">${STAVY[p.stav]}</span></div>
+      <div class="sub" style="color:var(--muted);font-size:13px;margin-top:4px">${KANALY[p.kanal]||''} · ${fmtTs(p.vytvoreno)} · ${esc(p.prodejce||'')}</div>
+      <div class="row">
+        ${p.telefon ? `<a class="btn" href="tel:${esc(telCist)}">📞 ${esc(p.telefon)}</a>` : ''}
+        ${p.email ? `<a class="btn sec" href="mailto:${esc(p.email)}">✉️ ${esc(p.email)}</a>` : ''}
+      </div>
+      <label class="f">Co chce</label><div style="white-space:pre-wrap">${esc(p.zajem || '—')}</div>
+    </div>
+
+    <div class="box">
+      <label class="f" style="margin-top:0">Stav</label>
+      <div class="chips">${Object.keys(STAVY).map(k => `<span class="chip ${p.stav===k?'on':''}" onclick="zmenStav('${id}','${k}')">${STAVY[k]}</span>`).join('')}</div>
+      <label class="f">Další kontakt ${kdyKontakt(p) ? '– ' + kdyKontakt(p) : ''}</label>
+      <input type="date" value="${esc(p.dalsiKontakt||'')}" onchange="nastavKontakt('${id}', this.value)">
+      <div class="chips">${[[1,'Zítra'],[3,'+3 dny'],[7,'+týden'],[14,'+2 týdny']].map(([n,t]) => `<span class="chip" onclick="nastavKontakt('${id}','${dnes(n)}')">${t}</span>`).join('')}</div>
+    </div>
+
+    <div class="box">
+      <label class="f" style="margin-top:0">Zapsat kontakt / poznámku</label>
+      <textarea id="d-pozn" placeholder="Volal jsem, chce ještě srovnat s leasingem…" style="min-height:60px"></textarea>
+      <div class="row"><button class="btn" onclick="pridejPozn('${id}')">Zapsat</button></div>
+      ${hist.map(h => `<div class="hist">${esc(h.text)}<small>${fmtTs(h.t)} · ${esc(h.kdo||'')}</small></div>`).join('')}
+    </div>
+
+    <div class="row">
+      <button class="btn sec" onclick="renderForm('${id}')">✏️ Upravit údaje</button>
+      <button class="btn red" onclick="smazat('${id}')">Smazat</button>
+    </div>`;
+}
+
+function log(id, text){ return db.ref(`poptavky/${id}/historie`).push({t: TS(), kdo: user.email, text}); }
+
+function zmenStav(id, stav){
+  if (data[id].stav === stav) return;
+  const upd = {stav, upraveno: TS()};
+  if (stav === 'nabidka') upd.dalsiKontakt = dnes(3);           // po odeslání nabídky připomenout za 3 dny
+  if (stav === 'prodano' || stav === 'ztraceno') upd.dalsiKontakt = null;
+  db.ref('poptavky/' + id).update(upd);
+  log(id, 'Stav → ' + STAVY[stav] + (upd.dalsiKontakt ? ' (další kontakt ' + fmtD(upd.dalsiKontakt) + ')' : ''));
+}
+
+function nastavKontakt(id, d){ db.ref('poptavky/' + id).update({dalsiKontakt: d || null, upraveno: TS()}); }
+
+function pridejPozn(id){
+  const t = $('#d-pozn').value.trim(); if (!t) return;
+  $('#d-pozn').value = ''; $('#d-pozn').blur();
+  log(id, t);
+}
+
+function smazat(id){
+  if (confirm('Opravdu smazat poptávku ' + (data[id].jmeno || '') + '? Nejde to vrátit.')) {
+    db.ref('poptavky/' + id).remove().then(renderHome);
+  }
+}
+
+/* ===== Export ===== */
+function exportCSV(){
+  const q = v => '"' + String(v ?? '').replace(/"/g,'""').replace(/\r?\n/g,' ') + '"';
+  const rows = [['Vytvořeno','Kanál','Jméno','Telefon','E-mail','Co chce','Stav','Další kontakt','Prodejce']];
+  vsechny().sort((a,b) => (a.vytvoreno||0) - (b.vytvoreno||0)).forEach(p => rows.push([
+    fmtTs(p.vytvoreno), (KANALY[p.kanal]||'').replace(/^\S+\s/,''), p.jmeno, p.telefon, p.email, p.zajem, STAVY[p.stav], fmtD(p.dalsiKontakt), p.prodejce]));
+  const blob = new Blob(['\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'poptavky_' + dnes() + '.csv'; a.click();
+}
+</script>
+</body>
+</html>
