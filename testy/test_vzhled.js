@@ -98,11 +98,11 @@ async function kontrolyDetail(p, nazev, sirka, jmeno){
     }
     await T(`${nazev}: dole jde celý obsah (historie, Upravit údaje, Smazat) odrolovat nad tlačítko`, async () => {
       const b = await tl.boundingBox();
-      const spodek = await p.evaluate(() => Math.max(...[...document.querySelectorAll('#view > *')].filter(e => !e.classList.contains('zpet')).map(e => e.getBoundingClientRect().bottom)));
+      const spodek = await p.evaluate(() => Math.max(...[...document.querySelectorAll('#view > *')].filter(e => !e.classList.contains('zpet') && !e.classList.contains('md-vic')).map(e => e.getBoundingClientRect().bottom)));
       return spodek <= b.y || {spodek, tlacitko: b.y}; });
     await T(`${nazev}: při psaní poznámky se tlačítko schová a po dopsání vrátí`, async () => {
       await p.focus('#d-pozn'); const pri = await tl.isVisible();
-      await p.evaluate(() => document.activeElement.blur()); const po = await tl.isVisible();
+      await p.evaluate(() => document.activeElement.blur()); await p.waitForTimeout(400); const po = await tl.isVisible();   // od v1.5 se vrací po 0,3 s
       await p.focus('input[type=date]'); const datum = await tl.isVisible(); await p.evaluate(() => document.activeElement.blur());
       return (!pri && po && !datum) || {pri, po, datum}; });
     await p.evaluate(() => scrollTo(0, 0));

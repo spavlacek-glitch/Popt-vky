@@ -62,3 +62,20 @@ ICALJS=/cesta/k/node_modules/ical.js FIREBASE10=/cesta/k/node_modules/firebase n
 Výsledek 2026-10-28: **17 / 17**. Regrese v1.4: `test_v1.2.js` 40/40, `test_vzhled.js` 84/84.
 
 Pozn.: headless Chromium na jedné stránce vynechá 11. stažení souboru (ověřeno 15 stahováními za sebou). Test proto v polovině otevře čerstvou stránku. Poptávek se to netýká.
+
+## `test_detail_v1.5.js` – detail poptávky na mobilu (v1.5)
+- **PC 1280 a 1024:** vykreslený detail všech testovacích poptávek je ve v1.5 znak po znaku stejný jako ve v1.4.
+- **iPhone 13 a SE:**
+  - karta zákazníka a odkazy Zavolat / Napsat,
+  - zkrácené „Co chce“,
+  - nic nepřetéká z karty, ani výběr data,
+  - zápis poznámky, rychlé volby termínu i vlastní datum,
+  - stavy včetně „Nabídka odeslána“ (+3 dny) a Prodáno,
+  - historie,
+  - chybějící telefon nebo e-mail.
+- **Plovoucí tlačítka a panel „Další akce“:** poloha tlačítek a jejich schování při psaní, panel (export kontaktu, úprava, smazání s „Ponechat“ / „Smazat“), přepnutí detailu při otočení telefonu, žádná systémová okna.
+
+```bash
+ICALJS=/cesta/k/node_modules/ical.js FIREBASE10=/cesta/k/node_modules/firebase node testy/test_detail_v1.5.js
+```
+Výsledek 2026-10-28: **40 / 40**. Regrese proti v1.5: `test_v1.2.js` 40/40, `test_vzhled.js` 84/84, `test_kontakt_v1.4.js` 17/17. Upravené testy prošly i proti v1.4.

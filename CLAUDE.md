@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 1.6 (2026-10-28)
+Verze dokumentu: 1.7 (2026-10-28)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -97,10 +97,25 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Export je jen ruční. Nic se nezapisuje do databáze, do telefonu se nic neukládá automaticky a stávající kontakty se nemění. Model vozidla se z textu nerozpoznává.
 - Kód formátu vCard je převzatý z experimentu `experimenty/vcard_v0.1` (větev `claude/experiment-vcard`), ověřeného na skutečném iPhonu.
 
+## Detail poptávky na mobilu (v1.5)
+- **Dva vzhledy detailu (rozhodnutí uživatele):**
+  - do 600 px nový mobilní detail podle schváleného prototypu,
+  - na PC detail z v1.4 beze změny (test porovnává vykreslené HTML), protože na PC bude v budoucnu víc informací.
+  - Při otočení telefonu nebo změně okna se detail přepne. Oba vzhledy volají stejné funkce pro ukládání.
+- **Uspořádání na mobilu:**
+  - nahoře karta: stav, termín („Zavolat dnes“ / „⚠ Zavolat – prošlé …“), jméno, „Co chce“ (dlouhý text zkrácený na 4 řádky s „Zobrazit celý text“), tlačítka Zavolat a Napsat,
+  - blok „Po hovoru“: poznámka → další kontakt (den slovy, rychlé volby a „📅 Datum…“) → stav (Nová / **Nabídka odeslána** / Jednáme a zvlášť ✓ Prodáno / ✕ Ztraceno),
+  - sbalená historie.
+- **Plovoucí tlačítka (rozhodnutí uživatele, neměnit):** „← Přehled“ dole vlevo, „Další akce ⋯“ dole vpravo.
+  - Panel „Další akce“ obsahuje kontakt do iPhonu (s označením), úpravu údajů a smazání s potvrzením přímo v panelu.
+  - Panel je mimo překreslovaný obsah, takže ho živá aktualizace nezavře.
+- **Plovoucí tlačítka při psaní:** schovají se hned, vrátí se až 0,3 s po opuštění pole. Jinak by se při klepnutí na „Zapsat poznámku“ vynořila pod prstem a klepnutí by dostala ona (nalezeno testem na šířce iPhonu SE).
+
 ## Testy
 - `testy/test_v1.2.js`: celé chování od v1.2 v lokálních emulátorech Firebase (databáze + Auth), jen fiktivní data. Jiný soubor appky se testuje přes `SOUBOR=poptavky_v1.3.html`. Návod je v `testy/README.md`.
 - `testy/test_vzhled.js`: snímky a rozložení přehledu na PC (1440, 1280, 1024) a iPhonu (13, SE).
 - `testy/test_kontakt_v1.4.js`: export kontaktu na smyšlených poptávkách. Kontroluje diakritiku, označení, chybějící údaje, dlouhý text a to, že se nic nezapíše do databáze. Každý soubor přečte i nezávislá knihovna ical.js.
+- `testy/test_detail_v1.5.js`: detail na PC beze změny proti v1.4 a nový mobilní detail na iPhonu 13 a SE se skutečnými zápisy do emulátoru.
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence

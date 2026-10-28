@@ -144,7 +144,9 @@ const POPT = {
   console.log('== iPhone');
   p = await otevri(IPHONE);
   await T('iPhone 13: pole a tlačítko v detailu, tlačítko aspoň 44 px, export funguje, nic se neposouvá do stran', async () => {
-    await p.click('.card:has-text("Jan Novák") >> nth=0'); await p.waitForSelector('#d-oznaceni');
+    await p.click('.card:has-text("Jan Novák") >> nth=0'); await p.waitForSelector('button:has-text("← Přehled")');
+    if (await p.locator('.md-vic').count()) await p.click('.md-vic');   // od v1.5 je export na mobilu v panelu „Další akce“
+    await p.waitForSelector('#d-oznaceni');
     const tl = await p.locator('button:has-text("Uložit do kontaktů")').boundingBox(), pole = await p.locator('#d-oznaceni').boundingBox();
     await p.fill('#d-oznaceni', 'GLE');
     if (process.env.SCREEN_DIR) await p.screenshot({path: path.join(process.env.SCREEN_DIR, 'v1.4_kontakt_iPhone13.png')});
@@ -153,7 +155,11 @@ const POPT = {
     return (tl.height >= 44 && tl.x + tl.width <= 390 && pole.width >= 150 && fn === 'Jan Novák · GLE'
       && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth)) || {tl, pole, fn}; });
   await T('iPhone 13: při psaní označení se plovoucí „← Přehled“ schová (nezakryje pole)', async () => {
-    await p.focus('#d-oznaceni'); const vid = await p.locator('.zpet').isVisible(); await p.evaluate(() => document.activeElement.blur());
+    await p.focus('#d-oznaceni');
+    // v1.4: tlačítko se schová; v1.5: pole je v panelu, který leží nad tlačítkem (bod tlačítka patří panelu nebo závoji)
+    const vid = await p.evaluate(() => { const z = document.querySelector('.zpet'); if (!z || getComputedStyle(z).visibility === 'hidden' || !z.offsetParent) return false;
+      const r = z.getBoundingClientRect(); return !!document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)?.closest('.zpet'); });
+    await p.evaluate(() => document.activeElement.blur());
     return !vid || 'viditelné'; });
   await p.context().close();
 
