@@ -73,31 +73,42 @@ async function kontrolyDetail(p, nazev, sirka, jmeno){
   const mobil = sirka <= 600, vyska = p.viewportSize().height;
   await p.locator('.dnes .card', {hasText:'Pavel Testovací'}).click(); await p.waitForSelector('button:has-text("← Přehled")');
   const tl = p.locator('button:has-text("← Přehled")');
-  const prekryte = () => p.evaluate(() => {          // ovládací prvky v detailu, které tlačítko právě překrývá
-    const z = document.querySelector('.zpet button').getBoundingClientRect();
-    return [...document.querySelectorAll('#view button, #view a, #view input, #view textarea, #view .chip')]
-      .filter(e => !e.closest('.zpet')).filter(e => { const r = e.getBoundingClientRect();
-        return r.width && r.left < z.right && r.right > z.left && r.top < z.bottom && r.bottom > z.top; })
-      .map(e => (e.textContent || e.placeholder || e.type).trim().slice(0, 30));
-  });
   const r = await tl.boundingBox(), pos = await tl.evaluate(e => getComputedStyle(e.parentElement).position);
-  await T(`${nazev}: „← Přehled“ ${mobil ? 'plovoucí dole vlevo, menší, s odstupem od spodního okraje' : 'zůstává nahoře v detailu'}`, async () =>
-    (mobil ? pos === 'fixed' && r.x <= 20 && vyska - (r.y + r.height) >= 16 && r.height <= 44 && r.width <= 130
-           : pos !== 'fixed' && r.y < 120) || {r, pos, vyska});
-  if (mobil) {
-    M(`${nazev}: odstup tlačítka od spodního okraje`, Math.round(vyska - (r.y + r.height)) + ' px');
-    M(`${nazev}: při otevření detailu tlačítko překrývá`, JSON.stringify(await prekryte()));
-    await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}_detail.png`)});
-    await p.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
-    await T(`${nazev}: po dorolování dolů tlačítko nezakrývá nic (Upravit údaje, Smazat, …)`, async () => {
-      const x = await prekryte(); return x.length === 0 || x; });
-    await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}_detail_dole.png`)});
-    await T(`${nazev}: při psaní poznámky se tlačítko schová a po dopsání vrátí`, async () => {
+  if (!mobil) {
+    await T(`${nazev}: „← Přehled“ zůstává nahoře v detailu`, async () => (pos !== 'fixed' && r.y < 120) || {r, pos});
+  } else {
+    const lista = await p.locator('.zpet').boundingBox();
+    await T(`${nazev}: „← Přehled“ v pevné spodní liště přes celou šířku, tlačítko aspoň 44 px`, async () =>
+      (pos === 'fixed' && lista.x === 0 && Math.round(lista.width) === sirka && Math.round(lista.y + lista.height) === vyska && r.height >= 44) || {lista, r, pos});
+    await T(`${nazev}: lišta je neprůhledná a odlišená od obsahu`, async () => p.evaluate(() => {
+      const bg = getComputedStyle(document.querySelector('.zpet')).backgroundColor;
+      return bg !== getComputedStyle(document.body).backgroundColor && !/rgba\(.*, 0\)|transparent/.test(bg) || bg; }));
+    await T(`${nazev}: lišta respektuje bezpečnou oblast iPhonu (odstup obsahu stačí i pro 34 px spodní zóny)`, async () => {
+      const css = await p.evaluate(() => [...document.styleSheets[0].cssRules].map(x => x.cssText).join(' '));
+      const odstup = await p.evaluate(() => parseFloat(getComputedStyle(document.querySelector('main#view')).paddingBottom));
+      return (/\.zpet[^}]*padding[^}]*safe-area-inset-bottom/.test(css) && odstup >= lista.height + 34) || {odstup, lista: lista.height}; });
+    // Posouvání dlouhého detailu: nahoře, uprostřed, dole
+    const max = await p.evaluate(() => document.documentElement.scrollHeight - innerHeight);
+    for (const [kde, y] of [['nahoře', 0], ['uprostřed', Math.round(max / 2)], ['dole', max]]) {
+      await p.evaluate(y => scrollTo(0, y), y); await p.waitForTimeout(100);
+      await T(`${nazev}: při posouvání (${kde}) je lišta na místě a nahoře v ní je jen lišta (obsah pod ní neprosvítá)`, async () => {
+        const l = await p.locator('.zpet').boundingBox();
+        const navrchu = await p.evaluate(({x, y}) => !!document.elementFromPoint(x, y)?.closest('.zpet'), {x: sirka - 20, y: l.y + l.height / 2});
+        return (Math.round(l.y + l.height) === vyska && navrchu) || {l, navrchu}; });
+      await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}_detail_${kde}.png`)});
+    }
+    await T(`${nazev}: dole jde celý obsah (historie, Upravit údaje, Smazat) odrolovat nad lištu`, async () => {
+      const l = await p.locator('.zpet').boundingBox();
+      const spodek = await p.evaluate(() => Math.max(...[...document.querySelectorAll('#view > *')].filter(e => !e.classList.contains('zpet')).map(e => e.getBoundingClientRect().bottom)));
+      return spodek <= l.y || {spodek, lista: l.y}; });
+    await T(`${nazev}: při psaní poznámky se lišta schová a po dopsání vrátí`, async () => {
       await p.focus('#d-pozn'); const pri = await tl.isVisible();
       await p.evaluate(() => document.activeElement.blur()); const po = await tl.isVisible();
       await p.focus('input[type=date]'); const datum = await tl.isVisible(); await p.evaluate(() => document.activeElement.blur());
       return (!pri && po && !datum) || {pri, po, datum}; });
-  } else await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}_detail.png`)});
+    await p.evaluate(() => scrollTo(0, 0));
+  }
+  if (!mobil) await p.screenshot({path: path.join(OUT, `${jmeno}_${nazev.replace(/\s/g, '')}_detail.png`)});
   await T(`${nazev}: „← Přehled“ vrátí na přehled; formulář nové poptávky tlačítko nemá`, async () => {
     await tl.click(); const doma = await p.locator('section.dnes').isVisible();
     await p.click('#fab'); const veFormulari = await p.locator('.zpet').count();

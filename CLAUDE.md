@@ -77,7 +77,8 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 ## Rozložení přehledu (v1.3)
 - **PC (od 960 px):** dva sloupce. Vlevo panel „Dnes zavolat“ (teplé podbarvení, až 400 px), vpravo evidence: hledání, filtry, seznam, export. Formulář a detail zůstávají v úzkém sloupci 720 px.
 - **Mobil:** jeden sloupec, panel „Dnes zavolat“ nahoře, pod ním evidence. Hlavička je na jeden řádek a e-mail přihlášeného se pod 600 px nezobrazuje.
-- **Detail na mobilu (do 600 px):** „← Přehled“ je plovoucí tlačítko dole vlevo, 16 px nad bezpečnou zónou iPhonu. Při psaní do pole se schová. Spodní odstup stránky (100 px) zajistí, že se každý prvek dá odrolovat zpod tlačítka. Na PC zůstává tlačítko nahoře.
+- **Detail na mobilu (do 600 px):** „← Přehled“ je v pevné tmavé spodní liště přes celou šířku. Lišta respektuje bezpečnou oblast iPhonu a při psaní do pole se schová. Obsah detailu jde celý odrolovat nad lištu. Na PC zůstává tlačítko nahoře.
+  Plovoucí tlačítko překrývalo historii a ztrácelo se, proto bylo nahrazeno lištou (vyzkoušeno na skutečném iPhonu).
 - **Místo pro budoucí ceny** (zatím se nic nezobrazuje):
   - cena obchodu na kartě vpravo u štítku stavu (`.card .top`),
   - souhrnná hodnota otevřených a prodaných poptávek vpravo v hlavičce evidence (`.sekce-hlava` vedle nadpisu „Poptávky“),
