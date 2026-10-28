@@ -23,4 +23,22 @@ V druhém okně, z kořene repa:
 ```bash
 FIREBASE10=/cesta/k/node_modules/firebase node testy/test_v1.2.js
 ```
-Výsledek 2026-10-28: **40 / 40**.
+Výsledek 2026-10-28: **40 / 40** pro v1.2 i v1.3.
+
+Jinou verzi appky otestuješ takto:
+```bash
+SOUBOR=poptavky_v1.3.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_v1.2.js
+```
+
+## `test_vzhled.js` – rozložení přehledu
+Naplní emulátor 14 fiktivními poptávkami a otevře přehled na PC 1440, 1280 a 1024 a na iPhonu 13 a SE.
+- Zkontroluje dva sloupce na PC a jeden na mobilu.
+- Zkontroluje oddělený panel „Dnes zavolat“ a nízkou hlavičku na mobilu.
+- Ověří, že zůstaly všechny ovládací prvky, a vyzkouší hledání a filtry.
+- Ověří, že formulář a detail mají dál úzký sloupec.
+- Snímky uloží do `SCREEN_DIR`.
+
+```bash
+SOUBOR=poptavky_v1.3.html SCREEN_DIR=/kam/snimky FIREBASE10=/cesta/k/node_modules/firebase node testy/test_vzhled.js
+```
+Výsledek 2026-10-28: **35 / 35**.

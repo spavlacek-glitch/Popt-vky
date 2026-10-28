@@ -1,5 +1,6 @@
 // test_v1.2.js – ověření Poptávek v1.2 (známý zákazník) proti LOKÁLNÍM emulátorům Firebase, nikdy proti produkci.
-// Testuje skutečný poptavky_v1.2.html; do dočasné kopie se jen podstrčí demo konfigurace a přesměrování na emulátory.
+// Testuje skutečný soubor appky (výchozí poptavky_v1.2.html, jiný přes SOUBOR=poptavky_v1.3.html); do dočasné kopie
+// se jen podstrčí demo konfigurace a přesměrování na emulátory.
 // Scénáře A–I a N0–N7 převzaty z experimentu v0.5 (repo Fenclotéka), V1–V8 hlídají začlenění do v1.1.
 // Spuštění (Node 20+, Java 11+, Playwright s Chromiem, balíček firebase@10.12.2):
 //   emulátor databáze 127.0.0.1:9000 a Auth 127.0.0.1:9099, pak
@@ -12,11 +13,12 @@ const FB = process.env.FIREBASE10;
 const PRAVIDLA = fs.readFileSync(path.join(ROOT, 'firebase', 'database.rules.json'), 'utf8');   // nasazená pravidla
 
 // Dočasná kopie v1.2: jen konfigurace a přesměrování na emulátory, zbytek beze změny
-let html = fs.readFileSync(path.join(ROOT, 'poptavky_v1.2.html'), 'utf8');
+const SOUBOR = process.env.SOUBOR || 'poptavky_v1.2.html';
+let html = fs.readFileSync(path.join(ROOT, SOUBOR), 'utf8');
 const a = html.indexOf('const firebaseConfig = {'), b = html.indexOf('};', a) + 2;
 html = html.slice(0, a) + `const firebaseConfig = {apiKey:"demo-key", authDomain:"demo-poptavky.firebaseapp.com", databaseURL:"${EMU}?ns=${NS}", projectId:"demo-poptavky"};` + html.slice(b);
 const INIT = 'const auth = firebase.auth(), db = firebase.database();';
-if (!html.includes(INIT)) throw new Error('V poptavky_v1.2.html chybí řádek inicializace Firebase');
+if (!html.includes(INIT)) throw new Error(`V ${SOUBOR} chybí řádek inicializace Firebase`);
 html = html.replace(INIT, INIT + ` auth.useEmulator('${AUTH}', {disableWarnings:true}); db.useEmulator('127.0.0.1', 9000);`);
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'poptavky-test-'));
 fs.writeFileSync(path.join(TMP, 'poptavky_v1.2_emulator.html'), html);
