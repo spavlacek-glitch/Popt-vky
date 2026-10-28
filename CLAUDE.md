@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 1.5 (2026-10-28)
+Verze dokumentu: 1.6 (2026-10-28)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -85,9 +85,22 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
   - souhrnná hodnota otevřených a prodaných poptávek vpravo v hlavičce evidence (`.sekce-hlava` vedle nadpisu „Poptávky“),
   - na PC případně i ve volném místě levého sloupce pod „Dnes zavolat“.
 
+## Uložit do kontaktů (v1.4)
+- V detailu poptávky je pole „Označení kontaktu (nepovinné)“ a tlačítko „📱 Uložit do kontaktů“. Po klepnutí se stáhne soubor `.vcf` (vCard 3.0, UTF-8). Na iPhonu ho prodejce otevře a uloží přes „Vytvořit nový kontakt“.
+- Obsah kontaktu:
+  - jméno z poptávky, s označením „Jan Novák · SUV“,
+  - telefon převedený na +420 (zahraniční zůstane beze změny),
+  - e-mail,
+  - poznámka = celý text „Co chce“.
+  Chybějící údaj se vynechá. Bez jména se kontakt pojmenuje podle telefonu nebo e-mailu.
+- iPhone skládá zobrazované jméno z pole `N`, ne z `FN`. Proto je označení připojené i k příjmení v `N`.
+- Export je jen ruční. Nic se nezapisuje do databáze, do telefonu se nic neukládá automaticky a stávající kontakty se nemění. Model vozidla se z textu nerozpoznává.
+- Kód formátu vCard je převzatý z experimentu `experimenty/vcard_v0.1` (větev `claude/experiment-vcard`), ověřeného na skutečném iPhonu.
+
 ## Testy
 - `testy/test_v1.2.js`: celé chování od v1.2 v lokálních emulátorech Firebase (databáze + Auth), jen fiktivní data. Jiný soubor appky se testuje přes `SOUBOR=poptavky_v1.3.html`. Návod je v `testy/README.md`.
 - `testy/test_vzhled.js`: snímky a rozložení přehledu na PC (1440, 1280, 1024) a iPhonu (13, SE).
+- `testy/test_kontakt_v1.4.js`: export kontaktu na smyšlených poptávkách. Kontroluje diakritiku, označení, chybějící údaje, dlouhý text a to, že se nic nezapíše do databáze. Každý soubor přečte i nezávislá knihovna ical.js.
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence

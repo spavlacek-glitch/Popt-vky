@@ -44,3 +44,21 @@ Naplní emulátor 14 fiktivními poptávkami a otevře přehled na PC 1440, 1280
 SOUBOR=poptavky_v1.3.html SCREEN_DIR=/kam/snimky FIREBASE10=/cesta/k/node_modules/firebase node testy/test_vzhled.js
 ```
 Výsledek 2026-10-28: **84 / 84**.
+
+## `test_kontakt_v1.4.js` – „📱 Uložit do kontaktů“
+Exportuje kontakty ze smyšlených poptávek a každý stažený soubor `.vcf` přečte dvakrát: vlastním dekodérem podle vCard 3.0 a nezávisle knihovnou ical.js.
+- **Údaje kontaktu:**
+  - diakritika ve jméně i v označení („Jan Novák · SUV“, „Žofie Šťastná-Řeháková · Auto pro dceru“),
+  - firma,
+  - chybějící telefon, e-mail, „Co chce“ i jméno,
+  - převod +420, zahraniční číslo, označení jen z mezer.
+- **Text a escapování:** dlouhý víceřádkový text z e-mailu a escapování HTML a uvozovek.
+- **Chování v detailu:** označení přežije živé překreslení detailu a export nic nezapíše do databáze.
+- **iPhone 13:** rozměr a velikost tlačítka a schování plovoucího „← Přehled“ při psaní.
+
+```bash
+ICALJS=/cesta/k/node_modules/ical.js FIREBASE10=/cesta/k/node_modules/firebase node testy/test_kontakt_v1.4.js
+```
+Výsledek 2026-10-28: **17 / 17**. Regrese v1.4: `test_v1.2.js` 40/40, `test_vzhled.js` 84/84.
+
+Pozn.: headless Chromium na jedné stránce vynechá 11. stažení souboru (ověřeno 15 stahováními za sebou). Test proto v polovině otevře čerstvou stránku. Poptávek se to netýká.
