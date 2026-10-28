@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<!-- EXPERIMENT – Kontakt v iPhonu s odkazem na poptávku | verze 0.1 | 2026-10-28
+     Navazuje na ověřený experiment vcard_v0.1 (stejné funkce vCard). Navíc odkaz „Poptávky“ v kontaktu,
+     který otevře ukázkové Poptávky rovnou na detailu této poptávky. Jen smyšlená data, žádná Firebase ani síť. -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kontakt s odkazem v0.1</title>
+<style>
+:root{--bg:#f3f4f6;--card:#fff;--ink:#111;--muted:#6b7280;--line:#e5e7eb;--acc:#0078d6;--exp:#7c2d12}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px}
+header{background:var(--exp);color:#fff;padding:12px 16px}
+header h1{font-size:18px;margin:0}
+header small{color:#fed7aa;font-size:12px;display:block;margin-top:2px}
+main{max-width:560px;margin:0 auto;padding:14px 16px 40px}
+.box{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:6px 12px;margin:0;font-size:15px}
+dt{color:var(--muted)}dd{margin:0;overflow-wrap:anywhere}
+.btn{display:block;width:100%;border:0;border-radius:99px;padding:14px 20px;font:inherit;font-weight:600;background:var(--acc);color:#fff;cursor:pointer;text-align:center;text-decoration:none}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;font-weight:500;margin-top:10px}
+.hint{color:var(--muted);font-size:13px;margin:8px 2px 0}
+ol{margin:6px 0 0;padding-left:20px;font-size:14.5px}
+ol li{margin:4px 0}
+details summary{cursor:pointer;color:var(--muted);font-size:14px;padding:6px 0}
+pre{white-space:pre-wrap;word-break:break-all;font-size:12px;background:#f9fafb;border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0 0}
+</style>
+</head>
+<body>
+<header>
+  <h1>🧪 Kontakt s odkazem <span style="font-weight:400">v0.1</span></h1>
+  <small>Experiment · smyšlený zákazník · nic se neukládá na server</small>
+</header>
+<main>
+  <div class="box"><dl id="udaje"></dl></div>
+
+  <button class="btn" onclick="ulozit()">📱 Uložit do kontaktů</button>
+  <p class="hint" id="stav">Na iPhonu otevři soubor a klepni na „Vytvořit nový kontakt“.</p>
+
+  <div class="box" style="margin-top:14px">
+    <b style="font-size:15px">Jak vyzkoušet odkaz</b>
+    <ol>
+      <li>Ulož kontakt (tlačítko výše).</li>
+      <li>Otevři ho v Kontaktech nebo v Telefonu → Nedávné → ⓘ.</li>
+      <li>Klepni na řádek <b>Poptávky</b>.</li>
+      <li>Má se otevřít detail poptávky <b>Jan Testovací</b> (GLE).</li>
+    </ol>
+  </div>
+
+  <div class="box">
+    <details>
+      <summary>Nefunguje? Zkus hotový soubor .vcf</summary>
+      <a class="btn sec" href="Jan_Testovaci_odkaz.vcf">Otevřít hotový soubor .vcf</a>
+      <p class="hint">Hotový soubor má odkaz na tutéž ukázkovou stránku na raw.githack.com.</p>
+    </details>
+    <details>
+      <summary>Obsah souboru vCard (pro kontrolu)</summary>
+      <pre id="obsah"></pre>
+    </details>
+  </div>
+</main>
+
+<script>
+/* ===== Smyšlený zákazník a jeho poptávka (žádná skutečná data) ===== */
+const ZAKAZNIK = {
+  jmeno: 'Jan', prijmeni: 'Testovací', telefon: '777 123 456', email: 'jan@example.com',
+  poznamka: 'Shání Mercedes-Benz GLE, rozpočet do 2 mil. Kč, chce leasing.',
+  poptavka: '-ODemoK7x2Pq1'                                // v Poptávkách by to bylo ID poptávky z databáze
+};
+
+/* ===== vCard 3.0 (RFC 2426) – převzato beze změny z ověřeného experimentu vcard_v0.1 ===== */
+const vcEsc = s => String(s ?? '').replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+const utf8Len = s => new TextEncoder().encode(s).length;
+function zalom(radek){
+  const casti = []; let akt = '';
+  for (const ch of radek) {
+    if (utf8Len(akt + ch) > 75) { casti.push(akt); akt = ' ' + ch; }
+    else akt += ch;
+  }
+  casti.push(akt);
+  return casti.join('\r\n');
+}
+function telefonCZ(t){
+  const c = String(t || '').replace(/[^\d+]/g, '');
+  if (/^\d{9}$/.test(c)) return '+420 ' + c.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+  if (/^(\+|00)420\d{9}$/.test(c)) return '+420 ' + c.slice(-9).replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+  return String(t || '').trim();
+}
+/* NOVÉ v tomto experimentu: odkaz na poptávku. Skupina item1 + X-ABLabel = vlastní popisek „Poptávky“ v Kontaktech iPhonu
+   (stejný zápis používá iPhone při exportu). Odkaz nese jen ID poptávky, žádné osobní údaje. */
+function odkazNaPoptavku(adresaAplikace, id){ return adresaAplikace + '#poptavka=' + encodeURIComponent(id); }
+function vytvorVCard(z, odkaz){
+  const fn = [z.jmeno, z.prijmeni].filter(Boolean).join(' ');
+  const radky = ['BEGIN:VCARD', 'VERSION:3.0', `N:${vcEsc(z.prijmeni)};${vcEsc(z.jmeno)};;;`, `FN:${vcEsc(fn)}`];
+  if (z.telefon) radky.push(`TEL;TYPE=CELL,VOICE:${vcEsc(telefonCZ(z.telefon))}`);
+  if (z.email) radky.push(`EMAIL;TYPE=INTERNET:${vcEsc(z.email)}`);
+  if (z.poznamka) radky.push(`NOTE:${vcEsc(z.poznamka)}`);
+  if (odkaz) radky.push(`item1.URL;TYPE=pref:${odkaz}`, 'item1.X-ABLabel:Poptávky');
+  radky.push('END:VCARD');
+  return radky.map(zalom).join('\r\n') + '\r\n';
+}
+const bezDiakritiky = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const nazevSouboru = z => (bezDiakritiky(z.jmeno + '_' + z.prijmeni).replace(/[^A-Za-z0-9_-]/g, '') || 'kontakt') + '_odkaz.vcf';
+/* ===== Konec bloku vCard ===== */
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const APLIKACE = new URL('poptavky_demo_v0.1.html', location.href).href;   // v Poptávkách: stálá adresa aplikace
+const ODKAZ = odkazNaPoptavku(APLIKACE, ZAKAZNIK.poptavka);
+const VCF = vytvorVCard(ZAKAZNIK, ODKAZ), SOUBOR = nazevSouboru(ZAKAZNIK);
+
+$('#udaje').innerHTML = [['Jméno', ZAKAZNIK.jmeno + ' ' + ZAKAZNIK.prijmeni], ['Telefon', telefonCZ(ZAKAZNIK.telefon)], ['E-mail', ZAKAZNIK.email],
+  ['Poznámka', ZAKAZNIK.poznamka], ['Odkaz „Poptávky“', ODKAZ]].map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join('');
+$('#obsah').textContent = VCF;
+
+function ulozit(){
+  const url = URL.createObjectURL(new Blob([VCF], {type: 'text/vcard;charset=utf-8'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = SOUBOR; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+  $('#stav').textContent = 'Soubor ' + SOUBOR + ' připraven. Otevři ho a klepni na „Vytvořit nový kontakt“.';
+}
+</script>
+</body>
+</html>

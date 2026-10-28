@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<!-- EXPERIMENT – ukázkové Poptávky pro odkaz z kontaktu iPhonu | verze 0.1 | 2026-10-28
+     Bez Firebase a bez přihlášení, tři smyšlené poptávky. Adresa #poptavka=<id> otevře rovnou detail té poptávky,
+     stejně jako by to dělaly Poptávky (tam až po přihlášení a načtení dat). -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Poptávky – ukázka odkazu v0.1</title>
+<style>
+:root{--bg:#f3f4f6;--card:#fff;--ink:#111;--muted:#6b7280;--line:#e5e7eb;--acc:#0078d6;--red:#dc2626}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px}
+header{background:#111;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px}
+header h1{font-size:18px;margin:0;flex:1;white-space:nowrap}
+header small{color:#9ca3af;font-size:12px}
+.proto{background:#fff7ed;color:#9a3412;font-size:12.5px;padding:6px 16px}
+main{max-width:560px;margin:0 auto;padding:12px 16px 40px}
+.pruh{background:#e6f1fb;color:#004f8f;border-radius:12px;padding:10px 12px;font-size:14.5px;margin-bottom:12px}
+.pruh.chyba{background:#fef2f2;color:var(--red)}
+.karta{background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px}
+.badge{font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:99px;white-space:nowrap}
+.b-nova{background:#dbeafe;color:#1e40af}.b-nabidka{background:#fef3c7;color:#92400e}.b-jednani{background:#ede9fe;color:#5b21b6}
+.jmeno{font-size:24px;font-weight:700;margin:8px 0 2px}
+.label{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
+.zavolat{display:flex;flex-direction:column;margin-top:16px;background:var(--acc);color:#fff;border-radius:12px;padding:8px 14px;text-decoration:none;min-height:58px;justify-content:center}
+.zavolat span{font-size:13px;color:#dbeafe}
+.seznam a{display:block;background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;color:var(--ink);text-decoration:none}
+.seznam a small{display:block;color:var(--muted);font-size:14px}
+.zpet{display:inline-block;margin-bottom:10px;color:var(--acc);font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<header><h1>Poptávky <small>ukázka odkazu</small></h1></header>
+<div class="proto">Experiment · smyšlené poptávky · nic se neukládá</div>
+<main id="view"></main>
+<script>
+/* ===== Smyšlené poptávky ===== */
+const POPTAVKY = {
+  '-ODemoK7x2Pq1':   {jmeno:'Jan Testovací', telefon:'777 123 456', stav:'nabidka', zajem:'Shání Mercedes-Benz GLE, rozpočet do 2 mil. Kč, chce leasing.'},
+  '-ODemoK7x2Pq2': {jmeno:'Žofie Šťastná', telefon:'602 111 222', stav:'nova', zajem:'A 200 pro dceru.'},
+  '-ODemoK7x2Pq3': {jmeno:'Novák Stavby s.r.o.', telefon:'731 000 111', stav:'jednani', zajem:'2× Sprinter 317 CDI skříň.'}
+};
+const STAVY = {nova:'Nová', nabidka:'Nabídka odeslána', jednani:'Jednáme'};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ===== Otevření podle odkazu: #poptavka=<id> ===== */
+function idZOdkazu(){
+  const m = location.hash.match(/^#poptavka=([^&]+)$/);
+  if (!m) return null;
+  try { return decodeURIComponent(m[1]); } catch (e) { return null; }
+}
+function zobraz(){
+  const id = idZOdkazu();
+  if (id && POPTAVKY[id]) return detail(id);
+  prehled(id ? 'Tuhle poptávku jsem nenašel – možná byla smazaná. Tady je přehled.' : '');
+}
+function detail(id){
+  const p = POPTAVKY[id];
+  $('#view').innerHTML = `
+    <div class="pruh">📇 Otevřeno z kontaktu v iPhonu</div>
+    <a class="zpet" href="#">← Přehled</a>
+    <section class="karta">
+      <span class="badge b-${p.stav}">${STAVY[p.stav]}</span>
+      <div class="jmeno">${esc(p.jmeno)}</div>
+      <div class="label">Co chce</div>
+      <div>${esc(p.zajem)}</div>
+      <a class="zavolat" href="tel:${esc(p.telefon.replace(/[^\d+]/g, ''))}"><b>📞 Zavolat</b><span>${esc(p.telefon)}</span></a>
+    </section>`;
+  document.title = p.jmeno + ' – Poptávky (ukázka)';
+}
+function prehled(chyba){
+  $('#view').innerHTML = (chyba ? `<div class="pruh chyba">${esc(chyba)}</div>` : '')
+    + '<div class="seznam">' + Object.entries(POPTAVKY).map(([id, p]) => `<a href="#poptavka=${encodeURIComponent(id)}">${esc(p.jmeno)}<small>${esc(p.zajem)}</small></a>`).join('') + '</div>';
+  document.title = 'Poptávky – ukázka odkazu v0.1';
+}
+window.addEventListener('hashchange', zobraz);
+zobraz();
+</script>
+</body>
+</html>

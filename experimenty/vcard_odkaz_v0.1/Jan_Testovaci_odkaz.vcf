@@ -1,0 +1,12 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Testovací;Jan;;;
+FN:Jan Testovací
+TEL;TYPE=CELL,VOICE:+420 777 123 456
+EMAIL;TYPE=INTERNET:jan@example.com
+NOTE:Shání Mercedes-Benz GLE\, rozpočet do 2 mil. Kč\, chce leasing.
+item1.URL;TYPE=pref:https://raw.githack.com/spavlacek-glitch/Popt-vky/claud
+ e/experiment-vcard/experimenty/vcard_odkaz_v0.1/poptavky_demo_v0.1.html#po
+ ptavka=-ODemoK7x2Pq1
+item1.X-ABLabel:Poptávky
+END:VCARD
