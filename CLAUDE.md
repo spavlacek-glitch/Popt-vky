@@ -33,8 +33,10 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 - Hosting: GitHub + raw.githack.com (stejně jako appka Zkušební jízdy).
 - Backend: Firebase Realtime Database (europe-west1, Spark plan), **samostatný projekt** – ne `testovaci-jizdy`, protože ten má otevřená pravidla.
 - Firebase SDK compat 10.12.2 z gstatic CDN.
-- Přihlášení: Firebase Auth e-mail/heslo. Pravidla DB:
-  `{ "rules": { "poptavky": { ".read": "auth != null", ".write": "auth != null" } } }`
+- Přihlášení: Firebase Auth e-mail/heslo, **samoregistrace je vypnutá**. Pravidla DB (nasazená, zdroj `firebase/database.rules.json`):
+  - `/poptavky`: čtení i zápis jen pro schválené účty, tj. `/uzivatele/{UID}/schvalen: true`. Seznam schválených účtů se upravuje jen v konzoli Firebase, z aplikace zapsat nejde.
+  - `/zakaznici`: pravidla jsou nasazená (jen schválené účty a jen povolená pole), ale zákaznická evidence zatím **není implementovaná**.
+  - Nová pravidla prošla 81 testy v emulátoru (`firebase/rules.test.mjs`). Po nasazení bylo ověřeno čtení i zápis v Poptávkách v1.0.
 - Firebase `apiKey` v klientském kódu je OK. Žádné privátní klíče do repa.
 
 ## Datový model – `/poptavky/{pushId}`
