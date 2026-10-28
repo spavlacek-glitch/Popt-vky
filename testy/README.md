@@ -79,3 +79,18 @@ Pozn.: headless Chromium na jedné stránce vynechá 11. stažení souboru (ově
 ICALJS=/cesta/k/node_modules/ical.js FIREBASE10=/cesta/k/node_modules/firebase node testy/test_detail_v1.5.js
 ```
 Výsledek 2026-10-28: **40 / 40**. Regrese proti v1.5: `test_v1.2.js` 40/40, `test_vzhled.js` 84/84, `test_kontakt_v1.4.js` 17/17. Upravené testy prošly i proti v1.4.
+
+## `test_odkaz_v1.6.js` – odkaz z kontaktu v iPhonu (v1.6)
+Testuje celý řetězec přes skutečnou appku a stálou adresu `poptavky.html`:
+- Export kontaktu obsahuje odkaz „Poptávky“ s ID poptávky. Je zalomený podle normy a čte ho i ical.js.
+- Odkaz v čerstvém prohlížeči (jako Safari z Kontaktů) projde přesměrováním a přihlášením a otevře detail: mobilní na iPhonu 13, počítačový na PC. Obnovení stránky detail znovu neotevře.
+- **Hraniční případy:**
+  - smazaná poptávka a poškozený odkaz → přehled s hláškou,
+  - start bez odkazu → normální přehled,
+  - druhý odkaz v otevřené appce → další poptávka,
+  - nic se nezapíše do databáze.
+
+```bash
+ICALJS=/cesta/k/node_modules/ical.js FIREBASE10=/cesta/k/node_modules/firebase node testy/test_odkaz_v1.6.js
+```
+Výsledek 2026-10-28: **11 / 11**. Regrese proti v1.6: `test_detail_v1.5.js` 40/40 (`SOUBOR=poptavky_v1.6.html`), `test_v1.2.js` 40/40, `test_vzhled.js` 84/84, `test_kontakt_v1.4.js` 17/17.

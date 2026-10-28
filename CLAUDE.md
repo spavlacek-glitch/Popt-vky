@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 1.7 (2026-10-28)
+Verze dokumentu: 1.8 (2026-10-28)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -32,6 +32,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 ## Technologie
 - Jeden HTML soubor (`poptavky_vX.html`), bez build kroku, mobil + PC.
 - Hosting: GitHub + raw.githack.com (stejně jako appka Zkušební jízdy).
+- **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi.
 - Backend: Firebase Realtime Database (europe-west1, Spark plan), **samostatný projekt** – ne `testovaci-jizdy`, protože ten má otevřená pravidla.
 - Firebase SDK compat 10.12.2 z gstatic CDN.
 - Přihlášení: Firebase Auth e-mail/heslo, **samoregistrace je vypnutá**. Pravidla DB (nasazená, zdroj `firebase/database.rules.json`):
@@ -111,11 +112,26 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
   - Panel je mimo překreslovaný obsah, takže ho živá aktualizace nezavře.
 - **Plovoucí tlačítka při psaní:** schovají se hned, vrátí se až 0,3 s po opuštění pole. Jinak by se při klepnutí na „Zapsat poznámku“ vynořila pod prstem a klepnutí by dostala ona (nalezeno testem na šířce iPhonu SE).
 
+## Odkaz z kontaktu v iPhonu (v1.6)
+- Kontakt uložený přes „📱 Uložit do kontaktů“ nese odkaz s popiskem **„Poptávky“** (`item1.URL` + `item1.X-ABLabel`). Klepnutí v Kontaktech, i během hovoru přes Nedávné → ⓘ, otevře Poptávky rovnou na detailu té poptávky.
+- iPhone webové aplikaci neřekne, kdo volá (CallKit je jen pro nativní aplikace, vědomě vyloučen). Prodejce proto otevře kontakt sám a klepne na odkaz.
+- **Podoba odkazu:** `<stálá adresa>/poptavky.html#poptavka=<ID poptávky>`.
+  - Obsahuje jen ID, žádné osobní údaje. Data se ukážou až po přihlášení.
+  - Adresa se skládá vzhledem k místu, odkud appka běží: větev při testování, `main` po sloučení.
+- **Po přihlášení a načtení dat** se otevře detail: na iPhonu mobilní, na PC počítačový.
+  - Odkaz se pak z adresy smaže, takže obnovení stránky detail znovu neotevře.
+  - Smazaná poptávka nebo poškozený odkaz → přehled s hláškou „Poptávku z kontaktu jsem nenašel – možná byla smazaná.“
+- **Omezení iOS (rozhodnutí uživatele, přijato):**
+  - Odkaz se otevře v Safari, ne v Poptávkách na ploše. Safari má vlastní přihlášení, takže se tam jednou přihlásit.
+  - Odkaz mají jen kontakty uložené od v1.6. Starší stačí uložit znovu.
+- Ověřeno experimentem `experimenty/vcard_odkaz_v0.1` (větev `claude/experiment-vcard`).
+
 ## Testy
 - `testy/test_v1.2.js`: celé chování od v1.2 v lokálních emulátorech Firebase (databáze + Auth), jen fiktivní data. Jiný soubor appky se testuje přes `SOUBOR=poptavky_v1.3.html`. Návod je v `testy/README.md`.
 - `testy/test_vzhled.js`: snímky a rozložení přehledu na PC (1440, 1280, 1024) a iPhonu (13, SE).
 - `testy/test_kontakt_v1.4.js`: export kontaktu na smyšlených poptávkách. Kontroluje diakritiku, označení, chybějící údaje, dlouhý text a to, že se nic nezapíše do databáze. Každý soubor přečte i nezávislá knihovna ical.js.
 - `testy/test_detail_v1.5.js`: detail na PC beze změny proti v1.4 a nový mobilní detail na iPhonu 13 a SE se skutečnými zápisy do emulátoru.
+- `testy/test_odkaz_v1.6.js`: odkaz z kontaktu – export → odkaz ze souboru → `poptavky.html` → přihlášení → detail na iPhonu i PC, smazaná a poškozená poptávka, obnovení stránky, druhý odkaz v otevřené appce, žádný zápis do databáze.
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence

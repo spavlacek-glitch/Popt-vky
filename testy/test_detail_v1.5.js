@@ -15,7 +15,7 @@ function priprav(soubor){   // kopie appky přesměrovaná na emulátory, nic ji
   fs.writeFileSync(path.join(TMP, soubor), html.replace(INIT, INIT + ` auth.useEmulator('${AUTH}', {disableWarnings:true}); db.useEmulator('127.0.0.1', 9000);`));
   return 'file://' + path.join(TMP, soubor);
 }
-const V14 = priprav('poptavky_v1.4.html'), V15 = priprav('poptavky_v1.5.html');
+const V14 = priprav('poptavky_v1.4.html'), V15 = priprav(process.env.SOUBOR || 'poptavky_v1.5.html');   // SOUBOR=poptavky_v1.6.html pro novější verzi
 const admin = (c, method = 'GET', body) => fetch(`${EMU}/${c}.json?ns=${NS}`, {method, headers:{Authorization:'Bearer owner'}, body: body === undefined ? undefined : JSON.stringify(body)}).then(r => r.json());
 const den = off => { const d = new Date(); d.setDate(d.getDate() + off); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
 const {userAgent, ...IPHONE} = devices['iPhone 13'];
