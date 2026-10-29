@@ -43,7 +43,7 @@ Naplní emulátor 14 fiktivními poptávkami a otevře přehled na PC 1440, 1280
 ```bash
 SOUBOR=poptavky_v1.3.html SCREEN_DIR=/kam/snimky FIREBASE10=/cesta/k/node_modules/firebase node testy/test_vzhled.js
 ```
-Výsledek 2026-10-28: **84 / 84**.
+Výsledek 2026-10-28: **84 / 84**. Pro `poptavky_v1.7.html` (2026-10-29): **84 / 84**, přehled na iPhonu 13 a SE se od v1.6 liší jen číslem verze v hlavičce.
 
 ## `test_kontakt_v1.4.js` – „📱 Uložit do kontaktů“
 Exportuje kontakty ze smyšlených poptávek a každý stažený soubor `.vcf` přečte dvakrát: vlastním dekodérem podle vCard 3.0 a nezávisle knihovnou ical.js.
