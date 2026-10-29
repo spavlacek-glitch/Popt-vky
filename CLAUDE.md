@@ -1,10 +1,12 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.3 (2026-10-29)
+Verze dokumentu: 2.4 (2026-10-29)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
 > Hlavní měřítko úspěchu: appku bude prodejce přirozeně používat. Každá funkce, která přidá zapisování navíc, je spíš riziko než přínos.
+>
+> **Test každé funkce: ušetří prodejci čas, nebo ho pobaví? Když ani jedno, nepatří tam.** Systémů, které se jen nařizují, mají prodejci dost. Poptávky musí chtít používat, ne muset.
 
 ## Kdo a proč
 - Uživatel: Stanislav, prodejce nových vozů a Fleet Manager, S. & W. Automobily (autorizovaný dealer Mercedes-Benz, Jenišov u Karlových Varů + Ústí nad Labem).
