@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 1.8 (2026-10-28)
+Verze dokumentu: 1.9 (2026-10-29)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -76,7 +76,13 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
   - Při výpadku připojení appka neukáže chybu a po zavření se neuložené změny ztratí. Výpadek je v praxi vzácný, neopravuje se.
 
 ## Rozložení přehledu (v1.3)
-- **PC (od 960 px):** dva sloupce. Vlevo panel „Dnes zavolat“ (teplé podbarvení, až 400 px), vpravo evidence: hledání, filtry, seznam, export. Formulář a detail zůstávají v úzkém sloupci 720 px.
+- **PC (od 960 px):** dva sloupce. Vlevo panel „Dnes zavolat“ (teplé podbarvení, až 380 px), vpravo evidence: hledání, filtry, seznam, export. Formulář a detail zůstávají v úzkém sloupci 720 px.
+- **Pracovní přehled na PC (v1.7, jen CSS):**
+  - přehled je široký až 1600 px,
+  - „Dnes zavolat“ je přilepené vlevo a při posouvání seznamu zůstává vidět (při velkém počtu hovorů se posouvá samo v sobě),
+  - „⬇ Export do Excelu (CSV)“ je vpravo v hlavičce evidence,
+  - od 1200 px jsou hledání a filtry na jednom řádku a každá poptávka v evidenci je jeden řádek: jméno | co chce | další kontakt | stav. Karty v „Dnes zavolat“ a pod 1200 px zůstávají jako ve v1.6.
+  - Pořadí prvků ani funkce se nemění, mobil (pod 960 px) je stejný jako ve v1.6.
 - **Mobil:** jeden sloupec, panel „Dnes zavolat“ nahoře, pod ním evidence. Hlavička je na jeden řádek a e-mail přihlášeného se pod 600 px nezobrazuje.
 - **Detail na mobilu (do 600 px):** „← Přehled“ je modré plovoucí tlačítko dole vlevo, stejného stylu jako „+ Nová poptávka“. Sedí 16 px nad bezpečnou oblastí iPhonu a při psaní do pole se schová. Obsah detailu jde celý odrolovat nad něj. Na PC zůstává tlačítko nahoře.
   Vyzkoušeno na skutečném iPhonu: tmavá spodní lišta zabírala moc místa, proto je zpět plovoucí tlačítko, jen výraznější. Plovoucí bílé tlačítko se ztrácelo.
