@@ -70,6 +70,19 @@ SOUBOR=poptavky_v1.9.html FIREBASE10=/cesta/k/node_modules/firebase node testy/t
 ```
 Výsledek 2026-10-29: **9 / 9**. `test_detail_v1.5.js` od v1.9 porovnává detail na PC s v1.4 bez řádku „Souhlas GDPR“; s v1.8 i v1.9 **40 / 40**. Test „otočení na šířku“ občas selže na čekání 200 ms (stejně u v1.6–v1.9), druhé spuštění projde. Regrese proti v1.9: `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_tipy_v1.8.js` 16/16.
 
+## `test_aktualizace_v1.10.js` – aktualizace za chodu (v1.10)
+Appka běží z malého lokálního HTTP serveru (jako z raw.githack.com). Test za běhu přepisuje `poptavky.html` a nabízí smyšlenou v1.11. Na PC 1280 a iPhonu 13 ověří:
+- aktuální verze a v1.9 v `poptavky.html` → žádná lišta (číselné porovnání 1.10 > 1.9),
+- novější verze po návratu do popředí → lišta pod hlavičkou, obsah ani „Dnes zavolat“ nezakryje, při posouvání zůstává, sama nic nepřepne,
+- „Později“ lištu schová a tatáž verze se už nenabídne; „Aktualizovat“ v detailu → v1.11 se stejnou poptávkou,
+- povinná verze (`MINIMALNI`): při psaní nové poptávky nic nepřepne, po návratu na přehled do 5 s přepne, na přihlášení přepne hned,
+- nedostupná `poptavky.html` → appka běží dál bez chyb; nic se nezapíše do databáze.
+
+```bash
+SOUBOR=poptavky_v1.10.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_aktualizace_v1.10.js
+```
+Výsledek 2026-10-30: **23 / 23**. Regrese proti v1.10: `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_tipy_v1.8.js` 16/16, `test_gdpr_v1.9.js` 9/9, `test_detail_v1.5.js` 40/40.
+
 ## `test_kontakt_v1.4.js` – „📱 Uložit do kontaktů“
 Exportuje kontakty ze smyšlených poptávek a každý stažený soubor `.vcf` přečte dvakrát: vlastním dekodérem podle vCard 3.0 a nezávisle knihovnou ical.js.
 - **Údaje kontaktu:**
