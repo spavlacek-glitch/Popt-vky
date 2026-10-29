@@ -65,7 +65,10 @@ const POPT = {
     await T(`${nazev}: vykreslený detail všech 4 poptávek je v v1.5 stejný jako v v1.4`, async () => {
       const rozdily = [];
       for (const id of Object.keys(POPT)) { await detail(a, id); await detail(b, id);
-        if (await a.innerHTML('#view') !== await b.innerHTML('#view')) rozdily.push(id); }
+        // od v1.9 je v detailu navíc řádek „Souhlas GDPR“ (.gdpr) – zbytek musí zůstat jako ve v1.4
+        const bezGdpr = await b.evaluate(() => { const v = document.querySelector('#view').cloneNode(true); v.querySelector('.gdpr')?.remove();
+          return v.innerHTML.replace(/\n      \n      <label class="f">Co chce/, '\n      <label class="f">Co chce'); });
+        if (await a.innerHTML('#view') !== bezGdpr) rozdily.push(id); }
       return (rozdily.length === 0 && await b.locator('.md-vic, .md-karta').count() === 0) || rozdily; });
     await a.context().close(); await b.context().close();
   }

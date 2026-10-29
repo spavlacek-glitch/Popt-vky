@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.0 (2026-10-29)
+Verze dokumentu: 2.1 (2026-10-29)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -100,6 +100,13 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **Nejbližší kontakt:** zbylá místa doplní otevřené poptávky s nejbližším budoucím termínem („Na řadě zítra – klidně už dnes“).
 - Jen čtení dat: nic se nezapisuje, termíny ani stavy se nemění. Jakmile je někdo na řadě dnes, tipy zmizí.
 
+## Souhlas GDPR (v1.9)
+- V detailu poptávky je „Souhlas GDPR“: na PC řádek pod „📱 Uložit do kontaktů“, na mobilu dva řádky v panelu „Další akce“.
+- „💬 Poslat SMS“ (je-li telefon) a „✉️ Poslat e-mailem“ (je-li e-mail) otevřou Zprávy nebo poštovní aplikaci s připraveným textem a odkazem na formulář souhlasu Mercedes-Benz (`GDPR_ODKAZ` v kódu). Odešle prodejce sám.
+- **Bez předvyplnění:** formulář MB údaje z odkazu nepřebírá (ověřeno uživatelem).
+- **Nic se nezapisuje** do Poptávek. Souhlasy se do appky nenapojují (rozhodnutí uživatele): eviduje je MB a prodejce ani neví o jejich odvolání.
+- Detail na PC je jinak stejný jako ve v1.4 (test porovnání ignoruje jen řádek `.gdpr`).
+
 ## Uložit do kontaktů (v1.4)
 - V detailu poptávky je pole „Označení kontaktu (nepovinné)“ a tlačítko „📱 Uložit do kontaktů“. Po klepnutí se stáhne soubor `.vcf` (vCard 3.0, UTF-8). Na iPhonu ho prodejce otevře a uloží přes „Vytvořit nový kontakt“.
 - Obsah kontaktu:
@@ -147,6 +154,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_detail_v1.5.js`: detail na PC beze změny proti v1.4 a nový mobilní detail na iPhonu 13 a SE se skutečnými zápisy do emulátoru.
 - `testy/test_odkaz_v1.6.js`: odkaz z kontaktu – export → odkaz ze souboru → `poptavky.html` → přihlášení → detail na iPhonu i PC, smazaná a poškozená poptávka, obnovení stránky, druhý odkaz v otevřené appce, žádný zápis do databáze.
 - `testy/test_tipy_v1.8.js`: tipy při prázdném „Dnes zavolat“ – pořadí, 14denní hranice, poznámka v historii, prodané a ztracené nikdy, zmizení tipů, žádný zápis do databáze; PC i iPhone.
+- `testy/test_gdpr_v1.9.js`: odkazy „Souhlas GDPR“ na PC i iPhonu – číslo a adresa příjemce, text s odkazem na formulář MB, jen dostupné kanály, kódování adresy, žádný zápis do databáze.
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence
