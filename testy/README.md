@@ -45,6 +45,19 @@ SOUBOR=poptavky_v1.3.html SCREEN_DIR=/kam/snimky FIREBASE10=/cesta/k/node_module
 ```
 Výsledek 2026-10-28: **84 / 84**. Pro `poptavky_v1.7.html` (2026-10-29): **84 / 84**, přehled na iPhonu 13 a SE se od v1.6 liší jen číslem verze v hlavičce.
 
+## `test_tipy_v1.8.js` – komu zavolat, když dnes nikomu (v1.8)
+Na PC 1440 a iPhonu 13 ověří:
+- 3 tipy při prázdném „Dnes zavolat“: dvakrát „Dlouho ticho“ (nejdelší první), pak nejbližší kontakt,
+- poznámka v historii se počítá jako zápis, 13 dní ještě není ticho, prodané a ztracené se nikdy neukážou,
+- bez dlouhého ticha doplní tipy nejbližší kontakty,
+- tipy zmizí, jakmile je někdo na řadě dnes, a bez otevřených poptávek zůstane jen hecovací věta,
+- klepnutí otevře detail a nic se nezapíše do databáze.
+
+```bash
+SOUBOR=poptavky_v1.8.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_tipy_v1.8.js
+```
+Výsledek 2026-10-29: **16 / 16**. Regrese proti v1.8: `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_detail_v1.5.js` 40/40.
+
 ## `test_kontakt_v1.4.js` – „📱 Uložit do kontaktů“
 Exportuje kontakty ze smyšlených poptávek a každý stažený soubor `.vcf` přečte dvakrát: vlastním dekodérem podle vCard 3.0 a nezávisle knihovnou ical.js.
 - **Údaje kontaktu:**
