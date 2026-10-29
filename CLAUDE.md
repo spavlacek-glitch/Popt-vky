@@ -101,13 +101,9 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Jen čtení dat: nic se nezapisuje, termíny ani stavy se nemění. Jakmile je někdo na řadě dnes, tipy zmizí.
 
 ## Souhlas GDPR (v1.9)
-- V detailu poptávky je „Souhlas GDPR“: na PC řádek pod „📱 Uložit do kontaktů“, na mobilu dva řádky v panelu „Další akce“.
-- „💬 Poslat SMS“ (je-li telefon) otevře Zprávy s připraveným textem a odkazem na formulář souhlasu Mercedes-Benz (`GDPR_ODKAZ` v kódu). V SMS je odkaz klikací (ověřeno na iPhonu).
-- „✉️ Poslat e-mailem“ (je-li e-mail): `mailto:` umí jen prostý text a nový Outlook z něj odkaz neudělá (ověřeno uživatelem). Proto:
-  - text s klikacím odkazem (HTML) se zkopíruje do schránky,
-  - otevře se e-mail jen s příjemcem a předmětem a hláška vyzve k Ctrl+V,
-  - když schránka nejde, otevře se e-mail s prostým textem.
-- Odešle prodejce sám.
+- V detailu poptávky je „Souhlas GDPR“: na PC řádek pod „📱 Uložit do kontaktů“, na mobilu řádek v panelu „Další akce“.
+- „💬 Poslat SMS“ (je-li telefon) otevře Zprávy s připraveným textem a odkazem na formulář souhlasu Mercedes-Benz (`GDPR_ODKAZ` v kódu). V SMS je odkaz klikací (ověřeno na iPhonu). Odešle prodejce sám.
+- **E-mail záměrně není (rozhodnutí uživatele):** `mailto:` umí jen prostý text a nový Outlook z něj klikací odkaz neudělá (ověřeno). Kopírování textu přes schránku (Ctrl+V) uživatel odmítl, protože přidává prodejci práci. Bez telefonu se GDPR nenabízí.
 - **Bez předvyplnění:** formulář MB údaje z odkazu nepřebírá (ověřeno uživatelem).
 - **Nic se nezapisuje** do Poptávek. Souhlasy se do appky nenapojují (rozhodnutí uživatele): eviduje je MB a prodejce ani neví o jejich odvolání.
 - Detail na PC je jinak stejný jako ve v1.4 (test porovnání ignoruje jen řádek `.gdpr`).
@@ -159,7 +155,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_detail_v1.5.js`: detail na PC beze změny proti v1.4 a nový mobilní detail na iPhonu 13 a SE se skutečnými zápisy do emulátoru.
 - `testy/test_odkaz_v1.6.js`: odkaz z kontaktu – export → odkaz ze souboru → `poptavky.html` → přihlášení → detail na iPhonu i PC, smazaná a poškozená poptávka, obnovení stránky, druhý odkaz v otevřené appce, žádný zápis do databáze.
 - `testy/test_tipy_v1.8.js`: tipy při prázdném „Dnes zavolat“ – pořadí, 14denní hranice, poznámka v historii, prodané a ztracené nikdy, zmizení tipů, žádný zápis do databáze; PC i iPhone.
-- `testy/test_gdpr_v1.9.js`: odkazy „Souhlas GDPR“ na PC i iPhonu – číslo a adresa příjemce, text s odkazem na formulář MB, HTML s klikacím odkazem ve schránce a záložní prostý text, jen dostupné kanály, kódování adresy, žádný zápis do databáze.
+- `testy/test_gdpr_v1.9.js`: SMS „Souhlas GDPR“ na PC i iPhonu – číslo příjemce, text s odkazem na formulář MB, žádný e-mail, bez telefonu nic, žádný zápis do databáze.
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence

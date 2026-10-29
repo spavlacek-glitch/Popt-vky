@@ -29,7 +29,7 @@ const P = (jmeno, telefon, email) => ({kanal:'telefon', jmeno, telefon, email, z
 const POPT = {
   oba: P('Jan Novák', '+420 777 123 456', 'jan.novak@example.cz'),
   tel: P('Jen Telefon', '602 111 222', ''),
-  mail: P('Jen Mail', '', 'o\'brien+test@example.cz'),
+  mail: P('Jen Mail', '', 'jen.mail@example.cz'),
   nic: P('Bez Kontaktu', '', '')
 };
 
@@ -47,7 +47,7 @@ const rozeber = href => { const [kam, q] = href.split('?'); const par = new URLS
 
   const br = await chromium.launch();
   const otevri = async opts => {
-    const ctx = await br.newContext(opts); await ctx.grantPermissions(['clipboard-read', 'clipboard-write']);
+    const ctx = await br.newContext(opts);
     await ctx.route('https://www.gstatic.com/firebasejs/10.12.2/*', r => r.fulfill({path: path.join(FB, path.basename(new URL(r.request().url()).pathname)), contentType:'application/javascript'}));
     const p = await ctx.newPage(); p.chyby = [];
     p.on('pageerror', e => p.chyby.push(e.message)); p.on('dialog', d => { p.chyby.push('dialog ' + d.message()); d.dismiss(); });
@@ -65,36 +65,14 @@ const rozeber = href => { const [kam, q] = href.split('?'); const par = new URLS
       const r = await p.$$eval(sel, el => el.map(e => [e.textContent.trim(), e.getAttribute('href')]));
       if (mobil) await p.keyboard.press('Escape'); return r; };
 
-    await T(`${nazev}: telefon i e-mail → SMS i e-mail s odkazem na formulář MB`, async () => {
-      const o = await odkazy('oba'), sms = rozeber(o[0][1]), mail = rozeber(o[1][1]);
-      return (o.length === 2 && /SMS/.test(o[0][0]) && /e-mailem/.test(o[1][0])
-        && sms.kam === 'sms:+420777123456' && sms.text.includes('\n\n' + FORMULAR + '\n\n') && sms.text.startsWith('Dobrý den')
-        && mail.kam === 'mailto:jan.novak@example.cz' && mail.text === sms.text && mail.predmet.includes('Souhlas')) || {o, sms, mail}; });
+    await T(`${nazev}: telefon i e-mail → jen SMS s odkazem na formulář MB na samostatném řádku (e-mail záměrně ne)`, async () => {
+      const o = await odkazy('oba'), sms = rozeber(o[0][1]);
+      return (o.length === 1 && /SMS/.test(o[0][0]) && sms.kam === 'sms:+420777123456'
+        && sms.text.includes('\n\n' + FORMULAR + '\n\n') && sms.text.startsWith('Dobrý den') && !o[0][1].includes('mailto')) || {o, sms}; });
     if (OUT) { await detail(p, 'oba'); if (mobil) await p.click('.md-vic'); await p.screenshot({path: path.join(OUT, `gdpr_${nazev.replace(/\s/g, '')}.png`)}); if (mobil) await p.keyboard.press('Escape'); }
-    await T(`${nazev}: jen telefon → jen SMS; jen e-mail → jen e-mail (adresa správně zakódovaná)`, async () => {
+    await T(`${nazev}: jen telefon → SMS; jen e-mail → GDPR se nenabízí`, async () => {
       const t = await odkazy('tel'), m = await odkazy('mail');
-      return (t.length === 1 && rozeber(t[0][1]).kam === 'sms:602111222' && m.length === 1
-        && decodeURIComponent(rozeber(m[0][1]).kam) === "mailto:o'brien+test@example.cz" && !m[0][1].includes("'")) || {t, m}; });
-    // E-mail: text s klikacím odkazem (HTML) do schránky, e-mail jen s příjemcem a předmětem; bez schránky prostý text jako dřív
-    const klikniMail = async (id, schrankaJde) => {
-      await detail(p, id); if (mobil) { await p.click('.md-vic'); await p.waitForSelector('#md-panel:not(.hidden)'); }
-      await p.evaluate(jde => { window.__kam = null; gdprPrejdi = h => { window.__kam = h; };
-        if (!jde) navigator.clipboard.write = () => Promise.reject(new Error('zakázáno')); }, schrankaJde);
-      await p.click(mobil ? '#md-panel a.md-radek:has-text("e-mailem")' : '#view .gdpr a:has-text("e-mailem")');
-      await p.waitForFunction(() => window.__kam);
-      return p.evaluate(() => window.__kam); };
-    await T(`${nazev}: „Poslat e-mailem“ dá do schránky HTML s klikacím odkazem a otevře e-mail jen s příjemcem a předmětem`, async () => {
-      const kam = await klikniMail('oba', true);
-      const schranka = await p.evaluate(async () => { const [it] = await navigator.clipboard.read();
-        return {typy: it.types, html: await (await it.getType('text/html')).text(), text: await (await it.getType('text/plain')).text()}; });
-      const r = rozeber(kam), html = schranka.html.replace(/&amp;/g, '&'), toast = await p.locator('#toast:not(.hidden)').innerText();
-      return (r.kam === 'mailto:jan.novak@example.cz' && r.predmet.includes('Souhlas') && r.text === null
-        && html.includes(`<a href="${FORMULAR}">`) && schranka.text.includes(FORMULAR) && /Ctrl\+V/.test(toast)
-        && (!mobil || !(await p.locator('#md-panel').isVisible()))) || {kam, schranka, toast}; });
-    await T(`${nazev}: když schránka nejde, otevře se e-mail s prostým textem jako dřív`, async () => {
-      const kam = await klikniMail('oba', false), r = rozeber(kam);
-      await p.reload(); await p.waitForFunction(() => document.querySelectorAll('#seznam .card').length === 4);
-      return (r.kam === 'mailto:jan.novak@example.cz' && r.text && r.text.includes(FORMULAR)) || kam; });
+      return (t.length === 1 && rozeber(t[0][1]).kam === 'sms:602111222' && m.length === 0) || {t, m}; });
     await T(`${nazev}: bez telefonu i e-mailu se GDPR nenabízí`, async () => (await odkazy('nic')).length === 0 || 'zobrazeno');
     if (!mobil) await T(`${nazev}: řádek GDPR je pod „Uložit do kontaktů“ a nad „Co chce“`, async () => {
       await detail(p, 'oba');

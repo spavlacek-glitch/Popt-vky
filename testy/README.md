@@ -59,17 +59,16 @@ SOUBOR=poptavky_v1.8.html FIREBASE10=/cesta/k/node_modules/firebase node testy/t
 Výsledek 2026-10-29: **16 / 16**. Regrese proti v1.8: `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_detail_v1.5.js` 40/40.
 
 ## `test_gdpr_v1.9.js` – souhlas GDPR (v1.9)
-Na PC 1280 a iPhonu 13 rozebere odkazy `sms:` a `mailto:`:
-- příjemce, předmět a text s odkazem na formulář MB,
-- jen telefon → jen SMS, jen e-mail → jen e-mail, bez kontaktu nic,
-- „Poslat e-mailem“: ve schránce HTML s klikacím odkazem a prostý text, e-mail jen s příjemcem a předmětem, hláška „Ctrl+V“; bez schránky e-mail s prostým textem,
-- zakódování neobvyklé adresy, poloha řádku na PC,
+Na PC 1280 a iPhonu 13 rozebere odkaz `sms:`:
+- číslo příjemce a text s odkazem na formulář MB na samostatném řádku,
+- e-mail se nenabízí (rozhodnutí uživatele), bez telefonu nic,
+- poloha řádku na PC,
 - žádný zápis do databáze a žádná systémová okna.
 
 ```bash
 SOUBOR=poptavky_v1.9.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_gdpr_v1.9.js
 ```
-Výsledek 2026-10-29: **13 / 13**. `test_detail_v1.5.js` od v1.9 porovnává detail na PC s v1.4 bez řádku „Souhlas GDPR“; s v1.8 i v1.9 **40 / 40**. Test „otočení na šířku“ občas selže na čekání 200 ms (stejně u v1.6–v1.9), druhé spuštění projde. Regrese proti v1.9: `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_tipy_v1.8.js` 16/16.
+Výsledek 2026-10-29: **9 / 9**. `test_detail_v1.5.js` od v1.9 porovnává detail na PC s v1.4 bez řádku „Souhlas GDPR“; s v1.8 i v1.9 **40 / 40**. Test „otočení na šířku“ občas selže na čekání 200 ms (stejně u v1.6–v1.9), druhé spuštění projde. Regrese proti v1.9: `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_tipy_v1.8.js` 16/16.
 
 ## `test_kontakt_v1.4.js` – „📱 Uložit do kontaktů“
 Exportuje kontakty ze smyšlených poptávek a každý stažený soubor `.vcf` přečte dvakrát: vlastním dekodérem podle vCard 3.0 a nezávisle knihovnou ical.js.
