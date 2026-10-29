@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.2 (2026-10-29)
+Verze dokumentu: 2.3 (2026-10-29)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -168,4 +168,10 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - QR kód na stojanu v showroomu, zákazník si poptávku vyplní sám (řešit zabezpečení zápisu bez přihlášení).
 - Tlačítko přímo v Outlooku „Do evidence".
 - Přiložení PDF nabídky k poptávce.
+- **Výdělek z prodaných aut** (nápad uživatele, zatím neschváleno k implementaci):
+  - slavit, co je prodané: „Tento měsíc prodáno: 3 auta ≈ 24 000 Kč 🎉“ (uživatel: „je super“),
+  - rozjednané nanejvýš jako realistický výhled („v rozjednaných zhruba dalších … Kč“), **ne** „kdybys prodal všechno“, protože by to ukazovalo spíš ztráty,
+  - jedna **průměrná provize za auto**, kterou si prodejce zadá sám. Provize podle modelů ne (špatná údržba, model se z textu nerozpoznává),
+  - citlivé údaje: částka schovaná, ukáže se po klepnutí (zákazník v showroomu vidí na obrazovku). Průměrná provize jen v zařízení prodejce, ne ve sdílené databázi,
+  - místo: souhrn v hlavičce evidence nebo volné místo pod „Dnes zavolat“ na PC (viz „Místo pro budoucí ceny“).
 - **Týmové motivační věty** (až bude víc prodejců): jen pozitivně, třeba „Tým včera zapsal 7 poptávek 💪“ nebo pochvala nejlepšímu. Počítat i nabídky a kontakty, ne jen nové poptávky, aby se nevyplatilo zapisovat „pro statistiku“. Jména doplnit ke schváleným účtům v konzoli Firebase (appka zná jen e-mail). Předtím rozhodnout, kdo vidí čí poptávky a čí jsou „Dnes zavolat“.
