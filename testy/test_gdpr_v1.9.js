@@ -68,7 +68,7 @@ const rozeber = href => { const [kam, q] = href.split('?'); const par = new URLS
     await T(`${nazev}: telefon i e-mail → SMS i e-mail s odkazem na formulář MB`, async () => {
       const o = await odkazy('oba'), sms = rozeber(o[0][1]), mail = rozeber(o[1][1]);
       return (o.length === 2 && /SMS/.test(o[0][0]) && /e-mailem/.test(o[1][0])
-        && sms.kam === 'sms:+420777123456' && sms.text.includes(FORMULAR) && sms.text.startsWith('Dobrý den')
+        && sms.kam === 'sms:+420777123456' && sms.text.includes('\n\n' + FORMULAR + '\n\n') && sms.text.startsWith('Dobrý den')
         && mail.kam === 'mailto:jan.novak@example.cz' && mail.text === sms.text && mail.predmet.includes('Souhlas')) || {o, sms, mail}; });
     if (OUT) { await detail(p, 'oba'); if (mobil) await p.click('.md-vic'); await p.screenshot({path: path.join(OUT, `gdpr_${nazev.replace(/\s/g, '')}.png`)}); if (mobil) await p.keyboard.press('Escape'); }
     await T(`${nazev}: jen telefon → jen SMS; jen e-mail → jen e-mail (adresa správně zakódovaná)`, async () => {

@@ -623,7 +623,8 @@ function renderDetailMobil(id, p){
    formulář údaje z odkazu nepřebírá). Odešle prodejce sám ve své aplikaci; do Poptávek se nic nezapisuje. */
 const GDPR_ODKAZ = 'https://www.mercedes-benz.cz/passengercars/content-pool/marketing-pool/contact-forms/doc.html?d=2021-06-22&can=RetailWeb&cpid=doc_ms_7672&le=D-Outlet.9058&s=generic_landing_page';
 const GDPR_PREDMET = 'Souhlas se zpracováním osobních údajů – Mercedes-Benz';
-const GDPR_TEXT = `Dobrý den, posílám odkaz na souhlas se zpracováním osobních údajů pro Mercedes-Benz: ${GDPR_ODKAZ}\nDěkuji, S. & W. Automobily`;
+// Odkaz na samostatném řádku – Zprávy i pošta ho tak spolehlivě rozpoznají jako odkaz (v okně psaní bývá ještě černý, modrý je až po odeslání)
+const GDPR_TEXT = `Dobrý den,\nposílám odkaz na souhlas se zpracováním osobních údajů pro Mercedes-Benz:\n\n${GDPR_ODKAZ}\n\nDěkuji, S. & W. Automobily`;
 function gdprOdkazy(p){
   const tel = (p.telefon || '').replace(/[^\d+]/g, ''), e = t => encodeURIComponent(t).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()), o = [];
   if (tel) o.push([`sms:${tel}?&body=${e(GDPR_TEXT)}`, '💬 Poslat SMS']);    // „?&body=“ funguje v iPhonu i Androidu
