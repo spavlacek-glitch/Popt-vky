@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.1 (2026-10-29)
+Verze dokumentu: 2.2 (2026-10-29)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -161,9 +161,11 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 ## Konvence
 - **Verzovat vše**: číslo verze v názvu souboru, v `<title>`, v hlavičce i v komentáři na začátku souboru.
 - Uživatelské texty česky, klidně s lehkým humorem.
+- **Tón appky (rozhodnutí uživatele):** povzbuzovat a bavit, nikdy nesrážet. Žádné žebříčky „kdo je poslední“ ani výčitky. Humor je vítaný, pokud prodejci pomáhá nebo ho pobaví. Prodejce má zapisování bavit – když je appka vtipná a usnadní práci, bude ji používat.
 - Escapovat veškerý obsah z DB při vkládání do HTML (`esc()`).
 
 ## Nápady na později
 - QR kód na stojanu v showroomu, zákazník si poptávku vyplní sám (řešit zabezpečení zápisu bez přihlášení).
 - Tlačítko přímo v Outlooku „Do evidence".
 - Přiložení PDF nabídky k poptávce.
+- **Týmové motivační věty** (až bude víc prodejců): jen pozitivně, třeba „Tým včera zapsal 7 poptávek 💪“ nebo pochvala nejlepšímu. Počítat i nabídky a kontakty, ne jen nové poptávky, aby se nevyplatilo zapisovat „pro statistiku“. Jména doplnit ke schváleným účtům v konzoli Firebase (appka zná jen e-mail). Předtím rozhodnout, kdo vidí čí poptávky a čí jsou „Dnes zavolat“.
