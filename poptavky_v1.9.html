@@ -15,7 +15,7 @@
      v1.8: prázdné „Dnes zavolat“ nabídne až 3 tipy, komu zavolat – „Dlouho ticho“ (otevřená poptávka 14+ dní bez zápisu)
            a nejbližší budoucí kontakt; jen čtení dat, nic se nezapisuje
      v1.9: „Souhlas GDPR“ v detailu – připraví SMS nebo e-mail s odkazem na formulář souhlasu MB; odešle prodejce sám,
-           nic se nezapisuje -->
+           nic se nezapisuje; e-mail: text s klikacím odkazem (HTML) do schránky + Outlook s příjemcem a předmětem, Ctrl+V -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -168,6 +168,8 @@ label.f{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
 .gdpr .hint{flex:0 0 auto}
 .gdpr .btn{flex:0 0 auto}
 a.md-radek{text-decoration:none}
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:30;max-width:min(92vw,520px);
+  background:var(--ink);color:#fff;border-radius:12px;padding:12px 16px;font-size:15px;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 .sekce-hlava{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
 @media (min-width:960px){
   main:has(.dash){max-width:1240px}
@@ -494,8 +496,8 @@ function renderDetail(id){
           value="${esc(oznaceni.id === id ? oznaceni.text : '')}" oninput="oznaceni = {id: '${id}', text: this.value}">
         <button class="btn sec" onclick="ulozKontakt('${id}')">📱 Uložit do kontaktů</button>
       </div>
-      ${gdprOdkazy(p).length ? `<div class="row gdpr"><span class="hint">Souhlas GDPR:</span>${gdprOdkazy(p).map(([href, txt]) =>
-        `<a class="btn sec sm" href="${href}">${txt}</a>`).join('')}</div>` : ''}
+      ${gdprOdkazy(p, id).length ? `<div class="row gdpr"><span class="hint">Souhlas GDPR:</span>${gdprOdkazy(p, id).map(([href, txt, klik]) =>
+        `<a class="btn sec sm" href="${href}"${klik ? ` onclick="${klik}"` : ''}>${txt}</a>`).join('')}</div>` : ''}
       <label class="f">Co chce</label><div style="white-space:pre-wrap">${esc(p.zajem || '—')}</div>
     </div>
 
@@ -625,11 +627,35 @@ const GDPR_ODKAZ = 'https://www.mercedes-benz.cz/passengercars/content-pool/mark
 const GDPR_PREDMET = 'Souhlas se zpracováním osobních údajů – Mercedes-Benz';
 // Odkaz na samostatném řádku – Zprávy i pošta ho tak spolehlivě rozpoznají jako odkaz (v okně psaní bývá ještě černý, modrý je až po odeslání)
 const GDPR_TEXT = `Dobrý den,\nposílám odkaz na souhlas se zpracováním osobních údajů pro Mercedes-Benz:\n\n${GDPR_ODKAZ}\n\nDěkuji, S. & W. Automobily`;
-function gdprOdkazy(p){
+function gdprOdkazy(p, id){
   const tel = (p.telefon || '').replace(/[^\d+]/g, ''), e = t => encodeURIComponent(t).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase()), o = [];
   if (tel) o.push([`sms:${tel}?&body=${e(GDPR_TEXT)}`, '💬 Poslat SMS']);    // „?&body=“ funguje v iPhonu i Androidu
-  if (p.email) o.push([`mailto:${e(p.email.trim()).replace(/%40/g, '@')}?subject=${e(GDPR_PREDMET)}&body=${e(GDPR_TEXT)}`, '✉️ Poslat e-mailem']);
+  if (p.email) o.push([gdprMailto(p, true), '✉️ Poslat e-mailem', `return gdprMail(event, '${id}')`]);
   return o;
+}
+/* E-mail: mailto: umí jen prostý text a nový Outlook z něj odkaz neudělá. Proto se text s klikacím odkazem (HTML)
+   zkopíruje do schránky a Outlook se otevře jen s příjemcem a předmětem – prodejce vloží text Ctrl+V.
+   Když schránka nejde (starý prohlížeč, zakázaná oprávnění), otevře se e-mail s prostým textem jako dřív. */
+const GDPR_HTML = `<p>Dobrý den,</p><p>posílám odkaz na <a href="${GDPR_ODKAZ.replace(/&/g, '&amp;')}">souhlas se zpracováním osobních údajů pro Mercedes-Benz</a>.</p>`
+  + `<p>Děkuji,<br>S. &amp; W. Automobily</p>`;
+function gdprMailto(p, sTextem){
+  const e = t => encodeURIComponent(t).replace(/[!'()*]/g, c => '%' + c.charCodeAt(0).toString(16).toUpperCase());
+  return `mailto:${e(p.email.trim()).replace(/%40/g, '@')}?subject=${e(GDPR_PREDMET)}` + (sTextem ? `&body=${e(GDPR_TEXT)}` : '');
+}
+function gdprPrejdi(href){ location.href = href; }
+function gdprMail(ev, id){
+  const p = data[id]; if (!p) return true;
+  ev.preventDefault();
+  try {
+    navigator.clipboard.write([new ClipboardItem({'text/html': new Blob([GDPR_HTML], {type:'text/html'}), 'text/plain': new Blob([GDPR_TEXT], {type:'text/plain'})})])
+      .then(() => { toast('📋 Text s odkazem je ve schránce – v e-mailu klikni do textu a dej Ctrl+V (na iPhonu podržet → Vložit).'); gdprPrejdi(gdprMailto(p, false)); },
+            () => gdprPrejdi(gdprMailto(p, true)));
+  } catch (err) { gdprPrejdi(gdprMailto(p, true)); }
+  return false;
+}
+function toast(text){
+  let t = $('#toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
+  t.textContent = text; t.classList.remove('hidden'); clearTimeout(toast.casovac); toast.casovac = setTimeout(() => t.classList.add('hidden'), 10000);
 }
 /* Panel „Další akce“ – kontakt do iPhonu, úprava, smazání (s potvrzením přímo v panelu) */
 function otevriAkce(id){
@@ -644,7 +670,7 @@ function otevriAkce(id){
         <button type="button" class="btn" onclick="ulozKontakt('${id}')">📱 Uložit do kontaktů</button>
       </div>
     </div>
-    ${gdprOdkazy(p).map(([href, txt]) => `<a class="md-radek" href="${href}" onclick="zavriAkce()"><span>🛡</span>Souhlas GDPR – ${txt.replace(/^\S+ /, '')}</a>`).join('')}
+    ${gdprOdkazy(p, id).map(([href, txt, klik]) => `<a class="md-radek" href="${href}" onclick="zavriAkce();${klik || ''}"><span>🛡</span>Souhlas GDPR – ${txt.replace(/^\S+ /, '')}</a>`).join('')}
     <button type="button" class="md-radek" onclick="zavriAkce(); renderForm('${id}')"><span>✏️</span>Upravit údaje</button>
     <button type="button" class="md-radek cervena" onclick="$('#md-potvrd').classList.remove('hidden')"><span>🗑</span>Smazat poptávku…</button>
     <div id="md-potvrd" class="md-potvrd hidden">
