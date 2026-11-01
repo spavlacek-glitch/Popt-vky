@@ -24,6 +24,7 @@ Datum: 2026-10-28 · Posuzovaná verze Offer Studio: v1.1.9 (repo `spavlacek-gli
   - šablony 1–5 z makra s opravami (viz níže), náhled e-mailu, volby uložené ke konceptu,
   - Nastavení (jen v PC, `data/nastaveni.json`): prodejce, financování, bonusy BEV, platnost akcí s upozorněním, podpis (výchozí vypnutý).
   - **Ověřeno uživatelem na pracovním PC (2026-11-01):** z Poptávek přes „📄 Udělat nabídku“ se nabídka vytvoří, nový Outlook otevře koncept, texty sedí a PDF je v příloze.
+- **Offer Studio v1.3.0 – rychlá nabídka** (rozhodnutí uživatele 2026-11-01: ukládání samo ano, FotoLab automaticky ne, potvrzení fotek ano): pořadí Zákazník → Vůz → Cena → E-mail → Hotovo, „Co ještě chybí“ průběžně a najednou, výpis sbalený do souhrnu, model z výpisu, chyby u tlačítka. Druhé klepnutí na „Udělat nabídku“ otevře existující nabídku k poptávce.
 - **Krok 3 zatím ne:** zápis souhrnu nabídky do Poptávek (Firebase z Offer Studia, přihlášení). Stav dál přepíná prodejce ručně.
 - **Krok 4 zatím ne:** připomínací e-maily navázané na připomínky v Poptávkách. Šablony 2–5 už jdou ručně přes „✉ Jen e-mail“.
 
