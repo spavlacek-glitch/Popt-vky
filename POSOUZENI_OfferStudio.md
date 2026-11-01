@@ -23,7 +23,7 @@ Datum: 2026-10-28 · Posuzovaná verze Offer Studio: v1.1.9 (repo `spavlacek-gli
   - „📄 Vytvořit PDF a e-mail“ = Word + PDF + koncept `.eml` otevřený v Outlooku; „✉ Jen e-mail“ s posledním PDF (připomínky),
   - šablony 1–5 z makra s opravami (viz níže), náhled e-mailu, volby uložené ke konceptu,
   - Nastavení (jen v PC, `data/nastaveni.json`): prodejce, financování, bonusy BEV, platnost akcí s upozorněním, podpis (výchozí vypnutý).
-  - Na Windows je potřeba ověřit samotné otevření konceptu po exportu (`os.startfile`), na Linuxu ověřen tvar `.eml`.
+  - **Ověřeno uživatelem na pracovním PC (2026-11-01):** z Poptávek přes „📄 Udělat nabídku“ se nabídka vytvoří, nový Outlook otevře koncept, texty sedí a PDF je v příloze.
 - **Krok 3 zatím ne:** zápis souhrnu nabídky do Poptávek (Firebase z Offer Studia, přihlášení). Stav dál přepíná prodejce ručně.
 - **Krok 4 zatím ne:** připomínací e-maily navázané na připomínky v Poptávkách. Šablony 2–5 už jdou ručně přes „✉ Jen e-mail“.
 
