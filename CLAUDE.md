@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.16 (2026-11-01)
+Verze dokumentu: 2.17 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -35,6 +35,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 4. Nabídka – **základ je Mercedes Offer Studio** (rozhodnutí 2026-11-01). Makro s MB Configurator API (`Module1`, online kód) se vynechává. **Od v1.13** otevře „📄 Udělat nabídku“ v detailu na PC Offer Studio (v1.2.0) s vyplněným zákazníkem (viz níže). Podklady jsou v `POSOUZENI_OfferStudio.md`.
 5. Odeslání nabídky e-mailem ✅ Offer Studio v1.2.0 – „📄 Vytvořit PDF a e-mail“ vytvoří PDF a soubor `.eml` (koncept s přílohou PDF a textem ze šablon makra `EmailSablony`) a otevře ho v Outlooku. **Ověřeno u uživatele (2026-11-01, celá cesta):** Poptávky → „📄 Udělat nabídku“ → Offer Studio v1.2.0 → PDF → nový Outlook otevře upravitelný koncept, texty sedí, PDF je v příloze. Odešle prodejce sám, nic se nepřipojuje k poště. Offer Studio běží na pevném portu `8774`, akční nabídky (financování, bonusy) a podpis si prodejce upravuje sám v Nastavení Offer Studia.
    - **Odpověď ve vlákně (Offer Studio v1.6.0, přání uživatele):** druhá nabídka a připomínky se neposílají jako nový e-mail. Když zákazník nabídku už má, Offer Studio vytvoří jen PDF a dá ho do schránky (**ověřeno u uživatele na PC, 2026-11-01:** nový Outlook vloží PDF ze schránky do odpovědi jako přílohu) spolu s krátkým textem „Upravená nabídka“. Prodejce v Outlooku klepne Odpovědět a vloží.
+   - **Offer Studio v1.7.0 (přání uživatele, ověřeno že funguje):** rychlejší načítání fotek z odkazu (bez pevného čekání, paralelní stahování); nabídky se ukazují jen u konkrétního zákazníka (seznam všech je na `/nabidky`); „další nabídka“ k poptávce převezme zákazníka, poznámky a prodejce; prodejce (jméno, telefon, e-mail z Nastavení Offer Studia) je i v hlavičce PDF. Podrobnosti v `README_V1_7_0.txt` v Offer Studiu.
    - Zpětný zápis nabídky do Poptávek je od Offer Studia v1.5.0. **Stav se nemění:** „Nabídka odeslána“ přepíná prodejce ručně po odeslání (rozhodnutí 1 z 2026-10-28).
 6. Automatické připomínky po odeslání
 7. Předání do SW Žádanek (kupní smlouva) – schválený postup, odložený po dobu pilotu Žádanek. Podklady jsou v soukromém repu Žádanek (`POSOUZENI_Poptavky.md`), do tohoto veřejného repa se nepřenášejí. Bez pokynu neimplementovat.
@@ -57,7 +58,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
   - `/poptavky`: čtení i zápis jen pro schválené účty, tj. `/uzivatele/{UID}/schvalen: true`. Seznam schválených účtů se upravuje jen v konzoli Firebase, z aplikace zapsat nejde.
   - `/zakaznici`: pravidla jsou nasazená (jen schválené účty a jen povolená pole). Od **v1.2** se používají pro známého zákazníka u nové poptávky. Evidence začíná prázdná a zákazníci přibývají z poptávek. Import z Fenclotéky je odložený: musí spárovat zákazníky podle telefonu a e-mailu, jinak vzniknou dvojí záznamy.
   - Nová pravidla prošla 81 testy v emulátoru (`firebase/rules.test.mjs`). Po nasazení bylo ověřeno čtení i zápis v Poptávkách v1.0.
-  - `/poptavky/{id}/nabidky` (od v1.14): kontrola tvaru zápisu z Offer Studia (jen povolená pole, čísla, `kdo` = přihlášený, jen k existující poptávce). 95 testů. **Uživatel je musí nasadit v konzoli Firebase.** Bez nasazení zápis funguje taky, jen bez kontroly tvaru.
+  - `/poptavky/{id}/nabidky` (od v1.14): kontrola tvaru zápisu z Offer Studia (jen povolená pole, čísla, `kdo` = přihlášený, jen k existující poptávce). 95 testů. Pravidla se nasazují ručně v konzoli Firebase (Realtime Database → Pravidla → Publikovat). Uživatel je zkoušel nasadit a zápis z Offer Studia funguje (2026-11-01).
 - Firebase `apiKey` v klientském kódu je OK. Žádné privátní klíče do repa.
 
 ## Datový model – `/poptavky/{pushId}`
