@@ -56,7 +56,7 @@ const rozeber = href => { const [kam, q] = href.split('?'); const par = new URLS
     await p.waitForFunction(() => document.querySelectorAll('#seznam .card').length === 4);
     return p;
   };
-  const detail = async (p, id) => { await p.evaluate(id => renderDetail(id), id); await p.waitForSelector('#view button:has-text("Přehled")'); };
+  const detail = async (p, id) => { await p.evaluate(id => renderDetail(id), id); await p.waitForSelector('#view .zpet-pc, .zpet button'); };
 
   for (const [nazev, opts, sel] of [['PC 1280', {viewport:{width:1280, height:900}}, '#view .gdpr a'], ['iPhone 13', IPHONE, '#md-panel a.md-radek']]) {
     console.log(`== ${nazev}`);

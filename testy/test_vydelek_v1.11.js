@@ -119,7 +119,7 @@ const norm = t => t.replace(/\s+/g, ' ').trim();
     await T(`${nazev}: přepnutí poptávky na Prodáno se hned započítá`, async () => {
       await p.locator('#seznam .card', {hasText:'Otevřený Dva'}).click();
       if (nazev.startsWith('iPhone')) await p.click('.md-uzavrit .prodano'); else await p.click('#view .chip:has-text("Prodáno")');
-      await p.click('button:has-text("Přehled")'); await p.waitForSelector('.vydelek');
+      await p.click('.zpet-pc, .zpet button'); await p.waitForSelector('.vydelek');
       const t = await text(); return (t.includes('Tento měsíc prodáno: 1 auto ≈ 9 500 Kč') && t.includes('Rozjednáno: 3 obchody')) || t; });
     await T(`${nazev}: rozložení – ${nazev.startsWith('PC') ? 'vpravo vedle nadpisu „Poptávky“' : 'pod nadpisem, nic nepřetéká'}; žádné chyby`, async () => {
       const h = await p.locator('h2:has-text("Poptávky")').boundingBox(), v = await p.locator('.vydelek').boundingBox();

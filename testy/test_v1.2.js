@@ -66,7 +66,7 @@ const ZAKAZNICI = [   // smyšlení zákazníci z experimentu v0.2
     return p;
   };
   const doFormulare = async p => {
-    if (await p.locator('button:has-text("Přehled")').count()) await p.click('button:has-text("Přehled")');
+    if (await p.locator('.zpet-pc, .zpet button').count()) await p.click('.zpet-pc, .zpet button');
     else if (await p.locator('#view button:has-text("Zpět")').count()) await p.click('#view button:has-text("Zpět")');
     await p.click('#fab');
   };
@@ -207,7 +207,7 @@ const ZAKAZNICI = [   // smyšlení zákazníci z experimentu v0.2
 
   console.log('== Začlenění do v1.1 (V2–V5)');
   await T('V2: úprava údajů poptávky se zákazníkem → zákazník zůstane, ve formuláři úprav není panel zákazníků', async () => {
-    await p.click('button:has-text("Přehled")'); await p.fill('#hledat', 'GLC 300 e'); await p.locator('#seznam .card', {hasText:'GLC 300 e'}).click();
+    await p.click('.zpet-pc, .zpet button'); await p.fill('#hledat', 'GLC 300 e'); await p.locator('#seznam .card', {hasText:'GLC 300 e'}).click();
     await p.click('button:has-text("Upravit údaje")');
     const panel = await p.locator('#zakaznici').count();
     await p.fill('#f-zajem', 'GLC 300 e – upraveno'); await p.click('#view button:has-text("Uložit")'); await p.waitForSelector('button:has-text("Upravit údaje")');
@@ -273,7 +273,7 @@ const ZAKAZNICI = [   // smyšlení zákazníci z experimentu v0.2
     return (panel === '' && r.jak === 'novy' && await pocet() === 1) || {panel, r}; });
   await T('V7: starší poptávka bez pole zakaznik (z v1.1) se zobrazí a upraví beze změny', async () => {
     await admin('poptavky/stara', 'PUT', {kanal:'telefon', jmeno:'Starý Zápis', telefon:'720 999 888', zajem:'Z v1.1', stav:'nova', dalsiKontakt:zitra(), vytvoreno:1, upraveno:1, prodejce:'prodejce@suw.example.cz', historie:{h1:{t:1, kdo:'prodejce@suw.example.cz', text:'Založeno (📞 Telefon)'}}});
-    await p.click('button:has-text("Přehled")'); await p.locator('#seznam .card', {hasText:'Starý Zápis'}).click();
+    await p.click('.zpet-pc, .zpet button'); await p.locator('#seznam .card', {hasText:'Starý Zápis'}).click();
     const d = await detail(p);
     await p.click('button:has-text("Upravit údaje")'); await p.fill('#f-zajem', 'Z v1.1 – upraveno'); await p.click('#view button:has-text("Uložit")');
     await p.waitForSelector('button:has-text("Upravit údaje")');

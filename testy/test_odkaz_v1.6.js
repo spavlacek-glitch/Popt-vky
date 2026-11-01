@@ -63,7 +63,7 @@ const POPT = {
     await p.goto(APP); await prihlas(p); await nacteno(p);
     let odkaz;
     await T(`${nazev}: kontakt z poptávky obsahuje odkaz „Poptávky“ na stálou adresu poptavky.html s ID poptávky`, async () => {
-      await p.evaluate(() => renderDetail('-ODemoK7x2Pq1')); await p.waitForSelector('button:has-text("Přehled")');
+      await p.evaluate(() => renderDetail('-ODemoK7x2Pq1')); await p.waitForSelector('.zpet-pc, .zpet button');
       if (mobil) await p.click('.md-vic');
       const [dl] = await Promise.all([p.waitForEvent('download'), p.click('button:has-text("Uložit do kontaktů")')]);
       const vcf = fs.readFileSync(await dl.path(), 'utf8'), r = radky(vcf);

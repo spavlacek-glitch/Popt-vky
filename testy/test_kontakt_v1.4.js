@@ -132,7 +132,7 @@ const POPT = {
     const [dl] = await Promise.all([p.waitForEvent('download'), p.click('button:has-text("Uložit do kontaktů")')]);
     return (hodnota === 'EQS' && rfc(fs.readFileSync(await dl.path(), 'utf8')).FN === 'Hans Müller · EQS') || hodnota; });
   await T('K12: po návratu na přehled a u jiné poptávky je pole označení prázdné', async () => {
-    await p.click('button:has-text("Přehled")'); await detail(p, 'k7'); const a1 = await p.inputValue('#d-oznaceni');
+    await p.click('.zpet-pc, .zpet button'); await detail(p, 'k7'); const a1 = await p.inputValue('#d-oznaceni');
     await detail(p, 'k6'); const a2 = await p.inputValue('#d-oznaceni');
     return (a1 === '' && a2 === '') || {a1, a2}; });
   await T('K13: export nic nezapsal do databáze (poptávky ani zákazníci beze změny, kromě testovací změny z K11)', async () => {
@@ -144,7 +144,7 @@ const POPT = {
   console.log('== iPhone');
   p = await otevri(IPHONE);
   await T('iPhone 13: pole a tlačítko v detailu, tlačítko aspoň 44 px, export funguje, nic se neposouvá do stran', async () => {
-    await p.click('.card:has-text("Jan Novák") >> nth=0'); await p.waitForSelector('button:has-text("Přehled")');
+    await p.click('.card:has-text("Jan Novák") >> nth=0'); await p.waitForSelector('.zpet-pc, .zpet button');
     if (await p.locator('.md-vic').count()) await p.click('.md-vic');   // od v1.5 je export na mobilu v panelu „Další akce“
     await p.waitForSelector('#d-oznaceni');
     const tl = await p.locator('button:has-text("Uložit do kontaktů")').boundingBox(), pole = await p.locator('#d-oznaceni').boundingBox();
