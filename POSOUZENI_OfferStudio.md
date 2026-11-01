@@ -4,6 +4,37 @@ Datum: 2026-10-28 · Posuzovaná verze Offer Studio: v1.1.9 (repo `spavlacek-gli
 
 > **Podklad pro budoucí rozhodnutí, ne zadání.** Z tohoto dokumentu nevzniká žádný vývojový úkol ani nová architektura. Poptávky v1.0 zůstávají beze změn.
 
+## Rozhodnutí uživatele (2026-11-01) – platí přednostně
+1. **Offer Studio bude základ nabídek.** Umí i fotky z odkazu.
+2. **Makro `Module1` (Mercedes Configurator API, online kód) se vynechává.** Online kód je jen zkušební a uživatel ho dál řešit nebude. Nahrazuje ho Offer Studio.
+3. **Kalkulace zůstává v Offer Studiu** (makro `KalkulaceSlevy` se do Poptávek nepřevádí, rozhodnutí 5 níže platí).
+4. **E-mailové šablony** z makra `EmailSablony.bas` se převezmou (5 scénářů, oslovení v 5. pádě, texty podle modelu, financování, bonusy BEV, podpis), včetně oprav chyb nalezených v makru.
+5. **Cíl uživatele:** jedním krokem udělat nabídku do PDF a otevřít v Outlooku připravený koncept e-mailu s přílohou. Odeslání zůstává na prodejci.
+
+### Ověřeno na pracovním PC (2026-11-01): koncept přes soubor `.eml`
+- Nový Outlook pro Windows nejde ovládat makrem (COM) a firemní IT nepovoluje napojení aplikací na poštu (`KONTEXT_obchod.md`, odpověď 49).
+- **Řešení bez napojení na poštu:** Offer Studio vytvoří soubor `.eml` s hlavičkou `X-Unsent: 1` (příjemce, předmět, tělo HTML a prostý text, příloha PDF) a otevře ho, jako by na něj prodejce dvakrát klikl.
+- **Výsledek testu u uživatele:** otevřel se **nový Outlook** s **upravitelným konceptem**. Text šel upravit, tučné i barevné písmo zůstalo zachované, příloha PDF a odkaz byly v pořádku.
+- Testovací soubor: HTML + prostý text (`multipart/alternative`) a příloha PDF (`multipart/mixed`), UTF-8 s diakritikou v předmětu i jménu příjemce.
+
+### Navržený postup (zatím neimplementováno)
+1. **Poptávky (PC):** v detailu tlačítko „📄 Udělat nabídku“. Otevře Offer Studio (`127.0.0.1:<pevný port>`) s vyplněným jménem, telefonem, e-mailem a ID poptávky. Je to jen odkaz, takže nevzniká problém s CORS.
+2. **Offer Studio:** konfigurace, sleva, fotky a PDF beze změny. Nově „Hotovo → e-mail“: uloží PDF, sestaví e-mail ze šablony (oslovení z jména poptávky, model, BEV, podpis) a otevře `.eml` koncept.
+3. **Zpět do Poptávek:** souhrn do `/poptavky/{id}/nabidky/{pushId}` a řádek do historie „Nabídka připravena“. **Stav se nemění** (rozhodnutí 1 z 2026-10-28). Po odeslání ho prodejce jedním klepnutím přepne na „Nabídka odeslána“ a připomínka za 3 dny se nastaví sama.
+4. **Později:** připomínací e-maily (šablony 2–5) navázané na připomínky v Poptávkách.
+
+### Co je potřeba před implementací
+- Přístup k repu Offer Studia (`spavlacek-glitch/Mercedes-Offer-Studio`), většina práce bude tam.
+- Pevný port Offer Studia.
+- **Rozhodnutí k šablonám:**
+  - financování Credit „140. výročí“: šablona 1 uvádí úrok 5,99 %, šablona 4 1,4 %,
+  - úvodní nabídka nemá podpis, ostatní šablony ano,
+  - kdo a kde bude aktualizovat financování a bonusy.
+- **Chyby makra `EmailSablony` k opravě při převzetí:**
+  - v připomenutí po 3–5 dnech se do textu propíše „modelVozu“,
+  - nepřesné oslovení („Havel“ → „Havele“, ženská příjmení bez „-ová“ dostanou „pane“).
+- **Do veřejného repa nepatří** makra s API klíčem (`Module1`) ani podpis s kontakty natvrdo. Podpis patří do nastavení prodejce.
+
 ## Rozhodnutí uživatele (2026-10-28)
 1. Stav „Nabídka odeslána“ se potvrzuje **ručně v Poptávkách** až po skutečném odeslání zákazníkovi. Vygenerování Wordu/PDF stav **nesmí** měnit.
 2. Offer Studio zatím **není** definitivní náhrada makra `Nabidka_MB_final.bas`, protože ještě není dokončené ani odladěné.
