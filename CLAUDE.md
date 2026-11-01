@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.7 (2026-11-01)
+Verze dokumentu: 2.8 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -34,6 +34,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 ## Technologie
 - Jeden HTML soubor (`poptavky_vX.html`), bez build kroku, mobil + PC.
 - Hosting: GitHub + raw.githack.com (stejně jako appka Zkušební jízdy).
+  - **Po sloučení do `main` trvá několik minut** (ověřeno: víc než minutu, někdy 5–10 minut), než raw.githack.com ukáže novou verzi. Uživateli to vždy říct předem a nepovažovat to za chybu. Rychlá kontrola je přímá adresa nové verze (`…/main/poptavky_vX.Y.html`). Safari obejde svou mezipaměť přes `poptavky.html?cokoli`.
 - **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi a běžící appky nenabídnou aktualizaci (viz „Aktualizace za chodu“).
   - `MINIMALNI` (od v1.10) zvýšit **jen při změně tvaru dat**. Starší verze se pak přepnou samy.
   - Tvar obou řádků (`const AKTUALNI = '…';`) neměnit, appka je čte.
