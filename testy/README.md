@@ -98,6 +98,20 @@ SOUBOR=poptavky_v1.11.html FIREBASE10=/cesta/k/node_modules/firebase node testy/
 ```
 Výsledek 2026-11-01: **35 / 35**. `test_aktualizace_v1.10.js` teď odvodí čísla verzí ze `SOUBOR`, a tak funguje i pro v1.11 (smyšlená v1.12): **23 / 23**. Regrese proti v1.11: `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_tipy_v1.8.js` 16/16, `test_gdpr_v1.9.js` 9/9, `test_detail_v1.5.js` 40/40.
 
+## `test_manifest_v1.12.js` – manifest appky na ploše (v1.12)
+Appka běží z lokálního HTTP serveru ve složce `/spavlacek-glitch/Popt-vky/main/` jako na raw.githack.com. Manifest přečte sám prohlížeč (Chromium, `Page.getAppManifest`) a test ověří:
+- manifest se najde a přečte bez chyb,
+- `start_url` = stálá adresa `poptavky.html`, `scope` = celá složka, takže do ní patří i budoucí verze,
+- `display: standalone`, název a barvy, jen relativní cesty,
+- `poptavky.html` odkazuje na stejný manifest.
+
+Skutečné chování iPhonu (lišta prohlížeče po přepnutí verze) se nasimulovat nedá, ověřit na zařízení.
+
+```bash
+SOUBOR=poptavky_v1.12.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_manifest_v1.12.js
+```
+Výsledek 2026-11-01: **7 / 7**. Kontrola testu: na v1.11 bez manifestu 3/7. Regrese proti v1.12: `test_vydelek_v1.11.js` 35/35, `test_aktualizace_v1.10.js` 23/23, `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_tipy_v1.8.js` 16/16, `test_gdpr_v1.9.js` 9/9, `test_detail_v1.5.js` 40/40.
+
 ## `test_kontakt_v1.4.js` – „📱 Uložit do kontaktů“
 Exportuje kontakty ze smyšlených poptávek a každý stažený soubor `.vcf` přečte dvakrát: vlastním dekodérem podle vCard 3.0 a nezávisle knihovnou ical.js.
 - **Údaje kontaktu:**
