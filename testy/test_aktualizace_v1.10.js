@@ -100,7 +100,7 @@ const P = (jmeno, dalsi) => ({kanal:'telefon', jmeno, telefon:'777 000 000', ema
       return (zmizela && odsazeni === '0px' && await lista(p).count() === 0) || {zmizela, odsazeni}; });
     await T(`${nazev}: „Aktualizovat“ v detailu → ${DALSI} s otevřeným detailem téže poptávky`, async () => {
       await p.reload(); await prihlas(p); await lista(p).waitFor();
-      await p.locator('#seznam .card', {hasText:'Jan Aktualizační'}).click(); await p.waitForSelector('#view button:has-text("Přehled")');
+      await p.locator('#seznam .card', {hasText:'Jan Aktualizační'}).click(); await p.waitForSelector('#view .zpet-pc, .zpet button');
       await lista(p).locator('button:has-text("Aktualizovat")').click();
       await p.waitForURL(new RegExp(DALSI_SOUBOR.replace(/\./g, '\\.'))); await prihlas(p).catch(() => {});
       await p.waitForSelector(mobil ? '.md-karta' : '#view button:has-text("Upravit údaje")');

@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.20 (2026-11-01)
+Verze dokumentu: 2.21 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -132,7 +132,8 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
   - **Tlačítko Zpět prohlížeče** (z Fenclotéky je známo, že lidé místo „Přehled“ mačkají Zpět v prohlížeči) vrací z detailu na přehled a z úpravy údajů do detailu, ne ven z appky (`history.pushState`, Vpřed otevře detail zase). Po uložení úpravy vede jedno Zpět na přehled.
   - „← Zpět na přehled poptávek“ na PC je výraznější, na mobilu zůstává „← Přehled“.
   - **Kalkulace v detailu na PC:** u každé nabídky se vždy ukazují ceníková cena, sleva (Kč a %), cena vozu, doplňkový prodej a celkem s DPH, soubor a „📂 Otevřít v Offer Studiu“, aby je prodejce měl po ruce při telefonování. **Zisk a marže zůstávají schované** do klepnutí (showroom).
-- Starší testy porovnávající PC detail s v1.4 (`test_detail_v1.5.js`) pro PC neplatí; ostatní hledají místo „Co chce“ nadpis „Poptávka“ a tlačítko „Přehled“ (bez šipky).
+- **v1.19 (přání uživatele: „zpět na přehled je málo výrazné, budou pořád klikat na Zpět v prohlížeči“):** nad detailem na PC je přilepený modrý pruh s velkým tlačítkem **„← Všechny poptávky“**, drobečkovou navigací „Poptávky › Jméno“ a nápovědou **Esc**. Klávesa Esc vrací na přehled (ne při psaní do pole). Tlačítko Zpět prohlížeče funguje dál (v1.18). Mobil beze změny.
+- Starší testy porovnávající PC detail s v1.4 (`test_detail_v1.5.js`) pro PC neplatí; ostatní hledají místo „Co chce“ nadpis „Poptávka“ a tlačítko návratu (`.zpet-pc, .zpet button`).
 
 ## Vůz u poptávky (v1.16)
 - **Přání uživatele (2026-11-01):** u poptávky musí být jasné, o jaký vůz jde, stejně jako v Žádankách (`puvod_vozidla`: skladové / do výroby / od jiného dealera, lokace). Skladový vůz se pozná podle Auftragu (např. 05-576-12345). Vůz do výroby má online kód, nebo už Auftrag, když si zákazník mění auto, které je ve výrobě.
@@ -263,7 +264,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_ekonomika_v1.15.js`: ekonomika na přehledu na PC 1440 a 1280 (záhlaví, řádek s nabídkou a posledním zápisem, schovaný zisk a 👁, součet, řazení, rozbalená ekonomika s ceníkem, korekcemi a historií, odkaz do Offer Studia, hledání podle modelu, „Dnes zavolat“ vlevo s nabídkou, klepnutí otevře detail, bez posunu do stran) a na iPhonu 13 (nabídka a poslední zápis, bez zisku), žádný zápis.
 - `testy/test_vuz_v1.16.js`: vůz u poptávky na PC 1440 a iPhonu 13 – karta, detail, hledání podle Auftragu, úprava a smazání vozu v DB, žádné chyby.
 - `testy/test_detail_pc_v1.17.js`: detail na PC 1440, 1100 a 1920 ve dvou sloupcích a mobilní detail beze změny.
-- `testy/test_zpet_kalkulace_v1.18.js`: Zpět a Vpřed prohlížeče (PC i iPhone), úprava a návrat, kalkulace v detailu, schovaný a odkrytý zisk.
+- `testy/test_zpet_kalkulace_v1.18.js`: Zpět a Vpřed prohlížeče (PC i iPhone), úprava a návrat, kalkulace v detailu, schovaný a odkrytý zisk, od v1.19 i výrazný přilepený pruh a Esc.
 - `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
 
 ## Konvence

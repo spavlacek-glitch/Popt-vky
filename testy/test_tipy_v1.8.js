@@ -72,8 +72,8 @@ const ZAKLAD = {
       const t = await tipy(p); return (!t.includes('Nedávná') && !t.some(x => /Dávno/.test(x))) || t; });
     if (OUT) await p.screenshot({path: path.join(OUT, `tipy_${nazev.replace(/\s/g, '')}.png`)});
     await T(`${nazev}: klepnutí na tip otevře detail té poptávky`, async () => {
-      await p.locator('.dnes .tipy .card', {hasText:'Ticháček'}).click(); await p.waitForSelector('button:has-text("Přehled")');
-      const txt = await p.innerText('#view'); await p.click('button:has-text("Přehled")'); await p.waitForSelector('section.dnes');
+      await p.locator('.dnes .tipy .card', {hasText:'Ticháček'}).click(); await p.waitForSelector('.zpet-pc, .zpet button');
+      const txt = await p.innerText('#view'); await p.click('.zpet-pc, .zpet button'); await p.waitForSelector('section.dnes');
       return txt.includes('Ticháček') && txt.includes('Testovací Ticháček') || txt.slice(0, 200); });
     await T(`${nazev}: bez dlouhého ticha doplní tipy nejbližší kontakty (zítra, +2, +5)`, async () => {
       for (const k of ['t1', 't2']) await admin(`poptavky/${k}/stav`, 'PUT', 'prodano');
@@ -91,7 +91,7 @@ const ZAKLAD = {
     await T(`${nazev}: tipy nic nezapsaly do databáze`, async () => {
       await admin('poptavky', 'PUT', ZAKLAD); const pred = JSON.stringify(await admin('poptavky'));
       await p.waitForFunction(() => document.querySelectorAll('.dnes .tipy .card').length === 3);
-      await p.locator('.dnes .tipy .card').first().click(); await p.click('button:has-text("Přehled")'); await p.waitForTimeout(500);
+      await p.locator('.dnes .tipy .card').first().click(); await p.click('.zpet-pc, .zpet button'); await p.waitForTimeout(500);
       const po = JSON.stringify(await admin('poptavky'));
       return (pred === po && Object.keys(JSON.parse(po)).length === Object.keys(ZAKLAD).length) || 'změna v databázi'; });
     await T(`${nazev}: žádné chyby, nic se neposouvá do stran`, async () =>

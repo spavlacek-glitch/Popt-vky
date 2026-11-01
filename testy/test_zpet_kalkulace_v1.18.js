@@ -1,4 +1,4 @@
-// test_zpet_kalkulace_v1.18.js – tlačítko Zpět prohlížeče a kalkulace v detailu (v1.18) v LOKÁLNÍCH emulátorech (fiktivní data), nikdy produkce.
+// test_zpet_kalkulace_v1.18.js (od v1.19 s pruhem a Esc) – tlačítko Zpět prohlížeče a kalkulace v detailu (v1.18) v LOKÁLNÍCH emulátorech (fiktivní data), nikdy produkce.
 //   SOUBOR=poptavky_v1.17.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_vuz_v1.16.js
 const { chromium, devices } = require('playwright');
 const fs = require('fs'), path = require('path'), os = require('os');
@@ -52,6 +52,18 @@ const POPT = {
     const mobil = nazev.startsWith('iPhone');
     const p = await otevri(opts);
     const vDetailu = () => p.evaluate(() => view);
+    if (!mobil) await T('v1.19: pruh „← Všechny poptávky“ je výrazný, modrý a zůstane nahoře při posouvání', async () => {
+      await p.locator('#seznam .card',{hasText:'Jana Skladová'}).click(); await p.waitForTimeout(300);
+      const b = p.locator('.zpet-pc'), bg = await b.evaluate(e => getComputedStyle(e).backgroundColor), fs = await b.evaluate(e => parseFloat(getComputedStyle(e).fontSize));
+      await p.evaluate(() => { document.body.style.minHeight = '3000px'; window.scrollTo(0, 400); }); await p.waitForTimeout(200);
+      const y = (await p.locator('.pc-lista').boundingBox()).y, n = await b.count(); await p.evaluate(() => window.scrollTo(0, 0));
+      await p.goBack(); await p.waitForTimeout(300);
+      return (bg === 'rgb(0, 120, 214)' && fs >= 16 && y > 40 && y < 80 && n === 1) || [bg, fs, y]; });
+    if (!mobil) await T('v1.19: Esc vrátí na přehled; při psaní do pole nic', async () => {
+      await p.locator('#seznam .card',{hasText:'Jana Skladová'}).click(); await p.waitForTimeout(300);
+      await p.click('#d-pozn'); await p.keyboard.press('Escape'); await p.waitForTimeout(200); const a = await vDetailu();
+      await p.evaluate(() => document.activeElement.blur()); await p.keyboard.press('Escape'); await p.waitForTimeout(400);
+      return (a === 'detail' && (await vDetailu()) === 'home') || [a, await vDetailu()]; });
     await T('klepnutí otevře detail', async () => { await p.locator('#seznam .card',{hasText:'Jana Skladová'}).click(); await p.waitForTimeout(300); return (await vDetailu()) === 'detail'; });
     await T('tlačítko Zpět prohlížeče vrátí na přehled', async () => { await p.goBack(); await p.waitForTimeout(400); return (await vDetailu()) === 'home' && (await p.locator('#seznam .card').count()) >= 3 || await vDetailu(); });
     await T('Vpřed otevře zase detail', async () => { await p.goForward(); await p.waitForTimeout(400); return (await vDetailu()) === 'detail'; });
