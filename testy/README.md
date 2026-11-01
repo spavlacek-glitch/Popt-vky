@@ -83,6 +83,20 @@ SOUBOR=poptavky_v1.10.html FIREBASE10=/cesta/k/node_modules/firebase node testy/
 ```
 Výsledek 2026-10-30: **23 / 23**. Regrese proti v1.10: `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_tipy_v1.8.js` 16/16, `test_gdpr_v1.9.js` 9/9, `test_detail_v1.5.js` 40/40.
 
+## `test_vydelek_v1.11.js` – tento měsíc prodáno (v1.11)
+Na PC 1440, iPhonu 13 a iPhonu SE ověří:
+- počítají se jen moje poptávky (Danielovy ne), tento měsíc podle záznamu „Stav → Prodáno“ (bez něj podle času úpravy), minulý měsíc ne,
+- bez provize výzva k zadání a žádná částka; „8 000“ + Enter → jen do `localStorage`, ≈ 24 000 Kč a výhled ≈ 21 300 Kč (4 otevřené × 4/6 × 8 000),
+- schování a ukázání částek, po obnovení stránky schované,
+- „✏️ provize“: rozepsaná částka přežije živou změnu v databázi, „Zrušit“ a nesmysl provizi nezmění,
+- pod 5 uzavřených výhled nevymýšlí, nula prodaných → povzbudivá věta, přepnutí na Prodáno se hned započítá,
+- poloha (PC vpravo vedle nadpisu, mobil pod ním), nic nepřetéká, výdělek nic nezapíše do databáze.
+
+```bash
+SOUBOR=poptavky_v1.11.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_vydelek_v1.11.js
+```
+Výsledek 2026-11-01: **33 / 33**. `test_aktualizace_v1.10.js` teď odvodí čísla verzí ze `SOUBOR`, a tak funguje i pro v1.11 (smyšlená v1.12): **23 / 23**. Regrese proti v1.11: `test_vzhled.js` 84/84, `test_v1.2.js` 40/40, `test_odkaz_v1.6.js` 11/11, `test_kontakt_v1.4.js` 17/17, `test_tipy_v1.8.js` 16/16, `test_gdpr_v1.9.js` 9/9, `test_detail_v1.5.js` 40/40.
+
 ## `test_kontakt_v1.4.js` – „📱 Uložit do kontaktů“
 Exportuje kontakty ze smyšlených poptávek a každý stažený soubor `.vcf` přečte dvakrát: vlastním dekodérem podle vCard 3.0 a nezávisle knihovnou ical.js.
 - **Údaje kontaktu:**
