@@ -1,0 +1,338 @@
+<title>Pondělní porada</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Rozložení: nahoře pět prodejců jako karty (bez pořadí), pod nimi tabulka obchodů vybraného prodejce seřazená podle toho, co je třeba probrat. */
+:root{
+  --bg:#f3f4f6; --card:#ffffff; --ink:#14181f; --muted:#5f6b7a; --line:#e2e6ec; --soft:#eef1f5;
+  --acc:#0078d6; --acc-ink:#ffffff; --acc-soft:#e4f1fc;
+  --st-nova:#8a97a8; --st-nab:#d98a1b; --st-jed:#1a8f8a; --st-pro:#2f9e5b;
+  --warn:#9a5b00; --warn-bg:#fdf1d9; --bad:#b42318; --bad-bg:#fde7e4; --ok:#1b7a43; --ok-bg:#e2f4ea;
+  --shadow:0 1px 2px rgba(20,24,31,.06);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1318; --card:#181d24; --ink:#e8ecf2; --muted:#9aa6b6; --line:#2a323d; --soft:#212832;
+  --acc:#4aa3ee; --acc-ink:#07121d; --acc-soft:#16283a;
+  --st-nova:#7d8a9b; --st-nab:#e0a042; --st-jed:#3cb5ae; --st-pro:#4cbf7d;
+  --warn:#f0c068; --warn-bg:#3a2d12; --bad:#ff9a8f; --bad-bg:#3d1c19; --ok:#6fd49a; --ok-bg:#15301f;
+  --shadow:none; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1318; --card:#181d24; --ink:#e8ecf2; --muted:#9aa6b6; --line:#2a323d; --soft:#212832;
+  --acc:#4aa3ee; --acc-ink:#07121d; --acc-soft:#16283a;
+  --st-nova:#7d8a9b; --st-nab:#e0a042; --st-jed:#3cb5ae; --st-pro:#4cbf7d;
+  --warn:#f0c068; --warn-bg:#3a2d12; --bad:#ff9a8f; --bad-bg:#3d1c19; --ok:#6fd49a; --ok-bg:#15301f;
+  --shadow:none; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,sans-serif;font-size:15px;line-height:1.4;
+  padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1{font-size:24px;margin:0;font-weight:700;text-wrap:balance}
+h2{font-size:13px;margin:0 0 10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:flex-end;justify-content:space-between}
+.top p{margin:4px 0 0;color:var(--muted)}
+.mark{display:inline-block;font-size:12px;font-weight:600;color:var(--warn);background:var(--warn-bg);border-radius:6px;padding:2px 8px}
+button{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px;cursor:pointer;font-weight:600}
+.btn:hover{background:var(--soft)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+/* tým */
+.team{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.pers{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;text-align:left;cursor:pointer;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:10px;min-width:0}
+.pers[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.pers .jm{font-weight:700;font-size:16px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.pers .jm small{font-weight:400;color:var(--muted)}
+.big{display:flex;align-items:baseline;gap:8px}
+.big b{font-size:34px;line-height:1;font-variant-numeric:tabular-nums}
+.big span{color:var(--muted)}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--soft)}
+.bar i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12.5px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;background:var(--c)}
+.facts{display:grid;grid-template-columns:1fr auto;gap:3px 10px;font-size:13.5px;margin:0}
+.facts dt{color:var(--muted)} .facts dd{margin:0;font-weight:600;text-align:right;font-variant-numeric:tabular-nums}
+.rozb{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;border-radius:8px;padding:4px 10px;align-self:flex-start}
+.rozb.je{background:var(--warn-bg);color:var(--warn)} .rozb.nic{background:var(--ok-bg);color:var(--ok)}
+
+/* nástroje */
+.tools{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.tools label{display:flex;align-items:center;gap:8px;font-size:14px}
+.tools select{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+.tools .gap{flex:1}
+.tools input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
+
+/* tabulka */
+.tw{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow-x:auto;box-shadow:var(--shadow)}
+table{border-collapse:collapse;width:100%;min-width:1240px;font-size:14px}
+th{position:sticky;top:0;background:var(--card);text-align:left;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tr.hotovo td{opacity:.5}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.zak{font-weight:700} .vuz{color:var(--muted);font-size:13px;margin-top:2px}
+.pill{display:inline-block;border-radius:99px;padding:2px 10px;font-size:12.5px;font-weight:600;color:#fff;background:var(--c);white-space:nowrap}
+.dny{font-weight:700;font-variant-numeric:tabular-nums}
+.dny.dlouho{color:var(--warn)}
+.zapis{color:var(--muted);font-size:13px;margin-top:2px;max-width:290px}
+.flags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.fl{font-size:12px;font-weight:600;border-radius:6px;padding:1px 7px;background:var(--warn-bg);color:var(--warn)}
+.fl.bad{background:var(--bad-bg);color:var(--bad)}
+.skryte{color:var(--muted);letter-spacing:.1em}
+.m{display:block;font-size:12.5px;color:var(--muted)} .m.nizka{color:var(--warn)} .m.pod{color:var(--bad)}
+.nab b{font-variant-numeric:tabular-nums}
+td.chk{text-align:center}
+td.chk input{width:20px;height:20px;accent-color:var(--acc);cursor:pointer}
+.pozn{color:var(--muted);font-size:13px;line-height:1.5;margin:0}
+.pozn b{color:var(--ink)}
+/* dohody */
+.dohody{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;display:flex;flex-direction:column;gap:12px}
+.dh-hlava{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:baseline;justify-content:space-between}
+.dh-hlava strong{font-size:17px}
+.dh-skupina h3{margin:0 0 6px;font-size:14px}
+.dh-radek{display:grid;grid-template-columns:minmax(0,230px) minmax(0,1fr) auto 150px;gap:6px 14px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.dh-radek .kdo{font-weight:700}.dh-radek .tx{color:var(--ink)}.dh-radek small{display:block;color:var(--muted);font-size:12.5px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:var(--card);padding:5px 10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"].ok{background:var(--ok-bg);color:var(--ok)}
+.seg button[aria-pressed="true"].ne{background:var(--warn-bg);color:var(--warn)}
+.seg button[aria-pressed="true"].be{background:var(--acc-soft);color:var(--acc)}
+.mini{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:4px 10px;font-size:13px;font-weight:600;cursor:pointer}
+.mini:hover{background:var(--soft)}
+.mini.pri{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.dohoda{margin-top:8px;font-size:13px}
+.dohoda .t{display:inline-block;background:var(--acc-soft);color:var(--ink);border-radius:8px;padding:3px 9px;font-weight:600}
+.dohoda .t small{font-weight:400;color:var(--muted);margin-left:6px}
+.dohoda .t.po{background:var(--warn-bg)}
+.cekam{font-size:12.5px;font-weight:600;color:var(--acc);background:var(--acc-soft);border-radius:6px;padding:2px 8px;white-space:nowrap}
+.tip{grid-column:1 / -1}.tip input{font:inherit;color:inherit;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+.vyjde{font-size:12.5px;color:var(--muted);margin-top:3px}
+form.inl{display:flex;flex-direction:column;gap:6px;margin-top:8px;padding:10px;background:var(--soft);border-radius:10px;max-width:420px}
+form.inl input,form.inl select{font:inherit;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+form.inl .sab{display:flex;flex-wrap:wrap;gap:5px}
+form.inl .rada{display:flex;gap:8px;flex-wrap:wrap}
+.fl.ok{background:var(--ok-bg);color:var(--ok)}
+.kont{font-size:13px;color:var(--muted);margin-top:3px}.kont b{color:var(--ink)}.kont .nula{color:var(--warn);font-weight:700}
+.hist{margin-top:6px;font-size:12.5px;color:var(--muted)} .hist summary{cursor:pointer;font-weight:600}
+.hist div{padding:2px 0}
+@media (max-width:760px){.dh-radek{grid-template-columns:1fr}}
+@media (max-width:560px){h1{font-size:21px}.big b{font-size:30px}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <h1>Pondělní porada, týden 45</h1>
+      <p>Pondělí 2. 11. 2026 · pět prodejců · <span class="mark">Návrh s ukázkovými daty</span></p>
+    </div>
+    <button class="btn" id="oko" type="button" aria-pressed="false">👁 Ukázat zisk</button>
+  </div>
+
+  <section aria-labelledby="h-min">
+    <h2 id="h-min">Začněte tady: co jste si řekli minulé pondělí (26. 10.)</h2>
+    <div class="dohody" id="minule"></div>
+  </section>
+
+  <section aria-labelledby="h-tym">
+    <h2 id="h-tym">Tým, abecedně</h2>
+    <div class="team" id="team"></div>
+  </section>
+
+  <section aria-labelledby="h-obch">
+    <h2 id="h-obch">Obchody na rozbor</h2>
+    <div class="tools">
+      <label>Řadit
+        <select id="razeni">
+          <option value="ticho">nejdéle bez kontaktu</option>
+          <option value="hodnota">nejvyšší hodnota nabídky</option>
+          <option value="resi">nejdéle řeším</option>
+          <option value="marze">nejnižší marže</option>
+        </select>
+      </label>
+      <label><input type="checkbox" id="jenRozb"> jen to, co stojí za rozbor</label>
+      <label><input type="checkbox" id="jenOtev" checked> jen otevřené obchody</label>
+      <span class="gap"></span>
+      <span id="souhrn" class="pozn"></span>
+    </div>
+    <div class="tw"><table>
+      <thead><tr>
+        <th>Zákazník a vůz</th><th id="thP">Prodejce</th><th>Stav</th><th>Nabídka</th><th class="num">Zisk</th>
+        <th class="num">Řeším</th><th>Kontakt zákazníka</th><th>Další kontakt</th><th>Dohoda a další krok</th><th class="chk">Probráno</th>
+      </tr></thead>
+      <tbody id="tb"></tbody>
+    </table></div>
+    <div class="tools" style="margin-top:12px"><span class="pozn" id="zapisInfo">Nové dohody z dnešní porady: <b id="pocetNovych">0</b></span><span class="gap"></span>
+      <button class="btn" type="button" id="kopZapis">📋 Zkopírovat zápis z porady</button><span id="kopOk" class="pozn" role="status"></span></div>
+    <p class="pozn" style="margin-top:12px"><b>Zásady:</b> žádné pořadí prodejců, žádné červené jméno a žádné „nesplněno“. Označují se obchody, ne lidé. Dohoda je jedna věta. Prodejce nic nevyplňuje, jen klepne „Hotovo“, vy v pondělí potvrdíte nebo vrátíte k dopracování. Zisk a marže jsou jen pro vás.</p>
+  </section>
+</div>
+
+<script>
+// Ukázková data. Dnes = pondělí 2. 11. 2026. Skutečná data by se četla z Poptávek (stav, nabídky z Offer Studia, historie).
+const LIDE=['Jana M.','Lucie V.','Martin Š.','Stanislav P.','Tomáš K.'];
+const ST={nova:['Nová','var(--st-nova)'],nabidka:['Nabídka odeslána','var(--st-nab)'],jednani:['Jednáme','var(--st-jed)'],prodano:['Prodáno','var(--st-pro)']};
+// [prodejce, zákazník, vůz, stav, nabídka{model,cena,sleva%}|null, marže %, příznak, řeší dnů, poslední kontakt před dny, poslední zápis, další kontakt za dny]
+const D=[
+ [0,'Alena Horáková','GLC 300 e · skladový · 05-576-11802','nabidka',{m:'GLC 300 e 4MATIC',c:1498000,s:4.5},5.9,'',9,2,'Volala, chce srovnat s leasingem',1],
+ [0,'Roman Fiala (firma)','EQE 350+ · do výroby · online kód','jednani',{m:'EQE 350+',c:2184000,s:8},3.4,'',26,5,'Čekáme na schválení flotily',3],
+ [0,'Petra Kubátová','A 200 · skladový · 05-576-10990','nova',null,null,'',8,8,'Přišla z webu, zatím neotevřela e-mail',-1],
+ [0,'Libor Černý','C 220 d T · skladový · 05-576-11234','prodano',{m:'C 220 d T',c:1312000,s:5},6.2,'',31,3,'Předáno, hotovo',0],
+ [1,'Ivana Svobodová','GLB 350 4MATIC · předváděcí · Karlovy Vary','nabidka',{m:'GLB 350 4MATIC',c:1689000,s:11},1.9,'nizka',17,16,'Poslal jsem nabídku, bez odpovědi',-4],
+ [1,'Marek Pospíšil','EQA 250+ · skladový · 05-576-11555','jednani',{m:'EQA 250+',c:1236000,s:6},4.8,'',12,1,'Zkušební jízda domluvena na čtvrtek',3],
+ [1,'Hana Dolejší','CLA 200 · do výroby · online kód','nova',null,null,'',3,3,'Vstupní telefonát',2],
+ [2,'Autodoprava Vlček s.r.o.','Vito Tourer · do výroby · AN 05-576-12200','jednani',{m:'Vito Tourer 116 CDI',c:1450000,s:9},2.6,'nizka',41,21,'Čeká na rozhodnutí vedení',-7],
+ [2,'Jiří Bartoš','E 300 de · skladový · 05-576-10711','nabidka',{m:'E 300 de 4MATIC',c:2051000,s:7},4.1,'',14,6,'Řeší financování u banky',2],
+ [2,'Zuzana Němcová','GLC 220 d · skladový · 05-576-11340','nabidka',{m:'GLC 220 d 4MATIC',c:1590000,s:3},-0.8,'pod',22,9,'Žádá slevu, kterou nelze dát',-2],
+ [2,'Tereza Králová','A 180 · skladový · 05-576-12019','prodano',{m:'A 180',c:849000,s:4},5.5,'',19,4,'Předání v pátek',0],
+ [2,'Ondřej Beneš','EQB 300 · skladový · 05-576-11870','nova',null,null,'',15,15,'Zapsáno ze showroomu',-6],
+ [3,'Stanislav Pavláček (test)','GLS 450 d 4MATIC · skladový · 05-576-12345','nabidka',{m:'GLS 450 d 4MATIC',c:2899545,s:10},-0.8,'pod',4,0,'Nabídka upravena',2],
+ [3,'Karel Dušek','CLE 200 Coupé · skladový · 05-576-10620','jednani',{m:'CLE 200 Coupé',c:1380000,s:5},5.2,'',10,2,'Dohodnuta schůzka ve čtvrtek',3],
+ [3,'Soňa Marešová','GLE 450 d · do výroby · online kód','nabidka',{m:'GLE 450 d 4MATIC',c:2390000,s:6},4.6,'',19,12,'Odeslána úprava nabídky',1],
+ [3,'Dana Havlová','EQS 450+ · skladový · 05-576-11420','jednani',{m:'EQS 450+',c:2790000,s:12},0.9,'nizka',33,18,'Ptá se na slevu a výkup',-3],
+ [4,'Eva Vrbová','GLA 200 · skladový · 05-576-11760','nabidka',{m:'GLA 200',c:1128000,s:5},5.0,'',7,3,'Posláno srovnání s konkurencí',3],
+ [4,'Pavel Souček','C 300 e · do výroby · online kód','nova',null,null,'',11,11,'Telefonát neúspěšný, zkusit znovu',-2],
+ [4,'Michal Janda','S 450 d · skladový · 05-576-10300','jednani',{m:'S 450 d 4MATIC',c:3690000,s:8},3.3,'',28,7,'Čekáme na výkup starého vozu',2],
+ [4,'Lenka Pokorná','A 200 · skladový · 05-576-12111','prodano',{m:'A 200',c:882000,s:5},6.0,'',16,2,'Předáno',0]
+].map((r,i)=>({id:i,p:r[0],zak:r[1],vuz:r[2],stav:r[3],nab:r[4],marze:r[5],fl:r[6],resi:r[7],posl:r[8],zapis:r[9],dal:r[10]}));
+D.forEach(d=>{d.zisk=d.nab?Math.round(d.nab.c/1.21*(d.marze/100)):null;d.open=d.stav!=='prodano';
+  d.flagy=[];
+  if(d.open&&d.posl>=14)d.flagy.push(['bez kontaktu '+d.posl+' dní',0,'obh']);
+  if(d.open&&d.dal<0)d.flagy.push(['prošlý termín kontaktu',0]);
+  if(d.open&&!d.nab&&d.resi>=7)d.flagy.push(['řeší se týden a není nabídka',0]);
+  if(d.fl==='nizka')d.flagy.push(['nízká marže',0]);
+  if(d.fl==='pod')d.flagy.push(['pod nákupní cenou',1]);});
+// počet kontaktů zákazníka (z historie): celkem, za posledních 14 dní
+const KON={0:[5,2],1:[9,1],2:[1,1],3:[8,2],4:[4,0],5:[3,2],6:[1,1],7:[11,0],8:[6,2],9:[7,1],10:[5,1],11:[1,0],12:[2,2],13:[4,2],14:[6,1],15:[8,0],16:[3,2],17:[2,1],18:[9,2],19:[4,1]};
+D.forEach(d=>{d.kont=KON[d.id][0];d.k14=KON[d.id][1];});
+// dohody: [obchod, text, termín, dohodnuto, stav (be = v běhu, ok = splněno, ne = nesplněno), poznámka]
+const SEED=[
+ [1,'Zjisti, kdy firma schválí flotilu, a domluv termín rozhodnutí','30. 10.','26. 10.','dop','Zatím bez odpovědi, čeká na vedení'],
+ [4,'Zavolej a dej mu o 1 % víc. Do konce týdne dotáhni kupní smlouvu.','30. 10.','26. 10.','dop',''],
+ [7,'Domluv schůzku s jednatelem','6. 11.','26. 10.','be','Schůzka navržena na čtvrtek'],
+ [9,'Místo další slevy nabídni zimní pneumatiky zdarma','30. 10.','26. 10.','ok','Nabídla, zákaznice zvažuje'],
+ [13,'Připrav kupní smlouvu','30. 10.','26. 10.','ok','Podpis domluven na čtvrtek'],
+ [15,'Zjisti odhad výkupu starého vozu','30. 10.','26. 10.','dop',''],
+ [16,'Pošli srovnání s konkurencí','29. 10.','26. 10.','hotovo','Odesláno v pátek'],
+ [18,'Dohodni výkup a předej vůz do konce měsíce','6. 11.','26. 10.','be','Čeká na odhad výkupu']
+].map((r,i)=>({id:'m'+i,d:r[0],text:r[1],do:r[2],kdy:r[3],stav:r[4],pozn:r[5],minule:true,vyjde:''}));
+SEED.find(x=>x.d===4).vyjde='uzavřít jako ztracený';
+let ST_={ukoly:SEED,obh:{}};
+try{const x=JSON.parse(localStorage.getItem('porada-v2')||'null');if(x&&x.ukoly)ST_=x;}catch(e){}
+const uloz=()=>{try{localStorage.setItem('porada-v2',JSON.stringify(ST_))}catch(e){}};
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const kc=n=>Math.round(n).toLocaleString('cs-CZ').replace(/ /g,' ')+' Kč';
+const mil=n=>(n/1e6).toLocaleString('cs-CZ',{maximumFractionDigits:1})+' mil. Kč';
+const pred=n=>n===0?'dnes':n===1?'včera':'před '+n+' dny';
+const dalTxt=n=>n<0?'prošlé o '+(-n)+(-n===1?' den':' dny'):n===0?'dnes':n===1?'zítra':'za '+n+' dny';
+let vybr=null,ukazZisk=false,probrano={},otevrenyForm=null;
+try{probrano=JSON.parse(localStorage.getItem('porada-probrano')||'{}')}catch(e){}
+const TERMINY=[['do příštího pondělí (9. 11.)','9. 11.'],['do pátku (6. 11.)','6. 11.'],['za 14 dní (16. 11.)','16. 11.'],['do konce měsíce (30. 11.)','30. 11.']];
+const SABLONY=['Zavolej mu a dej mu 1 % navíc.','Domluv zkušební jízdu.','Pošli upravenou nabídku.','Připrav kupní smlouvu.'];
+const $=s=>document.querySelector(s);
+
+function obhForm(d){return `<form class="inl" data-obhf="${d.id}"><label for="o${d.id}" class="pozn">Co se u zákazníka děje? Dovolená, čeká na banku… Stačí pár slov.</label>
+  <input id="o${d.id}" required maxlength="80" placeholder="např. na dovolené do 9. 11."><div class="rada"><button class="mini pri" type="submit">Uložit</button><button class="mini" type="button" data-zrus="1">Zrušit</button></div></form>`;}
+function dohodaBunka(d){
+  if(!d.open)return '<span class="m">–</span>';
+  const mine=ST_.ukoly.filter(x=>x.d===d.id);
+  const akt=mine.filter(x=>!x.minule||x.stav==='be'||x.stav==='ne').slice(-1)[0];
+  const cur=mine.filter(x=>x.stav==='be'||(!x.minule&&x.stav!=='ok')||(x.minule&&x.stav==='dop'&&!x.preneseno)).slice(-1)[0];
+  const stare=mine.filter(x=>x!==cur);
+  let h='';
+  if(cur)h+=`<div class="dohoda"><span class="t ${cur.stav==='ne'?'po':''}">${esc(cur.text)}<small>do ${cur.do} · ${cur.stav==='dop'?'k dopracování z minulé porady':cur.minule?'dohodnuto '+cur.kdy:'nově dnes'}</small></span>${cur.vyjde?`<div class="vyjde">Když to nevyjde: ${esc(cur.vyjde)}</div>`:''}${cur.tip?`<div class="vyjde">💡 ${esc(cur.tip)}</div>`:''}</div>`;
+  else h+='<span class="m">zatím bez dohody</span>';
+  if(otevrenyForm==='d'+d.id){h+=`<form class="inl" data-dhf="${d.id}"><label class="pozn" for="t${d.id}">Jednou větou: co má prodejce udělat?</label>
+    <input id="t${d.id}" required maxlength="140" placeholder="např. Zavolej mu a dej mu 1 % navíc.">
+    <div class="sab">${SABLONY.map(t=>`<button type="button" class="mini" data-sab="${esc(t)}">${esc(t)}</button>`).join('')}</div>
+    <div class="rada"><select id="d${d.id}" aria-label="Do kdy">${TERMINY.map(t=>`<option value="${t[1]}">${t[0]}</option>`).join('')}</select>
+    <select id="v${d.id}" aria-label="Když to nevyjde"><option value="">Když to nevyjde: bez pokynu</option><option value="uzavřít jako ztracený">Když to nevyjde: uzavřít jako ztracený</option><option value="vrátit na poradu">Když to nevyjde: vrátit na poradu</option></select></div>
+    <div class="rada"><button class="mini pri" type="submit">Uložit</button><button class="mini" type="button" data-zrus="1">Zrušit</button></div></form>`;}
+  else h+=`<div style="margin-top:6px"><button type="button" class="mini" data-dh="${d.id}">${cur?'+ Další krok':'+ Dohoda'}</button></div>`;
+  if(stare.length)h+=`<details class="hist"><summary>Dřívější dohody (${stare.length})</summary>${stare.map(x=>`<div>${x.stav==='ok'?'✓':x.stav==='dop'?'↻':'…'} ${esc(x.text)} <i>(${x.kdy} → do ${x.do})</i></div>`).join('')}</details>`;
+  return h;
+}
+function minule(){
+  const U=ST_.ukoly.filter(x=>x.minule);
+  const ok=U.filter(x=>x.stav==='ok').length,ho=U.filter(x=>x.stav==='hotovo').length,dop=U.filter(x=>x.stav==='dop').length,be=U.filter(x=>x.stav==='be').length;
+  const skup=LIDE.map((j,i)=>[j,U.filter(x=>D[x.d].p===i)]).filter(g=>g[1].length);
+  $('#minule').innerHTML=`<div class="dh-hlava"><strong>Dotaženo ${ok} z ${U.length}</strong><span class="pozn">${ho?ho+' čeká na vaše potvrzení · ':''}v běhu ${be} · k dopracování ${dop}</span></div>`+
+   skup.map(g=>`<div class="dh-skupina"><h3>${g[0]}</h3>`+g[1].map(x=>`<div class="dh-radek">
+     <span class="kdo">${esc(D[x.d].zak)}<small>${esc(D[x.d].vuz.split(' · ')[0])}</small></span>
+     <span class="tx">${esc(x.text)}<small>${x.kdy} → do ${x.do}${x.pozn?' · '+esc(x.pozn):''}${x.vyjde?' · když to nevyjde: '+esc(x.vyjde):''}</small></span>
+     <span>${x.stav==='hotovo'?'<span class="cekam">prodejce hlásí hotovo</span> ':''}<span class="seg" role="group" aria-label="Rozhodnutí vedoucího"><button type="button" class="ok" data-v="${x.id}:ok" aria-pressed="${x.stav==='ok'}">Potvrdit ✓</button><button type="button" class="be" data-v="${x.id}:be" aria-pressed="${x.stav==='be'}">V běhu</button><button type="button" class="ne" data-v="${x.id}:dop" aria-pressed="${x.stav==='dop'}">Dopracovat</button></span></span>
+     ${x.stav!=='ok'&&!x.preneseno?`<button type="button" class="mini" data-pren="${x.id}">↻ Na další týden</button>`:`<span class="pozn">${x.preneseno?'přeneseno':''}</span>`}
+     ${x.stav==='dop'?`<span class="tip"><input data-tip="${x.id}" value="${esc(x.tip||'')}" maxlength="120" placeholder="Tip na příště (nepovinné), třeba: zavolej ještě ve čtvrtek ráno" aria-label="Tip na příště"></span>`:''}</div>`).join('')+'</div>').join('');
+}
+function karty(){
+  $('#team').innerHTML=LIDE.map((j,i)=>{
+    const m=D.filter(d=>d.p===i), o=m.filter(d=>d.open);
+    const c=k=>o.filter(d=>d.stav===k).length, rozb=o.filter(d=>d.flagy.length).length;
+    const hod=o.reduce((s,d)=>s+(d.nab?d.nab.c:0),0), pro=m.filter(d=>!d.open).length;
+    const ticho=Math.max(0,...o.map(d=>d.posl));
+    const seg=['nova','nabidka','jednani'].map(k=>`<i style="width:${o.length?c(k)/o.length*100:0}%;background:${ST[k][1]}"></i>`).join('');
+    return `<button type="button" class="pers" data-i="${i}" aria-pressed="${vybr===i}">
+      <span class="jm">${j}<small>${m.length} v evidenci</small></span>
+      <span class="big"><b>${o.length}</b><span>otevřených obchodů</span></span>
+      <span class="bar" role="img" aria-label="Rozdělení podle stavu">${seg}</span>
+      <span class="legend"><span style="--c:${ST.nova[1]}">nové ${c('nova')}</span><span style="--c:${ST.nabidka[1]}">nabídka ${c('nabidka')}</span><span style="--c:${ST.jednani[1]}">jednáme ${c('jednani')}</span></span>
+      <dl class="facts"><dt>Hodnota nabídek</dt><dd>${mil(hod)}</dd><dt>Prodáno tento měsíc</dt><dd>${pro}</dd><dt>Nejdelší ticho</dt><dd>${ticho} dní</dd></dl>
+      ${(()=>{const u=ST_.ukoly.filter(x=>x.minule&&D[x.d].p===i);const sp=u.filter(x=>x.stav==='ok').length;return u.length?`<span class="legend"><span style="--c:${sp===u.length?'var(--st-pro)':'var(--st-nab)'}">dotaženo z minulé porady ${sp} z ${u.length}</span></span>`:''})()}
+      <span class="rozb ${rozb?'je':'nic'}">${rozb?rozb+(rozb===1?' obchod':rozb<5?' obchody':' obchodů')+' k probrání':'✓ nic nehoří'}</span>
+    </button>`}).join('');
+}
+function tabulka(){
+  const jen=$('#jenRozb').checked, otev=$('#jenOtev').checked, r=$('#razeni').value;
+  let L=D.filter(d=>(vybr===null||d.p===vybr)&&(!otev||d.open)&&(!jen||d.flagy.length));
+  const key={ticho:d=>-d.posl,hodnota:d=>-(d.nab?d.nab.c:0),resi:d=>-d.resi,marze:d=>d.marze===null?99:d.marze}[r];
+  L.sort((a,b)=>key(a)-key(b));
+  $('#thP').hidden=vybr!==null;
+  $('#tb').innerHTML=L.map(d=>{
+    const nab=d.nab?`<span class="nab"><b>${kc(d.nab.c)}</b><span class="m">${d.nab.m} · sleva ${d.nab.s.toLocaleString('cs-CZ')} %</span></span>`:'<span class="m">bez nabídky</span>';
+    const zisk=d.zisk===null?'<span class="m">–</span>':ukazZisk?`${kc(d.zisk)}<span class="m ${d.fl==='pod'?'pod':d.fl==='nizka'?'nizka':''}">marže ${d.marze.toLocaleString('cs-CZ')} %</span>`:'<span class="skryte">•••&nbsp;Kč</span><span class="m skryte">•••</span>';
+    const obh=ST_.obh[d.id];
+    const fl=d.flagy.length?`<div class="flags">${d.flagy.map(f=>f[2]==='obh'&&obh?`<span class="fl ok">důvod: ${esc(obh)}</span>`:`<span class="fl ${f[1]?'bad':''}">${f[0]}</span>`).join('')}</div>${d.flagy.some(f=>f[2]==='obh')&&!obh?(otevrenyForm==='o'+d.id?obhForm(d):`<button type="button" class="mini" data-obh="${d.id}" style="margin-top:6px">Zapsat, co se děje</button>`):''}`:'';
+    return `<tr class="${probrano[d.id]?'hotovo':''}">
+      <td><div class="zak">${d.zak}</div><div class="vuz">🚗 ${d.vuz}</div>${fl}</td>
+      ${vybr===null?`<td>${LIDE[d.p]}</td>`:''}
+      <td><span class="pill" style="--c:${ST[d.stav][1]};${d.stav==='nabidka'?'color:#1b1300':''}">${ST[d.stav][0]}</span></td>
+      <td>${nab}</td><td class="num">${zisk}</td>
+      <td class="num"><span class="dny ${d.resi>=30?'dlouho':''}">${d.resi} dní</span></td>
+      <td><span class="dny ${d.open&&d.posl>=14?'dlouho':''}">${pred(d.posl)}</span><div class="zapis">💬 ${esc(d.zapis)}</div>
+        <div class="kont">kontaktů celkem <b>${d.kont}</b> · za 14 dní ${d.k14?'<b>'+d.k14+'</b>':'<span class="nula">0</span>'}</div></td>
+      <td>${d.open?dalTxt(d.dal):'–'}</td>
+      <td>${dohodaBunka(d)}</td>
+      <td class="chk"><input type="checkbox" data-id="${d.id}" ${probrano[d.id]?'checked':''} aria-label="Probráno: ${d.zak}"></td></tr>`}).join('')
+    ||'<tr><td colspan="10" class="pozn" style="padding:24px">Nic k rozebrání. Dobrá zpráva do pondělí 🙂</td></tr>';
+  const hod=L.reduce((s,d)=>s+(d.nab&&d.open?d.nab.c:0),0);
+  $('#pocetNovych').textContent=ST_.ukoly.filter(x=>!x.minule).length;
+  $('#souhrn').textContent=`${L.length} obchodů · nabídky za ${mil(hod)} · probráno ${L.filter(d=>probrano[d.id]).length}`;
+}
+$('#team').addEventListener('click',e=>{const b=e.target.closest('.pers');if(!b)return;const i=+b.dataset.i;vybr=vybr===i?null:i;karty();tabulka();});
+$('#tb').addEventListener('change',e=>{const c=e.target.closest('input[data-id]');if(!c)return;probrano[c.dataset.id]=c.checked;
+  try{localStorage.setItem('porada-probrano',JSON.stringify(probrano))}catch(x){}tabulka();});
+['razeni','jenRozb','jenOtev'].forEach(id=>$('#'+id).addEventListener('change',tabulka));
+$('#oko').addEventListener('click',e=>{ukazZisk=!ukazZisk;e.currentTarget.setAttribute('aria-pressed',ukazZisk);e.currentTarget.textContent=ukazZisk?'🙈 Schovat zisk':'👁 Ukázat zisk';tabulka();});
+$('#minule').addEventListener('click',e=>{
+  const v=e.target.closest('[data-v]'),p=e.target.closest('[data-pren]');
+  if(v){const [id,st]=v.dataset.v.split(':');ST_.ukoly.find(x=>x.id===id).stav=st;uloz();minule();karty();}
+  if(p){const x=ST_.ukoly.find(y=>y.id===p.dataset.pren);x.preneseno=true;ST_.ukoly.push({id:'n'+Date.now(),d:x.d,text:x.text,do:'9. 11.',kdy:'2. 11.',stav:'be',pozn:'',minule:false});uloz();minule();tabulka();}
+});
+$('#minule').addEventListener('input',e=>{const t=e.target.closest('[data-tip]');if(t){ST_.ukoly.find(x=>x.id===t.dataset.tip).tip=t.value;uloz();}});
+$('#tb').addEventListener('click',e=>{
+  const o=e.target.closest('[data-obh]'),d=e.target.closest('[data-dh]'),s=e.target.closest('[data-sab]'),z=e.target.closest('[data-zrus]');
+  if(o){otevrenyForm='o'+o.dataset.obh;tabulka();const i=$('#o'+o.dataset.obh);i&&i.focus();}
+  if(d){otevrenyForm='d'+d.dataset.dh;tabulka();const i=$('#t'+d.dataset.dh);i&&i.focus();}
+  if(s){const f=s.closest('form');f.querySelector('input').value=s.dataset.sab;}
+  if(z){otevrenyForm=null;tabulka();}
+});
+$('#tb').addEventListener('submit',e=>{e.preventDefault();const f=e.target;
+  if(f.dataset.obhf){ST_.obh[f.dataset.obhf]=f.querySelector('input').value.trim();}
+  if(f.dataset.dhf){const id=+f.dataset.dhf;ST_.ukoly.push({id:'n'+Date.now(),d:id,text:f.querySelector('input').value.trim(),do:f.querySelector('select').value,kdy:'2. 11.',stav:'be',pozn:'',minule:false,vyjde:f.querySelectorAll('select')[1].value});}
+  otevrenyForm=null;uloz();tabulka();minule();karty();});
+$('#kopZapis').addEventListener('click',async()=>{
+  const N=ST_.ukoly.filter(x=>!x.minule&&(vybr===null||D[x.d].p===vybr));
+  const txt='Dohody z porady 2. 11. 2026'+(vybr===null?'':' – '+LIDE[vybr])+'\n'+(N.length?N.map(x=>'• '+LIDE[D[x.d].p]+' – '+D[x.d].zak+': '+x.text+' (do '+x.do+')').join('\n'):'(zatím žádné nové dohody)');
+  try{await navigator.clipboard.writeText(txt);$('#kopOk').textContent='Zkopírováno.';}catch(e){$('#kopOk').textContent='Nepodařilo se zkopírovat, označte text ručně.';}
+  setTimeout(()=>$('#kopOk').textContent='',3000);});
+minule();karty();tabulka();
+</script>
