@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.24 (2026-11-01)
+Verze dokumentu: 2.25 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -268,6 +268,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_detail_pc_v1.17.js`: detail na PC 1440, 1100 a 1920 ve dvou sloupcích a mobilní detail beze změny.
 - `testy/test_zpet_kalkulace_v1.18.js`: Zpět a Vpřed prohlížeče (PC i iPhone), úprava a návrat, kalkulace v detailu, schovaný a odkrytý zisk, od v1.19 i výrazný přilepený pruh a Esc.
 - `testy/test_dohody_v1.20.js`: dohody, role vedoucího a prodejce, Hotovo bez času, Můj týden, Porada, Zpět prohlížeče, iPhone.
+- `testy/test_hlasky_v1.21.js`: hlášky v „Dnes zavolat“ (plné skupiny, bez duplicit, věta od uživatele, žádný sráživý tón).
 - `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
 
 ## Konvence
@@ -281,6 +282,11 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Před přidáním kolegy udělat zálohy (Firebase + složka `data` Offer Studia) a rozhodnout, kdo vidí čí poptávky a zisky.
 - Později přejít z raw.githack.com na Firebase Hosting nebo GitHub Pages. Kolem 2 000 poptávek zavést archiv (načítat jen otevřené a nedávné).
 - Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
+
+## Hlášky v „Dnes zavolat“ (v1.8, rozšířeno ve v1.21)
+- Nad seznamem „Dnes zavolat“ je krátká povzbuzující věta podle počtu hovorů (`HECOVANI`: `nula`, `malo`, `stredne`, `hodne`, `prosle`). Věta se vybírá podle dne, takže v jednom dni zůstává stejná.
+- **Tón (rozhodnutí uživatele, 2026-11-01): suchý a černý humor.** Smí se smát situaci (telefon, konkurence, kafe), nikdy na účet zákazníka, kolegy nebo prodejce, a nikdy nesrážet („pozadu“, „poslední“ se nepoužije). Test `testy/test_hlasky_v1.21.js` to hlídá.
+- V1.21 přidala 15 vět, mimo jiné od uživatele: „Kafe je zadarmo, tak pozvi zákazníka na showroom. Je to jediné, co dostane zdarma ☕“. Další hlášky přidává uživatel nebo se navrhnou a schválí.
 
 ## Dohody z porady, Můj týden a Porada (v1.20)
 - **Přání uživatele (2026-11-01):** vedoucí prodeje osobních vozů (5 prodejců) si každé pondělí sedne s každým prodejcem nad obchodními případy. Chce vidět **kdo a kolik má rozjednáno, v jakém stavu, ekonomiku obchodu, jak dlouho se řeší, kdy byl poslední kontakt a kolikrát se zákazníkovi ozval**. Kontakt 14+ dní prodejce musí vysvětlit (viz `KONTEXT_obchod.md`, odpovědi kolem 14 dní). Další pondělí se vedoucí vrací k tomu, co se dohodlo. Uživatel to **testuje sám v obou rolích**, kolegové přibudou později.
