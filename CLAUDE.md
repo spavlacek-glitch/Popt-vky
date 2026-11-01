@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.5 (2026-10-30)
+Verze dokumentu: 2.6 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -91,9 +91,9 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **Detail na mobilu (do 600 px):** „← Přehled“ je modré plovoucí tlačítko dole vlevo, stejného stylu jako „+ Nová poptávka“. Sedí 16 px nad bezpečnou oblastí iPhonu a při psaní do pole se schová. Obsah detailu jde celý odrolovat nad něj. Na PC zůstává tlačítko nahoře.
   Vyzkoušeno na skutečném iPhonu: tmavá spodní lišta zabírala moc místa, proto je zpět plovoucí tlačítko, jen výraznější. Plovoucí bílé tlačítko se ztrácelo.
 - **Historie kontaktů v detailu:** ve výchozím stavu sbalená. Nadpis „Historie kontaktů (X záznamů)“ ukazuje i poslední událost a klepnutím se historie rozbalí nebo sbalí. Při živém překreslení detailu, třeba po „Zapsat“, zůstane rozbalená, po návratu na přehled se znovu sbalí. Ukládání a pořadí záznamů se nemění.
-- **Místo pro budoucí ceny** (zatím se nic nezobrazuje):
-  - cena obchodu na kartě vpravo u štítku stavu (`.card .top`),
-  - souhrnná hodnota otevřených a prodaných poptávek vpravo v hlavičce evidence (`.sekce-hlava` vedle nadpisu „Poptávky“),
+- **Místo pro budoucí ceny:**
+  - cena obchodu na kartě vpravo u štítku stavu (`.card .top`), zatím prázdné,
+  - vpravo v hlavičce evidence (`.sekce-hlava` vedle nadpisu „Poptávky“) je od v1.11 „Tento měsíc prodáno“ (viz níže),
   - na PC případně i ve volném místě levého sloupce pod „Dnes zavolat“.
 
 ## Komu zavolat, když dnes nikomu (v1.8)
@@ -103,6 +103,18 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
   - Rozhodnutí uživatele: „nabídka bez odezvy“ a „dlouho nedotčené jednání“ jsou totéž pravidlo, proto jeden tip pro všechny otevřené stavy. Hranice 14 dní podle odpovědi 47 v `KONTEXT_obchod.md`.
 - **Nejbližší kontakt:** zbylá místa doplní otevřené poptávky s nejbližším budoucím termínem („Na řadě zítra – klidně už dnes“).
 - Jen čtení dat: nic se nezapisuje, termíny ani stavy se nemění. Jakmile je někdo na řadě dnes, tipy zmizí.
+
+## Tento měsíc prodáno (v1.11)
+- V hlavičce evidence (PC vpravo vedle „Poptávky“, mobil pod nadpisem):
+  - „🎉 Tento měsíc prodáno: 3 auta ≈ 24 000 Kč“, při nule povzbudivě „🚗 Tento měsíc zatím 0 aut – první kus se chystá“,
+  - pod tím „Rozjednáno: 8 obchodů · výhled ≈ … Kč“.
+- **Jen poptávky přihlášeného prodejce** (`prodejce` = e-mail), připraveno pro víc prodejců.
+- **Prodáno tento měsíc** = poslední „Stav → Prodáno“ v historii v aktuálním kalendářním měsíci, bez záznamu čas `upraveno`. Kdy obchod začal, nevadí (rozhodnutí uživatele: obchody běží i týdny přes konec měsíce).
+- **Výhled** = všechny moje otevřené × moje úspěšnost × provize, zaokrouhleno na stovky. Úspěšnost = prodané / (prodané + ztracené). Méně než 5 uzavřených obchodů → „výhled spočítám po 5 uzavřených obchodech“, nic se nevymýšlí.
+- **Průměrná provize za auto:** zadá se po prvním klepnutí nebo přes „✏️ provize“. Uloží se **jen v tomhle zařízení** (`localStorage`, klíč `poptavky.provize`), ne do databáze. Na PC a iPhonu se zadává zvlášť.
+- **Částky jsou schované** („≈ ••• Kč“), klepnutí je ukáže nebo zase schová. Po obnovení stránky jsou znovu schované (showroom).
+- **Mobil (do 600 px, rozhodnutí uživatele: „nebude tam moc informací?“):** jen jeden krátký řádek „🎉 3 auta tento měsíc ›“ (při nule „🚗 Tento měsíc zatím 0 aut ›“). Klepnutí rozbalí celý blok rovnou s částkami, další klepnutí ho sbalí. Po obnovení stránky je zase sbalený. PC beze změny.
+- Do databáze se nic nezapisuje. Rozepsaná provize přežije živé překreslení.
 
 ## Aktualizace za chodu (v1.10)
 - **Proč:** ikona na ploše iPhonu i záložka na PC si pamatují adresu konkrétní verze, protože `poptavky.html` na ni hned přesměruje. Otevřená appka navíc běží dny bez obnovení.
@@ -170,6 +182,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_tipy_v1.8.js`: tipy při prázdném „Dnes zavolat“ – pořadí, 14denní hranice, poznámka v historii, prodané a ztracené nikdy, zmizení tipů, žádný zápis do databáze; PC i iPhone.
 - `testy/test_gdpr_v1.9.js`: SMS „Souhlas GDPR“ na PC i iPhonu – číslo příjemce, text s odkazem na formulář MB, žádný e-mail, bez telefonu nic, žádný zápis do databáze.
 - `testy/test_aktualizace_v1.10.js`: aktualizace za chodu přes lokální HTTP server se smyšlenou v1.11 – lišta, „Později“, přepnutí s otevřeným detailem, povinná verze (ne při psaní, hned na přehledu a na přihlášení), nedostupná `poptavky.html`; PC i iPhone.
+- `testy/test_vydelek_v1.11.js`: „Tento měsíc prodáno“ a výhled na PC, iPhonu 13 a SE – krátký řádek na mobilu, jen moje poptávky, měsíc podle záznamu „Stav → Prodáno“, zadání a změna provize, schování částek, méně než 5 uzavřených, nula prodaných, přepnutí na Prodáno, žádný zápis do databáze. `test_aktualizace_v1.10.js` od v1.11 funguje pro libovolnou verzi (`SOUBOR`).
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence
@@ -182,10 +195,4 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - QR kód na stojanu v showroomu, zákazník si poptávku vyplní sám (řešit zabezpečení zápisu bez přihlášení).
 - Tlačítko přímo v Outlooku „Do evidence".
 - Přiložení PDF nabídky k poptávce.
-- **Výdělek z prodaných aut** (nápad uživatele, zatím neschváleno k implementaci):
-  - slavit, co je prodané: „Tento měsíc prodáno: 3 auta ≈ 24 000 Kč 🎉“ (uživatel: „je super“),
-  - rozjednané nanejvýš jako realistický výhled („v rozjednaných zhruba dalších … Kč“), **ne** „kdybys prodal všechno“, protože by to ukazovalo spíš ztráty,
-  - jedna **průměrná provize za auto**, kterou si prodejce zadá sám. Provize podle modelů ne (špatná údržba, model se z textu nerozpoznává),
-  - citlivé údaje: částka schovaná, ukáže se po klepnutí (zákazník v showroomu vidí na obrazovku). Průměrná provize jen v zařízení prodejce, ne ve sdílené databázi,
-  - místo: souhrn v hlavičce evidence nebo volné místo pod „Dnes zavolat“ na PC (viz „Místo pro budoucí ceny“).
 - **Týmové motivační věty** (až bude víc prodejců): jen pozitivně, třeba „Tým včera zapsal 7 poptávek 💪“ nebo pochvala nejlepšímu. Počítat i nabídky a kontakty, ne jen nové poptávky, aby se nevyplatilo zapisovat „pro statistiku“. Jména doplnit ke schváleným účtům v konzoli Firebase (appka zná jen e-mail). Předtím rozhodnout, kdo vidí čí poptávky a čí jsou „Dnes zavolat“.
