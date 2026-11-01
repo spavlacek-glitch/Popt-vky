@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.12 (2026-11-01)
+Verze dokumentu: 2.15 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -34,6 +34,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
    - Uživatel by správně chtěl kalkulaci u každé poptávky. Zisk ale uvidí jen u poptávek s nabídkou z Offer Studia. Ruční kalkulaci v Poptávkách přidat jen na pokyn, byla by to druhá kalkulačka.
 4. Nabídka – **základ je Mercedes Offer Studio** (rozhodnutí 2026-11-01). Makro s MB Configurator API (`Module1`, online kód) se vynechává. **Od v1.13** otevře „📄 Udělat nabídku“ v detailu na PC Offer Studio (v1.2.0) s vyplněným zákazníkem (viz níže). Podklady jsou v `POSOUZENI_OfferStudio.md`.
 5. Odeslání nabídky e-mailem ✅ Offer Studio v1.2.0 – „📄 Vytvořit PDF a e-mail“ vytvoří PDF a soubor `.eml` (koncept s přílohou PDF a textem ze šablon makra `EmailSablony`) a otevře ho v Outlooku. **Ověřeno u uživatele (2026-11-01, celá cesta):** Poptávky → „📄 Udělat nabídku“ → Offer Studio v1.2.0 → PDF → nový Outlook otevře upravitelný koncept, texty sedí, PDF je v příloze. Odešle prodejce sám, nic se nepřipojuje k poště. Offer Studio běží na pevném portu `8774`, akční nabídky (financování, bonusy) a podpis si prodejce upravuje sám v Nastavení Offer Studia.
+   - **Odpověď ve vlákně (Offer Studio v1.6.0, přání uživatele):** druhá nabídka a připomínky se neposílají jako nový e-mail. Když zákazník nabídku už má, Offer Studio vytvoří jen PDF a dá ho do schránky (ověřeno: nový Outlook vloží soubor ze schránky do odpovědi jako přílohu) spolu s krátkým textem „Upravená nabídka“. Prodejce v Outlooku klepne Odpovědět a vloží.
    - Zpětný zápis nabídky do Poptávek je od Offer Studia v1.5.0. **Stav se nemění:** „Nabídka odeslána“ přepíná prodejce ručně po odeslání (rozhodnutí 1 z 2026-10-28).
 6. Automatické připomínky po odeslání
 7. Předání do SW Žádanek (kupní smlouva) – schválený postup, odložený po dobu pilotu Žádanek. Podklady jsou v soukromém repu Žádanek (`POSOUZENI_Poptavky.md`), do tohoto veřejného repa se nepřenášejí. Bez pokynu neimplementovat.
@@ -119,12 +120,26 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Hláška `{"detail":"Not Found"}` = na PC běží starší Offer Studio bez `/nova` (do v1.1.9). Aktualizovat soubory `app.py`, `email_sablony.py`, `email_koncept.py`, složku `data` nechat (nalezeno uživatelem 2026-11-01).
 - Detail na PC je jinak stejný jako ve v1.4 (test porovnání ignoruje řádky `.gdpr` a `.nabidka`).
 
+## Ekonomika na přehledu (v1.15)
+- **Přání uživatele (2026-11-01):** na první stránce u každé poptávky vidět, za kolik, s jakou slevou a s jakým ziskem. Ekonomika může být rozbalovací. „Dnes zavolat“ zůstává na svém místě, popis i „kdy volat“ zůstávají.
+- **Každá karta** (seznam, „Dnes zavolat“, tipy; PC i mobil) má navíc:
+  - `📄 model · cena · sleva %` z poslední nabídky (bez nabídky nic, v tabulce „bez nabídky“),
+  - `💬 poslední zápis · před X dny` (nejnovější záznam historie kromě „Založeno“).
+- **PC od 1200 px: seznam je tabulka** Zákazník | Co řeším · poslední zápis | Nabídka | Zisk | Stav · kontakt | ▸.
+  - Zisk je schovaný („••• Kč“). 👁 v záhlaví ho ukáže u všech poptávek i v součtu, do obnovení stránky. Barva podle příznaků z Offer Studia.
+  - Řazení klepnutím na záhlaví (Nabídka, Zisk, kontakt), další klepnutí vrátí výchozí „nejnovější nahoře“.
+  - Pod tabulkou součet za zobrazené poptávky: počet, kolik s nabídkou a za kolik, zisk (schovaný).
+  - **▸ rozbalí „Ekonomiku poptávky“** v řádku (neotevře detail): cena pro zákazníka (ceníková = cena vozu + sleva, sleva Kč a %, doplňky, celkem), zisk před a po korekcích a marže (schované do klepnutí), nabídka (datum, soubor, „📂 Otevřít v Offer Studiu“ → `127.0.0.1:8774/draft/{id konceptu}`) a „Co jsem s ním řešil“ (poslední 4 zápisy).
+  - Přehled je na PC široký až 1920 px.
+- **Mobil (rozhodnutí uživatele 2026-11-01):** model, cena a poslední zápis ano, zisk ani ▸ ne. V mobilním detailu řádek „Nabídka“ s modelem a cenou.
+- Hledání najde poptávku i podle modelu z nabídky. Nic se nezapisuje, Poptávky nic nepočítají.
+
 ## Nabídky z Offer Studia (v1.14)
 - **Rozhodnutí uživatele (2026-11-01):** Offer Studio se jednou přihlásí účtem Poptávek (heslo se neukládá, v PC jen přihlašovací klíč). Po vytvoření nabídky zapíše souhrn a řádek do historie („📄 Nabídka připravena: … · cena“, při změně ceny „📄 Nabídka upravena: …“). Stav se nemění.
 - **Detail na PC:** pod „📄 Udělat nabídku“ řádek každé nabídky (nejnovější nahoře): model · cena · sleva % · datum. Pod ním zisk a marže **schované do klepnutí** („Zisk ••• Kč“), klepnutí je ukáže i se zápisem „před korekcemi“, další schová.
   - Varování „⚠ nízká marže“ / „⚠ pod nákupní cenou“ jen podle příznaků z Offer Studia. Hranice není v kódu Poptávek.
 - **Hlavička na PC:** v bloku „Tento měsíc prodáno“ řádek „Zisk z prodaných aut: ≈ ••• Kč (1 z 2 aut s nabídkou)“ (rozhodnutí 3a: provize zůstává, zisk přibyl). Počítá se ze skutečného zisku poslední nabídky prodaných aut tohoto měsíce. Částka se odkryje stejným klepnutím jako provize, bez provize jde odkrýt taky.
-- **Mobil (rozhodnutí uživatele):** zatím nic, ani v detailu, ani v hlavičce.
+- **Mobil (rozhodnutí uživatele):** zisk nikde. Od v1.15 je na kartě a v detailu nabídka (model · cena), viz „Ekonomika na přehledu“.
 - Poptávky nic nepočítají ani nezapisují. Detail na PC je jinak stejný jako ve v1.4.
 
 ## Komu zavolat, když dnes nikomu (v1.8)
@@ -218,6 +233,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_manifest_v1.12.js`: manifest přečtený prohlížečem (Chromium) přes lokální HTTP server ve složce jako na raw.githack.com – start ze stálé adresy, rozsah celé složky, standalone, relativní cesty, odkaz z `poptavky.html`. Chování iPhonu ověřit na zařízení.
 - `testy/test_nabidka_v1.13.js`: „📄 Udělat nabídku“ na PC 1280 a 1024 – odkaz na `127.0.0.1:8774/nova` s ID, jménem, telefonem, e-mailem a „Co chce“, zvláštní znaky, umístění, na iPhonu 13 a SE není, žádný zápis do databáze. S `OFFER_STUDIO=<složka>` spustí kopii Offer Studia a ověří i předvyplněnou nabídku a oslovení v e-mailu.
 - `testy/test_nabidky_v1.14.js`: nabídky z Offer Studia na PC 1280 (řádek nabídky, schovaný zisk, varování podle příznaku, víc nabídek, hlavička „Zisk z prodaných aut“) a jejich absence na iPhonu, žádný zápis. S `OFFER_STUDIO=<složka>` celá cesta proti emulátorům: přihlášení Offer Studia (špatné heslo, heslo se neuloží), zápis nabídky a historie, přepsání bez nového řádku, „Nabídka upravena“ při změně ceny, zobrazení v Poptávkách, smazaná poptávka bez osiřelých dat, odhlášení.
+- `testy/test_ekonomika_v1.15.js`: ekonomika na přehledu na PC 1440 a 1280 (záhlaví, řádek s nabídkou a posledním zápisem, schovaný zisk a 👁, součet, řazení, rozbalená ekonomika s ceníkem, korekcemi a historií, odkaz do Offer Studia, hledání podle modelu, „Dnes zavolat“ vlevo s nabídkou, klepnutí otevře detail, bez posunu do stran) a na iPhonu 13 (nabídka a poslední zápis, bez zisku), žádný zápis.
 - `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
 
 ## Konvence
@@ -225,6 +241,12 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Uživatelské texty česky, klidně s lehkým humorem.
 - **Tón appky (rozhodnutí uživatele):** povzbuzovat a bavit, nikdy nesrážet. Žádné žebříčky „kdo je poslední“ ani výčitky. Humor je vítaný, pokud prodejci pomáhá nebo ho pobaví. Prodejce má zapisování bavit – když je appka vtipná a usnadní práci, bude ji používat.
 - Escapovat veškerý obsah z DB při vkládání do HTML (`esc()`).
+
+## Udržitelnost (posouzení 2026-11-01)
+- Podklady jsou v `POSOUZENI_Udrzitelnost.md`. **Rozhodnutí uživatele:** zatím nic neměnit, nejdřív testuje sám, nejvýš s jedním kolegou.
+- Před přidáním kolegy udělat zálohy (Firebase + složka `data` Offer Studia) a rozhodnout, kdo vidí čí poptávky a zisky.
+- Později přejít z raw.githack.com na Firebase Hosting nebo GitHub Pages. Kolem 2 000 poptávek zavést archiv (načítat jen otevřené a nedávné).
+- Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
 
 ## Nápady na později
 - QR kód na stojanu v showroomu, zákazník si poptávku vyplní sám (řešit zabezpečení zápisu bez přihlášení).

@@ -181,3 +181,11 @@ S `OFFER_STUDIO` (repo Mercedes-Offer-Studio v1.5.0+) spustí Offer Studio napoj
 OFFER_STUDIO=/cesta/k/Mercedes-Offer-Studio SOUBOR=poptavky_v1.14.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_nabidky_v1.14.js
 ```
 Výsledek 2026-11-01: **25 / 25**. Pravidla `firebase/rules.test.mjs`: **95 / 95**. Regrese na v1.14 beze změn: test_v1.2 40/40, test_vzhled 84/84, test_kontakt_v1.4 17/17, test_detail_v1.5 40/40, test_odkaz_v1.6 11/11, test_tipy_v1.8 16/16, test_gdpr_v1.9 9/9, test_aktualizace_v1.10 23/23, test_vydelek_v1.11 35/35, test_manifest_v1.12 7/7, test_nabidka_v1.13 16/16.
+
+## `test_ekonomika_v1.15.js` – ekonomika na přehledu (v1.15)
+PC 1440 a 1280: tabulka (Zákazník | Co řeším · poslední zápis | Nabídka | Zisk | Stav · kontakt | ▸), schovaný zisk a 👁 pro celou stránku, součet, řazení podle ceny a zisku, rozbalená „Ekonomika poptávky“ (ceník, sleva, doplňky, celkem, zisk, korekce, marže, historie, odkaz do Offer Studia), hledání podle modelu z nabídky, „Dnes zavolat“ vlevo s nabídkou a posledním zápisem, bez posunu do stran. iPhone 13: nabídka a poslední zápis na kartě, zisk ani ▸ ne. Žádný zápis do databáze.
+
+```bash
+SOUBOR=poptavky_v1.15.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_ekonomika_v1.15.js
+```
+Výsledek 2026-11-01: **28 / 28**. Regrese na v1.15 beze změn (test_nabidky_v1.14 od v1.15 čeká na mobilu nabídku bez zisku).

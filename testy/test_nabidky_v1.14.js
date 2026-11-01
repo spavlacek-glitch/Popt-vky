@@ -128,8 +128,9 @@ Přehled DPH
   {
     const p = await otevri(IPHONE);
     await detail(p, 's_nab');
-    await T('mobilní detail nabídky ani zisk neukazuje', async () => {
-      const t = await p.textContent('#view'); return (!t.includes('GLS 450 d') && !t.includes('Zisk')) || 'ukazuje'; });
+    await T(SOUBOR >= 'poptavky_v1.15' ? 'mobilní detail: nabídka (model · cena) ano, zisk ne (od v1.15)' : 'mobilní detail nabídky ani zisk neukazuje', async () => {
+      const t = await p.textContent('#view');
+      return (SOUBOR >= 'poptavky_v1.15' ? (t.includes('GLS 450 d 4MATIC') && !t.includes('Zisk')) : (!t.includes('GLS 450 d') && !t.includes('Zisk'))) || 'nesedí'; });
     await p.evaluate(() => renderHome()); await p.click('.vydelek'); await p.waitForTimeout(200);
     await T('rozbalená hlavička na mobilu bez zisku z prodaných aut', async () => !(await p.textContent('.vydelek')).includes('Zisk z prodaných') || await p.textContent('.vydelek'));
     await T('žádné chyby', async () => p.chyby.length === 0 || p.chyby);
