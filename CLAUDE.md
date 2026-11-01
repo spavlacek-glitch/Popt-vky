@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.17 (2026-11-01)
+Verze dokumentu: 2.18 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -73,6 +73,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 | prodejce | e-mail přihlášeného uživatele |
 | historie/{pushId} | `{t, kdo, text}` – log kontaktů a změn stavu |
 | zakaznik | klíč v `/zakaznici` (nepovinné, od v1.2). Vazba je jen jednosměrná, seznam poptávek zákazníka se dopočítá. Starší poptávky ho nemají. |
+| vuz | od v1.16, nepovinné, zadává prodejce ručně: `puvod` (`sklad` / `vyroba` / `dealer`), `id` (Auftrag, např. 05-576-12345, nebo online kód), `lokace` (jen sklad a dealer). Prázdné pole se nezapisuje, bez vyplnění `vuz` v DB není. Pravidla DB beze změny. |
 | nabidky/{id konceptu} | od v1.14, zapisuje jen Offer Studio (v1.5.0+): `model`, `cena_sdph` (celkem pro zákazníka), `cena_vuz_sdph`, `sleva_sdph`, `sleva_pct`, `doplnky_sdph`, `soubor`, `zdroj: offerstudio`, `t`, `kdo`; nepovinně `interni` = `{zisk, skutecny_zisk, obchodni_marze, skutecna_marze, korekce, nestandardni, negativni}`. Jedna položka na nabídku, nové PDF ji přepíše. |
 
 ## Datový model – `/zakaznici/{key}` (od v1.2)
@@ -120,6 +121,19 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Když Offer Studio neběží, prohlížeč ukáže chybu připojení (proto nápověda „musí běžet“). Spouští se přes `START.bat`.
 - Hláška `{"detail":"Not Found"}` = na PC běží starší Offer Studio bez `/nova` (do v1.1.9). Aktualizovat soubory `app.py`, `email_sablony.py`, `email_koncept.py`, složku `data` nechat (nalezeno uživatelem 2026-11-01).
 - Detail na PC je jinak stejný jako ve v1.4 (test porovnání ignoruje řádky `.gdpr` a `.nabidka`).
+
+## Vůz u poptávky (v1.16)
+- **Přání uživatele (2026-11-01):** u poptávky musí být jasné, o jaký vůz jde, stejně jako v Žádankách (`puvod_vozidla`: skladové / do výroby / od jiného dealera, lokace). Skladový vůz se pozná podle Auftragu (např. 05-576-12345). Vůz do výroby má online kód, nebo už Auftrag, když si zákazník mění auto, které je ve výrobě.
+- Ve formuláři „Vůz (nepovinné)“: původ (Skladový / Do výroby / Od dealera), jedno pole „Auftrag nebo online kód“, lokace (jen u skladového a od dealera). Nepovinné, zápis poptávky se nezdržuje.
+- Ukazuje se řádek `🚗 Skladový · 05-576-12345 · Karlovy Vary` na kartě (všude), v detailu na PC i na mobilu a v CSV exportu. Hledání najde poptávku i podle Auftragu a online kódu.
+- **Zatím jen ručně.** Zápis z Offer Studia (původ podle odkazu: `product.html` = skladový, `onlinecode` = do výroby) zatím není, je to další možný krok. Offer Studio z `vuz` zatím nic nečte.
+- Test `testy/test_vuz_v1.16.js` (PC i iPhone, 16 kontrol).
+
+## Offer Studio v1.8.0 (složky, číslování, diakritika)
+- **Složky zákazníků:** v Nastavení Offer Studia je „Složka zákazníků“ (jen v daném PC, každý prodejce si nastaví svou). PDF a Word jdou do podsložky zákazníka. Existující složka se najde podle jména bez ohledu na diakritiku, velikost písmen, pořadí jmen a číslo na konci („Novák 2“); víc shod → naposledy změněná. Jinak se založí nová. Nepřístupný disk → `data\exports` s upozorněním.
+- **Číslování:** každé nabídce se při prvním PDF přidělí pořadové číslo u zákazníka (1., 2., …) a datum. Ukazuje se v hlavičce PDF, v nabídce a v seznamu nabídek zákazníka.
+- **Diakritika v názvu souboru** zůstává (Pavláček…).
+- Podrobnosti v `README_V1_8_0.txt` v Offer Studiu.
 
 ## Ekonomika na přehledu (v1.15)
 - **Přání uživatele (2026-11-01):** na první stránce u každé poptávky vidět, za kolik, s jakou slevou a s jakým ziskem. Ekonomika může být rozbalovací. „Dnes zavolat“ zůstává na svém místě, popis i „kdy volat“ zůstávají.
@@ -235,6 +249,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_nabidka_v1.13.js`: „📄 Udělat nabídku“ na PC 1280 a 1024 – odkaz na `127.0.0.1:8774/nova` s ID, jménem, telefonem, e-mailem a „Co chce“, zvláštní znaky, umístění, na iPhonu 13 a SE není, žádný zápis do databáze. S `OFFER_STUDIO=<složka>` spustí kopii Offer Studia a ověří i předvyplněnou nabídku a oslovení v e-mailu.
 - `testy/test_nabidky_v1.14.js`: nabídky z Offer Studia na PC 1280 (řádek nabídky, schovaný zisk, varování podle příznaku, víc nabídek, hlavička „Zisk z prodaných aut“) a jejich absence na iPhonu, žádný zápis. S `OFFER_STUDIO=<složka>` celá cesta proti emulátorům: přihlášení Offer Studia (špatné heslo, heslo se neuloží), zápis nabídky a historie, přepsání bez nového řádku, „Nabídka upravena“ při změně ceny, zobrazení v Poptávkách, smazaná poptávka bez osiřelých dat, odhlášení.
 - `testy/test_ekonomika_v1.15.js`: ekonomika na přehledu na PC 1440 a 1280 (záhlaví, řádek s nabídkou a posledním zápisem, schovaný zisk a 👁, součet, řazení, rozbalená ekonomika s ceníkem, korekcemi a historií, odkaz do Offer Studia, hledání podle modelu, „Dnes zavolat“ vlevo s nabídkou, klepnutí otevře detail, bez posunu do stran) a na iPhonu 13 (nabídka a poslední zápis, bez zisku), žádný zápis.
+- `testy/test_vuz_v1.16.js`: vůz u poptávky na PC 1440 a iPhonu 13 – karta, detail, hledání podle Auftragu, úprava a smazání vozu v DB, žádné chyby.
 - `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
 
 ## Konvence
