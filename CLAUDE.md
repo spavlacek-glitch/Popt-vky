@@ -138,7 +138,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **Detail na PC:** pod „📄 Udělat nabídku“ řádek každé nabídky (nejnovější nahoře): model · cena · sleva % · datum. Pod ním zisk a marže **schované do klepnutí** („Zisk ••• Kč“), klepnutí je ukáže i se zápisem „před korekcemi“, další schová.
   - Varování „⚠ nízká marže“ / „⚠ pod nákupní cenou“ jen podle příznaků z Offer Studia. Hranice není v kódu Poptávek.
 - **Hlavička na PC:** v bloku „Tento měsíc prodáno“ řádek „Zisk z prodaných aut: ≈ ••• Kč (1 z 2 aut s nabídkou)“ (rozhodnutí 3a: provize zůstává, zisk přibyl). Počítá se ze skutečného zisku poslední nabídky prodaných aut tohoto měsíce. Částka se odkryje stejným klepnutím jako provize, bez provize jde odkrýt taky.
-- **Mobil (rozhodnutí uživatele):** zatím nic, ani v detailu, ani v hlavičce.
+- **Mobil (rozhodnutí uživatele):** zisk nikde. Od v1.15 je na kartě a v detailu nabídka (model · cena), viz „Ekonomika na přehledu“.
 - Poptávky nic nepočítají ani nezapisují. Detail na PC je jinak stejný jako ve v1.4.
 
 ## Komu zavolat, když dnes nikomu (v1.8)
