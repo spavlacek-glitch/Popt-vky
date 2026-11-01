@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.4 (2026-10-29)
+Verze dokumentu: 2.5 (2026-10-30)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -34,7 +34,9 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 ## Technologie
 - Jeden HTML soubor (`poptavky_vX.html`), bez build kroku, mobil + PC.
 - Hosting: GitHub + raw.githack.com (stejně jako appka Zkušební jízdy).
-- **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi.
+- **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi a běžící appky nenabídnou aktualizaci (viz „Aktualizace za chodu“).
+  - `MINIMALNI` (od v1.10) zvýšit **jen při změně tvaru dat**. Starší verze se pak přepnou samy.
+  - Tvar obou řádků (`const AKTUALNI = '…';`) neměnit, appka je čte.
 - Backend: Firebase Realtime Database (europe-west1, Spark plan), **samostatný projekt** – ne `testovaci-jizdy`, protože ten má otevřená pravidla.
 - Firebase SDK compat 10.12.2 z gstatic CDN.
 - Přihlášení: Firebase Auth e-mail/heslo, **samoregistrace je vypnutá**. Pravidla DB (nasazená, zdroj `firebase/database.rules.json`):
@@ -102,6 +104,15 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **Nejbližší kontakt:** zbylá místa doplní otevřené poptávky s nejbližším budoucím termínem („Na řadě zítra – klidně už dnes“).
 - Jen čtení dat: nic se nezapisuje, termíny ani stavy se nemění. Jakmile je někdo na řadě dnes, tipy zmizí.
 
+## Aktualizace za chodu (v1.10)
+- **Proč:** ikona na ploše iPhonu i záložka na PC si pamatují adresu konkrétní verze, protože `poptavky.html` na ni hned přesměruje. Otevřená appka navíc běží dny bez obnovení.
+- **Jak:** appka si při spuštění, při návratu do popředí a každých 30 minut přečte `poptavky.html` (`AKTUALNI`, `MINIMALNI`). Verze porovnává číselně (1.10 > 1.9).
+  - **Novější verze** → pod hlavičkou lišta „🎉 Je tu nová verze Poptávek (v…) – Aktualizovat / Později“. Sama nic nepřepne. „Později“ ji pro tutéž verzi schová do obnovení stránky.
+  - **Tahle verze je pod `MINIMALNI`** → lišta bez „Později“. Appka se přepne sama, jakmile to nic nepřeruší: na přihlášení nebo na přehledu a mimo psaní do pole.
+  - Otevřený detail zůstane otevřený, předá se jako `#poptavka=…` (v1.6).
+  - Bez připojení se nic neděje, zkusí to příště. Nic se nezapisuje.
+- **Verze do v1.9 kontrolu nemají.** Ikonu na ploše uloženou z nich je potřeba jednou přidat znovu, od v1.10 už ne.
+
 ## Souhlas GDPR (v1.9)
 - V detailu poptávky je „Souhlas GDPR“: na PC řádek pod „📱 Uložit do kontaktů“, na mobilu řádek v panelu „Další akce“.
 - „💬 Poslat SMS“ (je-li telefon) otevře Zprávy s připraveným textem a odkazem na formulář souhlasu Mercedes-Benz (`GDPR_ODKAZ` v kódu). V SMS je odkaz klikací (ověřeno na iPhonu). Odešle prodejce sám.
@@ -158,6 +169,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_odkaz_v1.6.js`: odkaz z kontaktu – export → odkaz ze souboru → `poptavky.html` → přihlášení → detail na iPhonu i PC, smazaná a poškozená poptávka, obnovení stránky, druhý odkaz v otevřené appce, žádný zápis do databáze.
 - `testy/test_tipy_v1.8.js`: tipy při prázdném „Dnes zavolat“ – pořadí, 14denní hranice, poznámka v historii, prodané a ztracené nikdy, zmizení tipů, žádný zápis do databáze; PC i iPhone.
 - `testy/test_gdpr_v1.9.js`: SMS „Souhlas GDPR“ na PC i iPhonu – číslo příjemce, text s odkazem na formulář MB, žádný e-mail, bez telefonu nic, žádný zápis do databáze.
+- `testy/test_aktualizace_v1.10.js`: aktualizace za chodu přes lokální HTTP server se smyšlenou v1.11 – lišta, „Později“, přepnutí s otevřeným detailem, povinná verze (ne při psaní, hned na přehledu a na přihlášení), nedostupná `poptavky.html`; PC i iPhone.
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence
