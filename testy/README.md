@@ -161,3 +161,13 @@ Testuje celý řetězec přes skutečnou appku a stálou adresu `poptavky.html`:
 ICALJS=/cesta/k/node_modules/ical.js FIREBASE10=/cesta/k/node_modules/firebase node testy/test_odkaz_v1.6.js
 ```
 Výsledek 2026-10-28: **11 / 11**. Regrese proti v1.6: `test_detail_v1.5.js` 40/40 (`SOUBOR=poptavky_v1.6.html`), `test_v1.2.js` 40/40, `test_vzhled.js` 84/84, `test_kontakt_v1.4.js` 17/17.
+
+## `test_nabidka_v1.13.js` – „📄 Udělat nabídku“ (v1.13)
+Na PC 1280 a 1024 ověří odkaz do Offer Studia (`http://127.0.0.1:8774/nova`) u všech poptávek: ID poptávky, jméno, telefon, e-mail, „Co chce“, zvláštní znaky (uvozovky, &, #, ?, < >), prázdnou poptávku a umístění pod „Souhlas GDPR“. Na iPhonu 13 a SE se tlačítko nenabízí. Nic se nezapíše do databáze.
+
+S proměnnou `OFFER_STUDIO` (složka s repem Mercedes-Offer-Studio v1.2.0+, Python s `fastapi uvicorn python-multipart python-docx requests`) test spustí kopii Offer Studia na portu 8774, klepne na tlačítko a zkontroluje předvyplněnou nabídku a oslovení v náhledu e-mailu.
+
+```bash
+OFFER_STUDIO=/cesta/k/Mercedes-Offer-Studio SOUBOR=poptavky_v1.13.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_nabidka_v1.13.js
+```
+Výsledek 2026-11-01: **20 / 20**. Regrese na v1.13 beze změn: test_v1.2 40/40, test_vzhled 84/84, test_kontakt_v1.4 17/17, test_detail_v1.5 40/40 (porovnání s v1.4 nově ignoruje i `.nabidka`), test_odkaz_v1.6 11/11, test_tipy_v1.8 16/16, test_gdpr_v1.9 9/9, test_aktualizace_v1.10 23/23, test_vydelek_v1.11 35/35, test_manifest_v1.12 7/7.

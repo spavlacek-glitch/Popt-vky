@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.9 (2026-11-01)
+Verze dokumentu: 2.10 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -26,8 +26,9 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 1. **Sběr** ✅ v1.0
 2. **Evidence + připomínky „Dnes zavolat"** ✅ v1.0
 3. Kalkulace (sleva, cena) – **pozastaveno**: v Poptávkách nevznikne vlastní kalkulačka, výpočty řeší Mercedes Offer Studio SOLO. Případné propojení zatím neimplementovat, podklady jsou v `POSOUZENI_OfferStudio.md`.
-4. Nabídka – **základ je Mercedes Offer Studio** (rozhodnutí 2026-11-01). Makro s MB Configurator API (`Module1`, online kód) se vynechává. Postup a podklady jsou v `POSOUZENI_OfferStudio.md`, zatím neimplementováno.
-5. Odeslání nabídky e-mailem – Offer Studio vytvoří soubor `.eml` (koncept s přílohou PDF a textem ze šablon makra `EmailSablony`) a otevře ho v Outlooku. **Ověřeno u uživatele:** nový Outlook ho otevře jako upravitelný koncept. Odešle prodejce sám, nic se nepřipojuje k poště. Offer Studio poběží na pevném portu `8774`, akční nabídky (financování, bonusy) a podpis si prodejce upravuje sám.
+4. Nabídka – **základ je Mercedes Offer Studio** (rozhodnutí 2026-11-01). Makro s MB Configurator API (`Module1`, online kód) se vynechává. **Od v1.13** otevře „📄 Udělat nabídku“ v detailu na PC Offer Studio (v1.2.0) s vyplněným zákazníkem (viz níže). Podklady jsou v `POSOUZENI_OfferStudio.md`.
+5. Odeslání nabídky e-mailem ✅ Offer Studio v1.2.0 – „📄 Vytvořit PDF a e-mail“ vytvoří PDF a soubor `.eml` (koncept s přílohou PDF a textem ze šablon makra `EmailSablony`) a otevře ho v Outlooku. **Ověřeno u uživatele:** nový Outlook ho otevře jako upravitelný koncept. Odešle prodejce sám, nic se nepřipojuje k poště. Offer Studio běží na pevném portu `8774`, akční nabídky (financování, bonusy) a podpis si prodejce upravuje sám v Nastavení Offer Studia.
+   - Zpětný zápis nabídky do Poptávek (`/poptavky/{id}/nabidky`, řádek do historie) **zatím není**. Stav „Nabídka odeslána“ přepíná prodejce ručně po odeslání (rozhodnutí 1 z 2026-10-28).
 6. Automatické připomínky po odeslání
 7. Předání do SW Žádanek (kupní smlouva) – schválený postup, odložený po dobu pilotu Žádanek. Podklady jsou v soukromém repu Žádanek (`POSOUZENI_Poptavky.md`), do tohoto veřejného repa se nepřenášejí. Bez pokynu neimplementovat.
 
@@ -100,6 +101,13 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
   - cena obchodu na kartě vpravo u štítku stavu (`.card .top`), zatím prázdné,
   - vpravo v hlavičce evidence (`.sekce-hlava` vedle nadpisu „Poptávky“) je od v1.11 „Tento měsíc prodáno“ (viz níže),
   - na PC případně i ve volném místě levého sloupce pod „Dnes zavolat“.
+
+## Udělat nabídku (v1.13)
+- V detailu poptávky **na PC** je pod „Souhlas GDPR“ řádek „📄 Udělat nabídku“ (`.nabidka`). Na mobilu není, Offer Studio běží jen na PC prodejce.
+- Je to **jen odkaz** (nové okno `offerstudio`): `http://127.0.0.1:8774/nova?poptavka=<ID>&jmeno=…&telefon=…&email=…&zajem=…` („Co chce“ nejvýš 1500 znaků). Bez CORS, nic se nezapisuje, stav se nemění.
+- Offer Studio (od v1.2.0) předvyplní zákazníka, „Co chce“ dá do interních poznámek a uloží si ID poptávky. Když k poptávce už nabídku má, nabídne ji.
+- Když Offer Studio neběží, prohlížeč ukáže chybu připojení (proto nápověda „musí běžet“). Spouští se přes `START.bat`.
+- Detail na PC je jinak stejný jako ve v1.4 (test porovnání ignoruje řádky `.gdpr` a `.nabidka`).
 
 ## Komu zavolat, když dnes nikomu (v1.8)
 - Když je „Dnes zavolat“ prázdné, panel pod hecovací větou ukáže **nejvýš 3 tipy**. Klepnutí otevře detail jako u každé karty.
@@ -190,6 +198,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_aktualizace_v1.10.js`: aktualizace za chodu přes lokální HTTP server se smyšlenou v1.11 – lišta, „Později“, přepnutí s otevřeným detailem, povinná verze (ne při psaní, hned na přehledu a na přihlášení), nedostupná `poptavky.html`; PC i iPhone.
 - `testy/test_vydelek_v1.11.js`: „Tento měsíc prodáno“ a výhled na PC, iPhonu 13 a SE – krátký řádek na mobilu, jen moje poptávky, měsíc podle záznamu „Stav → Prodáno“, zadání a změna provize, schování částek, méně než 5 uzavřených, nula prodaných, přepnutí na Prodáno, žádný zápis do databáze. `test_aktualizace_v1.10.js` od v1.11 funguje pro libovolnou verzi (`SOUBOR`).
 - `testy/test_manifest_v1.12.js`: manifest přečtený prohlížečem (Chromium) přes lokální HTTP server ve složce jako na raw.githack.com – start ze stálé adresy, rozsah celé složky, standalone, relativní cesty, odkaz z `poptavky.html`. Chování iPhonu ověřit na zařízení.
+- `testy/test_nabidka_v1.13.js`: „📄 Udělat nabídku“ na PC 1280 a 1024 – odkaz na `127.0.0.1:8774/nova` s ID, jménem, telefonem, e-mailem a „Co chce“, zvláštní znaky, umístění, na iPhonu 13 a SE není, žádný zápis do databáze. S `OFFER_STUDIO=<složka>` spustí kopii Offer Studia a ověří i předvyplněnou nabídku a oslovení v e-mailu.
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence

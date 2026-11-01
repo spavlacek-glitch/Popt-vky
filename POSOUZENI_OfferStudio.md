@@ -17,7 +17,17 @@ Datum: 2026-10-28 · Posuzovaná verze Offer Studio: v1.1.9 (repo `spavlacek-gli
 - **Výsledek testu u uživatele:** otevřel se **nový Outlook** s **upravitelným konceptem**. Text šel upravit, tučné i barevné písmo zůstalo zachované, příloha PDF a odkaz byly v pořádku.
 - Testovací soubor: HTML + prostý text (`multipart/alternative`) a příloha PDF (`multipart/mixed`), UTF-8 s diakritikou v předmětu i jménu příjemce.
 
-### Navržený postup (zatím neimplementováno)
+### Stav implementace (2026-11-01)
+- **Krok 1 hotový – Poptávky v1.13:** „📄 Udělat nabídku“ v detailu na PC (odkaz na `127.0.0.1:8774/nova`).
+- **Krok 2 hotový – Offer Studio v1.2.0** (větev `claude/offer-studio-outlook-integration-ckmeje` v repu Offer Studia):
+  - „📄 Vytvořit PDF a e-mail“ = Word + PDF + koncept `.eml` otevřený v Outlooku; „✉ Jen e-mail“ s posledním PDF (připomínky),
+  - šablony 1–5 z makra s opravami (viz níže), náhled e-mailu, volby uložené ke konceptu,
+  - Nastavení (jen v PC, `data/nastaveni.json`): prodejce, financování, bonusy BEV, platnost akcí s upozorněním, podpis (výchozí vypnutý).
+  - Na Windows je potřeba ověřit samotné otevření konceptu po exportu (`os.startfile`), na Linuxu ověřen tvar `.eml`.
+- **Krok 3 zatím ne:** zápis souhrnu nabídky do Poptávek (Firebase z Offer Studia, přihlášení). Stav dál přepíná prodejce ručně.
+- **Krok 4 zatím ne:** připomínací e-maily navázané na připomínky v Poptávkách. Šablony 2–5 už jdou ručně přes „✉ Jen e-mail“.
+
+### Navržený postup
 1. **Poptávky (PC):** v detailu tlačítko „📄 Udělat nabídku“. Otevře Offer Studio (`127.0.0.1:<pevný port>`) s vyplněným jménem, telefonem, e-mailem a ID poptávky. Je to jen odkaz, takže nevzniká problém s CORS.
 2. **Offer Studio:** konfigurace, sleva, fotky a PDF beze změny. Nově „Hotovo → e-mail“: uloží PDF, sestaví e-mail ze šablony (oslovení z jména poptávky, model, BEV, podpis) a otevře `.eml` koncept.
 3. **Zpět do Poptávek:** souhrn do `/poptavky/{id}/nabidky/{pushId}` a řádek do historie „Nabídka připravena“. **Stav se nemění** (rozhodnutí 1 z 2026-10-28). Po odeslání ho prodejce jedním klepnutím přepne na „Nabídka odeslána“ a připomínka za 3 dny se nastaví sama.
