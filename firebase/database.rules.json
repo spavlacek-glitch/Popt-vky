@@ -9,7 +9,35 @@
 
     "poptavky": {
       ".read": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true",
-      ".write": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true"
+      ".write": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true",
+      "$poptavka": {
+        "nabidky": {
+          "$nabidka": {
+            ".validate": "$nabidka.length <= 64 && root.child('poptavky').child($poptavka).child('stav').exists() && newData.hasChildren(['model', 'cena_sdph', 't', 'kdo'])",
+            "model":         { ".validate": "newData.isString() && newData.val().length <= 80" },
+            "cena_sdph":     { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "cena_vuz_sdph": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "sleva_sdph":    { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "sleva_pct":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+            "doplnky_sdph":  { ".validate": "newData.isNumber() && newData.val() >= 0" },
+            "soubor":        { ".validate": "newData.isString() && newData.val().length <= 120" },
+            "zdroj":         { ".validate": "newData.val() === 'offerstudio'" },
+            "t":             { ".validate": "newData.isNumber() && newData.val() <= now" },
+            "kdo":           { ".validate": "newData.val() === auth.token.email" },
+            "interni": {
+              "zisk":           { ".validate": "newData.isNumber()" },
+              "skutecny_zisk":  { ".validate": "newData.isNumber()" },
+              "obchodni_marze": { ".validate": "newData.isNumber()" },
+              "skutecna_marze": { ".validate": "newData.isNumber()" },
+              "korekce":        { ".validate": "newData.isNumber() && newData.val() >= 0" },
+              "nestandardni":   { ".validate": "newData.isBoolean()" },
+              "negativni":      { ".validate": "newData.isBoolean()" },
+              "$jine":          { ".validate": false }
+            },
+            "$jine": { ".validate": false }
+          }
+        }
+      }
     },
 
     "zakaznici": {

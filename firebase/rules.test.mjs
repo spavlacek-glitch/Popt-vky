@@ -88,6 +88,29 @@ describe('Navrhovaná pravidla (database.rules.json)', () => {
     test('nečte záznamy ostatních uživatelů', () => assertFails(get(ref(db(SCHVALENY), `uzivatele/${VYPNUTY}`))));
   });
 
+  describe('Schválený uživatel – /poptavky/{id}/nabidky z Offer Studia (v1.14)', () => {
+    const email = SCHVALENY + '@example.cz';
+    const nab = (extra = {}) => ({ model: 'GLS 450 d 4MATIC', cena_sdph: 1274000, cena_vuz_sdph: 1270500, sleva_sdph: 60500, sleva_pct: 4.5,
+      doplnky_sdph: 3500, soubor: 'Nabidka.pdf', zdroj: 'offerstudio', t: serverTimestamp(), kdo: email,
+      interni: { zisk: 82000, skutecny_zisk: 62000, obchodni_marze: 7.5, skutecna_marze: 5.9, korekce: 20000, nestandardni: false, negativni: false }, ...extra });
+    const zapis = (data, id = 'p1') => set(ref(db(SCHVALENY), `poptavky/${id}/nabidky/koncept1`), data);
+    test('zapíše souhrn nabídky k existující poptávce', () => assertSucceeds(zapis(nab())));
+    test('zapíše nabídku bez interních údajů (bez nákupní marže)', () => { const n = nab(); delete n.interni; return assertSucceeds(zapis(n)); });
+    test('přepíše nabídku novou verzí', async () => { await zapis(nab()); return assertSucceeds(zapis(nab({ cena_sdph: 1250000 }))); });
+    test('zapíše řádek do historie', () => assertSucceeds(push(ref(db(SCHVALENY), 'poptavky/p1/historie'), { t: serverTimestamp(), kdo: email, text: '📄 Nabídka připravena: GLS · 1 274 000 Kč' })));
+    test('k neexistující poptávce nevznikne osiřelá nabídka', () => assertFails(zapis(nab(), 'neexistuje')));
+    test('nabídka za jiného prodejce (kdo ≠ přihlášený)', () => assertFails(zapis(nab({ kdo: 'jiny@example.cz' }))));
+    test('chybí model nebo cena', () => { const n = nab(); delete n.cena_sdph; return assertFails(zapis(n)); });
+    test('cena jako text', () => assertFails(zapis(nab({ cena_sdph: '1 274 000' }))));
+    test('neznámé pole v nabídce', () => assertFails(zapis(nab({ poznamka: 'x' }))));
+    test('neznámé pole v interních údajích', () => assertFails(zapis(nab({ interni: { zisk: 1, nakupni_cena: 2 } }))));
+    test('nepřihlášený nabídku nezapíše', () => assertFails(set(ref(db(null), 'poptavky/p1/nabidky/koncept1'), nab())));
+    test('neschválený nabídku nezapíše', () => assertFails(set(ref(db(NESCHVALENY), 'poptavky/p1/nabidky/koncept1'), nab({ kdo: NESCHVALENY + '@example.cz' }))));
+    test('Poptávky v1.13 dál upraví poptávku s nabídkou (update jiných polí)', async () => { await zapis(nab());
+      return assertSucceeds(update(ref(db(SCHVALENY), 'poptavky/p1'), { stav: 'nabidka', dalsiKontakt: '2026-11-04', upraveno: serverTimestamp() })); });
+    test('smaže poptávku i s nabídkou', async () => { await zapis(nab()); return assertSucceeds(remove(ref(db(SCHVALENY), 'poptavky/p1'))); });
+  });
+
   describe('Schválený uživatel – /zakaznici: povolená pole', () => {
     test('zapíše zákazníka ve schváleném tvaru', () => assertSucceeds(set(ref(db(SCHVALENY), 'zakaznici/k2'), zakaznik(SCHVALENY))));
     test('zapíše minimálního zákazníka z poptávky', () => assertSucceeds(set(ref(db(SCHVALENY), 'zakaznici/k3'),

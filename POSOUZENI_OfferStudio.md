@@ -26,7 +26,7 @@ Datum: 2026-10-28 · Posuzovaná verze Offer Studio: v1.1.9 (repo `spavlacek-gli
   - **Ověřeno uživatelem na pracovním PC (2026-11-01):** z Poptávek přes „📄 Udělat nabídku“ se nabídka vytvoří, nový Outlook otevře koncept, texty sedí a PDF je v příloze.
 - **Offer Studio v1.3.0 – rychlá nabídka** (rozhodnutí uživatele 2026-11-01: ukládání samo ano, FotoLab automaticky ne, potvrzení fotek ano): pořadí Zákazník → Vůz → Cena → E-mail → Hotovo, „Co ještě chybí“ průběžně a najednou, výpis sbalený do souhrnu, model z výpisu, chyby u tlačítka. Druhé klepnutí na „Udělat nabídku“ otevře existující nabídku k poptávce.
 - **Offer Studio v1.4.0 – kalkulace** (rozhodnutí uživatele 2026-11-01: počítá Offer Studio, Poptávky jen zobrazí): model SW Žádanek (sleva Kč s DPH / % / cena, nákupní marže ručně, zisk, obchodní marže s varováním pod 3 % a pod 0 %, korekce marže, skutečný zisk) + doplňkový prodej do nabídky. Interní údaje nikdy do PDF ani e-mailu.
-- **Krok 3 zatím ne:** zápis souhrnu nabídky do Poptávek (Firebase z Offer Studia, přihlášení). Stav dál přepíná prodejce ručně.
+- **Krok 3 hotový – Offer Studio v1.5.0 + Poptávky v1.14:** zápis souhrnu nabídky do `/poptavky/{id}/nabidky` a řádek do historie (přihlášení účtem Poptávek, heslo se neukládá), zobrazení na PC se ziskem schovaným do klepnutí. Stav dál přepíná prodejce ručně.
 - **Krok 4 zatím ne:** připomínací e-maily navázané na připomínky v Poptávkách. Šablony 2–5 už jdou ručně přes „✉ Jen e-mail“.
 
 ### Navržený postup

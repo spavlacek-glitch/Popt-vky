@@ -171,3 +171,13 @@ S proměnnou `OFFER_STUDIO` (složka s repem Mercedes-Offer-Studio v1.2.0+, Pyth
 OFFER_STUDIO=/cesta/k/Mercedes-Offer-Studio SOUBOR=poptavky_v1.13.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_nabidka_v1.13.js
 ```
 Výsledek 2026-11-01: **20 / 20**. Regrese na v1.13 beze změn: test_v1.2 40/40, test_vzhled 84/84, test_kontakt_v1.4 17/17, test_detail_v1.5 40/40 (porovnání s v1.4 nově ignoruje i `.nabidka`), test_odkaz_v1.6 11/11, test_tipy_v1.8 16/16, test_gdpr_v1.9 9/9, test_aktualizace_v1.10 23/23, test_vydelek_v1.11 35/35, test_manifest_v1.12 7/7.
+
+## `test_nabidky_v1.14.js` – nabídky z Offer Studia (v1.14)
+Na PC 1280: řádek nabídky v detailu (model · cena · sleva · datum), zisk schovaný do klepnutí, varování „nízká marže“ podle příznaku z Offer Studia, víc nabídek (nejnovější nahoře), bez nabídky nic, v hlavičce „Zisk z prodaných aut“ (schovaný, „1 z 2 aut s nabídkou“, odkrytí i bez provize). Na iPhonu 13 nic. Žádný zápis do databáze.
+
+S `OFFER_STUDIO` (repo Mercedes-Offer-Studio v1.5.0+) spustí Offer Studio napojené na emulátory a projde celou cestu: tip „není přihlášené“, špatné heslo, přihlášení a test spojení, heslo se neuloží, vytvoření nabídky → souhrn a řádek „📄 Nabídka připravena“ ve Firebase, stav beze změny, nové PDF bez nového řádku, změna ceny → „📄 Nabídka upravena“, zobrazení v Poptávkách, smazaná poptávka bez osiřelých dat, odhlášení.
+
+```bash
+OFFER_STUDIO=/cesta/k/Mercedes-Offer-Studio SOUBOR=poptavky_v1.14.html FIREBASE10=/cesta/k/node_modules/firebase node testy/test_nabidky_v1.14.js
+```
+Výsledek 2026-11-01: **25 / 25**. Pravidla `firebase/rules.test.mjs`: **95 / 95**. Regrese na v1.14 beze změn: test_v1.2 40/40, test_vzhled 84/84, test_kontakt_v1.4 17/17, test_detail_v1.5 40/40, test_odkaz_v1.6 11/11, test_tipy_v1.8 16/16, test_gdpr_v1.9 9/9, test_aktualizace_v1.10 23/23, test_vydelek_v1.11 35/35, test_manifest_v1.12 7/7, test_nabidka_v1.13 16/16.
