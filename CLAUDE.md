@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.7 (2026-11-01)
+Verze dokumentu: 2.9 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -26,14 +26,15 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 1. **Sběr** ✅ v1.0
 2. **Evidence + připomínky „Dnes zavolat"** ✅ v1.0
 3. Kalkulace (sleva, cena) – **pozastaveno**: v Poptávkách nevznikne vlastní kalkulačka, výpočty řeší Mercedes Offer Studio SOLO. Případné propojení zatím neimplementovat, podklady jsou v `POSOUZENI_OfferStudio.md`.
-4. Nabídka – napojení na existující VBA makro `Nabidka_MB_final.bas` (Word nabídky z MB Configurator API)
-5. Odeslání nabídky e-mailem
+4. Nabídka – **základ je Mercedes Offer Studio** (rozhodnutí 2026-11-01). Makro s MB Configurator API (`Module1`, online kód) se vynechává. Postup a podklady jsou v `POSOUZENI_OfferStudio.md`, zatím neimplementováno.
+5. Odeslání nabídky e-mailem – Offer Studio vytvoří soubor `.eml` (koncept s přílohou PDF a textem ze šablon makra `EmailSablony`) a otevře ho v Outlooku. **Ověřeno u uživatele:** nový Outlook ho otevře jako upravitelný koncept. Odešle prodejce sám, nic se nepřipojuje k poště. Offer Studio poběží na pevném portu `8774`, akční nabídky (financování, bonusy) a podpis si prodejce upravuje sám.
 6. Automatické připomínky po odeslání
 7. Předání do SW Žádanek (kupní smlouva) – schválený postup, odložený po dobu pilotu Žádanek. Podklady jsou v soukromém repu Žádanek (`POSOUZENI_Poptavky.md`), do tohoto veřejného repa se nepřenášejí. Bez pokynu neimplementovat.
 
 ## Technologie
 - Jeden HTML soubor (`poptavky_vX.html`), bez build kroku, mobil + PC.
 - Hosting: GitHub + raw.githack.com (stejně jako appka Zkušební jízdy).
+  - **Po sloučení do `main` trvá několik minut** (ověřeno: víc než minutu, někdy 5–10 minut), než raw.githack.com ukáže novou verzi. Uživateli to vždy říct předem a nepovažovat to za chybu. Rychlá kontrola je přímá adresa nové verze (`…/main/poptavky_vX.Y.html`). Safari obejde svou mezipaměť přes `poptavky.html?cokoli`.
 - **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi a běžící appky nenabídnou aktualizaci (viz „Aktualizace za chodu“).
   - `MINIMALNI` (od v1.10) zvýšit **jen při změně tvaru dat**. Starší verze se pak přepnou samy.
   - Tvar obou řádků (`const AKTUALNI = '…';`) neměnit, appka je čte.
