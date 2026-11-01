@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.6 (2026-11-01)
+Verze dokumentu: 2.7 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -37,6 +37,10 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 - **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi a běžící appky nenabídnou aktualizaci (viz „Aktualizace za chodu“).
   - `MINIMALNI` (od v1.10) zvýšit **jen při změně tvaru dat**. Starší verze se pak přepnou samy.
   - Tvar obou řádků (`const AKTUALNI = '…';`) neměnit, appka je čte.
+- **`manifest.json`** (od v1.12), odkazuje na něj `poptavky.html` i každá verze (`<link rel="manifest">`):
+  - `start_url: poptavky.html`: ikona na ploše startuje ze stálé adresy, takže vždy otevře nejnovější verzi,
+  - `scope: ./`: k appce patří celá složka. Přepnutí na novou verzi zůstane v appce, bez lišty prohlížeče.
+  - Cesty jsou jen relativní, takže funguje z `main` i z testovací větve. Každá nová verze musí mít v hlavičce `<link rel="manifest" href="manifest.json">`.
 - Backend: Firebase Realtime Database (europe-west1, Spark plan), **samostatný projekt** – ne `testovaci-jizdy`, protože ten má otevřená pravidla.
 - Firebase SDK compat 10.12.2 z gstatic CDN.
 - Přihlášení: Firebase Auth e-mail/heslo, **samoregistrace je vypnutá**. Pravidla DB (nasazená, zdroj `firebase/database.rules.json`):
@@ -123,7 +127,8 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
   - **Tahle verze je pod `MINIMALNI`** → lišta bez „Později“. Appka se přepne sama, jakmile to nic nepřeruší: na přihlášení nebo na přehledu a mimo psaní do pole.
   - Otevřený detail zůstane otevřený, předá se jako `#poptavka=…` (v1.6).
   - Bez připojení se nic neděje, zkusí to příště. Nic se nezapisuje.
-- **Verze do v1.9 kontrolu nemají.** Ikonu na ploše uloženou z nich je potřeba jednou přidat znovu, od v1.10 už ne.
+- **Verze do v1.9 kontrolu nemají.** Ikonu na ploše uloženou z nich je potřeba jednou přidat znovu.
+- **Lišta prohlížeče po aktualizaci (nalezeno uživatelem na iPhonu ve v1.11):** bez manifestu bral iPhone za appku jen stránku, ze které byla ikona přidaná. Po „Aktualizovat“ proto otevřel novou verzi v zabudovaném prohlížeči (dole Zpět, Sdílet, Obnovit, Safari). Opraveno manifestem ve v1.12. iPhone si ho přečte jen při přidání ikony, proto je potřeba ikonu přidanou před v1.12 **jednou naposledy** smazat a přidat znovu z `…/main/poptavky.html`.
 
 ## Souhlas GDPR (v1.9)
 - V detailu poptávky je „Souhlas GDPR“: na PC řádek pod „📱 Uložit do kontaktů“, na mobilu řádek v panelu „Další akce“.
@@ -183,6 +188,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_gdpr_v1.9.js`: SMS „Souhlas GDPR“ na PC i iPhonu – číslo příjemce, text s odkazem na formulář MB, žádný e-mail, bez telefonu nic, žádný zápis do databáze.
 - `testy/test_aktualizace_v1.10.js`: aktualizace za chodu přes lokální HTTP server se smyšlenou v1.11 – lišta, „Později“, přepnutí s otevřeným detailem, povinná verze (ne při psaní, hned na přehledu a na přihlášení), nedostupná `poptavky.html`; PC i iPhone.
 - `testy/test_vydelek_v1.11.js`: „Tento měsíc prodáno“ a výhled na PC, iPhonu 13 a SE – krátký řádek na mobilu, jen moje poptávky, měsíc podle záznamu „Stav → Prodáno“, zadání a změna provize, schování částek, méně než 5 uzavřených, nula prodaných, přepnutí na Prodáno, žádný zápis do databáze. `test_aktualizace_v1.10.js` od v1.11 funguje pro libovolnou verzi (`SOUBOR`).
+- `testy/test_manifest_v1.12.js`: manifest přečtený prohlížečem (Chromium) přes lokální HTTP server ve složce jako na raw.githack.com – start ze stálé adresy, rozsah celé složky, standalone, relativní cesty, odkaz z `poptavky.html`. Chování iPhonu ověřit na zařízení.
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence

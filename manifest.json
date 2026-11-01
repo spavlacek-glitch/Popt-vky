@@ -1,0 +1,11 @@
+{
+  "name": "Poptávky",
+  "short_name": "Poptávky",
+  "description": "Evidence poptávek – S. & W. Automobily (od v1.12)",
+  "lang": "cs",
+  "start_url": "poptavky.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f4f6",
+  "theme_color": "#111111"
+}
