@@ -30,7 +30,7 @@ Datum: 2026-10-28 · Posuzovaná verze Offer Studio: v1.1.9 (repo `spavlacek-gli
 
 ### Co je potřeba před implementací
 - Přístup k repu Offer Studia (`spavlacek-glitch/Mercedes-Offer-Studio`), připojí uživatel v nové session.
-- Ověřit, jestli nový Outlook přidá automatický podpis i do konceptu otevřeného ze souboru `.eml`. Ve zkušebním souboru podpis nebyl. Podle toho bude výchozí nastavení podpisu v šabloně zapnuté, nebo vypnuté.
+- ~~Ověřit automatický podpis~~ **Ověřeno uživatelem (2026-11-01):** nový Outlook přidá podpis podle svého nastavení sám, i do konceptu otevřeného ze souboru `.eml`. **Podpis v šabloně je proto ve výchozím stavu vypnutý.** Zapnout a nastavit si ho může prodejce, který v Outlooku automatický podpis nemá.
 - **Chyby makra `EmailSablony` k opravě při převzetí:**
   - v připomenutí po 3–5 dnech se do textu propíše „modelVozu“,
   - nepřesné oslovení („Havel“ → „Havele“, ženská příjmení bez „-ová“ dostanou „pane“).
