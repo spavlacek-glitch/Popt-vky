@@ -91,7 +91,7 @@ const cekej = async url => { for (let i = 0; i < 60; i++) { try { if ((await fet
       const h = (await odkaz('-Nnic_4')).href; return !h.includes('undefined') || h; });
     await T(`${nazev}: řádek je pod „Uložit do kontaktů“ / GDPR a nad „Co chce“`, async () => {
       await detail(p, '-Noba_1');
-      const g = await p.locator('.gdpr').boundingBox(), n = await p.locator('.nabidka').boundingBox(), c = await p.locator('label:has-text("Co chce")').boundingBox();
+      const g = await p.locator('.gdpr').boundingBox(), n = await p.locator('.nabidka').boundingBox(), c = await p.locator('.pc-nadpis:has-text("Poptávka")').boundingBox();
       return (n.y >= g.y + g.height - 1 && n.y + n.height <= c.y + 1) || {g, n, c}; });
     if (OUT) { await detail(p, '-Noba_1'); await p.screenshot({path: path.join(OUT, `nabidka_PC${vp.width}.png`)}); }
     await T(`${nazev}: nic se nezapsalo do databáze, žádné chyby, žádný vodorovný posuv`, async () =>

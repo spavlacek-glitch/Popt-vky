@@ -76,7 +76,7 @@ const rozeber = href => { const [kam, q] = href.split('?'); const par = new URLS
     await T(`${nazev}: bez telefonu i e-mailu se GDPR nenabízí`, async () => (await odkazy('nic')).length === 0 || 'zobrazeno');
     if (!mobil) await T(`${nazev}: řádek GDPR je pod „Uložit do kontaktů“ a nad „Co chce“`, async () => {
       await detail(p, 'oba');
-      const k = await p.locator('button:has-text("Uložit do kontaktů")').boundingBox(), g = await p.locator('.gdpr').boundingBox(), c = await p.locator('label:has-text("Co chce")').boundingBox();
+      const k = await p.locator('button:has-text("Uložit do kontaktů")').boundingBox(), g = await p.locator('.gdpr').boundingBox(), c = await p.locator('.pc-nadpis:has-text("Poptávka")').boundingBox();
       return (g.y > k.y + k.height - 1 && g.y + g.height < c.y + 1) || {k, g, c}; });
     await T(`${nazev}: nic se nezapsalo do databáze, žádné chyby ani systémová okna`, async () =>
       (JSON.stringify(await admin('poptavky')) === pred && p.chyby.length === 0 && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth)) || p.chyby);
