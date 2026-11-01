@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.22 (2026-11-01)
+Verze dokumentu: 2.23 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -278,6 +278,19 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Před přidáním kolegy udělat zálohy (Firebase + složka `data` Offer Studia) a rozhodnout, kdo vidí čí poptávky a zisky.
 - Později přejít z raw.githack.com na Firebase Hosting nebo GitHub Pages. Kolem 2 000 poptávek zavést archiv (načítat jen otevřené a nedávné).
 - Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
+
+## Pohled pro vedoucího prodeje a dohody z porady (návrh, odloženo, 2026-11-01)
+- **Přání uživatele:** vedoucí prodeje osobních vozů (5 prodejců) si každé pondělí sedne s každým prodejcem nad obchodními případy. Chce vidět **kdo a kolik má rozjednáno, v jakém stavu, ekonomiku obchodu, jak dlouho se řeší, kdy byl poslední kontakt a kolikrát se zákazníkovi ozval**. Kontakt 14+ dní prodejce musí vysvětlit (zákazník může mít dovolenou, ale 14 dní je na hraně; viz `KONTEXT_obchod.md`, odpovědi kolem 14 dní). Další pondělí se vedoucí vrací k tomu, co se dohodlo.
+- **Stav: pouze návrh, nic se neimplementuje.** Uživatel zatím testuje sám, kolegové přibudou později. Návrh se mu líbí a chce ho ukázat vedoucímu. Klikací ukázky (fiktivní data) jsou v `navrh/`: `pondelni_porada_v0.2.html` (pohled vedoucího: karty pěti prodejců bez pořadí, tabulka obchodů, dohody z minula, počet kontaktů, důvody ticha) a `dohoda_ukazka_v0.1.html` (čtyři kroky příběhu: vedoucí zapíše dohodu → prodejce ji vidí a klepne Hotovo → vedoucí potvrdí nebo vrátí → měsíční přehled).
+- **Zásady, aby to nebyl „bič“ (rozhodnutí uživatele):** aplikace má být zábava, prodejce ani vedoucí nemají mít víc zapisování.
+  1. **Dohoda je jedna věta**, kterou vedoucí napíše za pár vteřin (např. „Zavolej mu a dej mu 1 % navíc.“), s hotovými větami, předvyplněným termínem (příští pondělí) a nepovinným „když to nevyjde: uzavřít jako ztracený / vrátit na poradu“. Žádná povinná pole.
+  2. **Prodejce nic nevyplňuje ani nepotvrzuje.** Dohodu vidí jako „tip od šéfa“ u svého obchodu a v „Dnes zavolat“. Klepne jen „Hotovo“.
+  3. **Rozhoduje vedoucí** (rozhodnutí uživatele): „Hotovo“ od prodejce jedním klepnutím potvrdí, jinak „Dopracovat“ s nepovinným tipem na příště. **Slovo „nesplněno“ se nepoužívá**, žádná červená, žádné body. Nesplněné jde „na další týden“.
+  4. **Bez pořadí prodejců**, označují se obchody, ne lidé. Vedoucí je sám prodejce a má stejný pohled na svoje obchody.
+  5. **14 dní bez kontaktu** je štítek pro vedoucího s tónem „co se děje / jak pomoct“, ne „obhajuje se“. Důvod (dovolená, čeká na banku) se zapíše pár slovy.
+  6. Zisk a marže jen pro vedoucího, schované do klepnutí (👁), stejně jako v Poptávkách.
+- **Co by bylo potřeba po schválení:** položka `ukoly` u poptávky (text, termín, kdo zadal, `vyjde`, výsledek `hotovo` / `potvrzeno` / `dopracovat` / `preneseno`, nepovinný `tip`) a `duvodTicha`; počet kontaktů se bere z historie (nic navíc se nezapisuje); účet vedoucího s rolí a čtením všech poptávek; pravidla databáze, kdo vidí čí poptávky a zisky; „Hotovo“ v „Dnes zavolat“ prodejce. **Před přidáním kolegů** udělat zálohy a rozhodnout, kdo vidí čí poptávky (viz „Udržitelnost“).
+- Ověřit s vedoucím: má prodejce vidět čas, kdy klepl „Hotovo“? (doporučení: ne, jen výsledek).
 
 ## Příjem poptávek e-mailem (odloženo, 2026-11-01)
 - **Přání uživatele:** co přijde na **`poptavky@suw.cz`** (a případně zvláštní adresu typu `poptavky1@suw.cz`, kam si prodejce přepošle vlastní e-mail s poznámkou a odkazem na vůz), se má **samo vytěžit a objevit v Poptávkách**. Vznikla by poptávka (stav `nova`, kontakt zítra, kanál e-mail) včetně vozu (`vuz`, od v1.16) a zápisu do historie.
