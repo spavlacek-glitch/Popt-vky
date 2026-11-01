@@ -27,7 +27,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 2. **Evidence + připomínky „Dnes zavolat"** ✅ v1.0
 3. Kalkulace (sleva, cena) – **pozastaveno**: v Poptávkách nevznikne vlastní kalkulačka, výpočty řeší Mercedes Offer Studio SOLO. Případné propojení zatím neimplementovat, podklady jsou v `POSOUZENI_OfferStudio.md`.
 4. Nabídka – **základ je Mercedes Offer Studio** (rozhodnutí 2026-11-01). Makro s MB Configurator API (`Module1`, online kód) se vynechává. Postup a podklady jsou v `POSOUZENI_OfferStudio.md`, zatím neimplementováno.
-5. Odeslání nabídky e-mailem – Offer Studio vytvoří soubor `.eml` (koncept s přílohou PDF a textem ze šablon makra `EmailSablony`) a otevře ho v Outlooku. **Ověřeno u uživatele:** nový Outlook ho otevře jako upravitelný koncept. Odešle prodejce sám, nic se nepřipojuje k poště.
+5. Odeslání nabídky e-mailem – Offer Studio vytvoří soubor `.eml` (koncept s přílohou PDF a textem ze šablon makra `EmailSablony`) a otevře ho v Outlooku. **Ověřeno u uživatele:** nový Outlook ho otevře jako upravitelný koncept. Odešle prodejce sám, nic se nepřipojuje k poště. Offer Studio poběží na pevném portu `8774`, akční nabídky (financování, bonusy) a podpis si prodejce upravuje sám.
 6. Automatické připomínky po odeslání
 7. Předání do SW Žádanek (kupní smlouva) – schválený postup, odložený po dobu pilotu Žádanek. Podklady jsou v soukromém repu Žádanek (`POSOUZENI_Poptavky.md`), do tohoto veřejného repa se nepřenášejí. Bez pokynu neimplementovat.
 

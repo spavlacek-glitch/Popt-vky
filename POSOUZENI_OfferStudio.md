@@ -23,13 +23,14 @@ Datum: 2026-10-28 · Posuzovaná verze Offer Studio: v1.1.9 (repo `spavlacek-gli
 3. **Zpět do Poptávek:** souhrn do `/poptavky/{id}/nabidky/{pushId}` a řádek do historie „Nabídka připravena“. **Stav se nemění** (rozhodnutí 1 z 2026-10-28). Po odeslání ho prodejce jedním klepnutím přepne na „Nabídka odeslána“ a připomínka za 3 dny se nastaví sama.
 4. **Později:** připomínací e-maily (šablony 2–5) navázané na připomínky v Poptávkách.
 
+### Doplněná rozhodnutí uživatele (2026-11-01)
+- **Pevný port Offer Studia: `8774`.**
+- **Akční nabídky jsou upravitelné:** financování (Credit „140. výročí“, Credit 0 %, Agility), bonusy BEV (předplacený servis, poukaz na nabíjení) a další akce mají omezenou platnost. Prodejce je proto musí sám upravit na jednom místě v Offer Studiu, nejlépe s datem platnosti. Rozpor 5,99 % / 1,4 % z makra tím odpadá, platí to, co prodejce zadá.
+- **Podpis podle nastavení prodejce:** uživatel má v Outlooku podpis automaticky u nové pošty. Podpis v šabloně musí jít zapnout nebo vypnout a text si každý prodejce nastaví sám, ne natvrdo v kódu.
+
 ### Co je potřeba před implementací
-- Přístup k repu Offer Studia (`spavlacek-glitch/Mercedes-Offer-Studio`), většina práce bude tam.
-- Pevný port Offer Studia.
-- **Rozhodnutí k šablonám:**
-  - financování Credit „140. výročí“: šablona 1 uvádí úrok 5,99 %, šablona 4 1,4 %,
-  - úvodní nabídka nemá podpis, ostatní šablony ano,
-  - kdo a kde bude aktualizovat financování a bonusy.
+- Přístup k repu Offer Studia (`spavlacek-glitch/Mercedes-Offer-Studio`), připojí uživatel v nové session.
+- Ověřit, jestli nový Outlook přidá automatický podpis i do konceptu otevřeného ze souboru `.eml`. Ve zkušebním souboru podpis nebyl. Podle toho bude výchozí nastavení podpisu v šabloně zapnuté, nebo vypnuté.
 - **Chyby makra `EmailSablony` k opravě při převzetí:**
   - v připomenutí po 3–5 dnech se do textu propíše „modelVozu“,
   - nepřesné oslovení („Havel“ → „Havele“, ženská příjmení bez „-ová“ dostanou „pane“).
