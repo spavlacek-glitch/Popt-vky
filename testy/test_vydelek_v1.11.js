@@ -66,7 +66,13 @@ const norm = t => t.replace(/\s+/g, ' ').trim();
     const text = async () => norm(await p.locator('.vydelek').innerText());
     const pred = JSON.stringify(await admin('poptavky'));
 
+    const mobil = nazev.startsWith('iPhone');
+    if (mobil) await T(`${nazev}: na mobilu jen jeden krátký řádek „🎉 3 auta tento měsíc ›“ – bez částek a výhledu`, async () => {
+      const t = await text(), v = await p.locator('.vydelek').boundingBox();
+      if (OUT) { await p.evaluate(() => document.querySelector('.vydelek').scrollIntoView({block: 'center'})); await p.screenshot({path: path.join(OUT, `vydelek_kratky_${nazev.replace(/\s/g, '')}.png`)}); }
+      return (t === '🎉 3 auta tento měsíc ›' && v.height <= 40) || {t, v}; });
     await T(`${nazev}: bez provize – 3 auta tento měsíc (jen moje, i bez záznamu v historii), 4 rozjednané, výzva k zadání provize, žádná částka`, async () => {
+      if (mobil) await p.click('.vydelek');           // mobil: první klepnutí rozbalí
       const t = await text();
       return (t.includes('Tento měsíc prodáno: 3 auta') && t.includes('Rozjednáno: 4 obchody') && t.includes('klepni a zadej provizi') && !/\d\s?Kč/.test(t)) || t; });
     await T(`${nazev}: klepnutí otevře zadání provize; „8 000“ + Enter uloží jen do zařízení a ukáže ≈ 24 000 Kč a výhled ≈ 21 300 Kč`, async () => {
@@ -77,13 +83,16 @@ const norm = t => t.replace(/\s+/g, ' ').trim();
       // výhled = 4 otevřené × 4/6 úspěšnost × 8 000 = 21 333 → zaokrouhleno na stovky
       return (fokus === 'provize' && ulozeno === '8000' && t.includes('3 auta ≈ 24 000 Kč') && t.includes('výhled ≈ 21 300 Kč')) || {fokus, ulozeno, t}; });
     if (OUT) await p.screenshot({path: path.join(OUT, `vydelek_${nazev.replace(/\s/g, '')}.png`)});
-    await T(`${nazev}: klepnutí částky schová (≈ ••• Kč) a další je zase ukáže`, async () => {
+    await T(`${nazev}: klepnutí ${mobil ? 'sbalí na krátký řádek bez částek' : 'částky schová (≈ ••• Kč)'} a další je zase ukáže`, async () => {
       await p.click('.vydelek'); const skryto = await text();
       await p.click('.vydelek'); const ukazano = await text();
-      return (skryto.includes('3 auta ≈ ••• Kč') && skryto.includes('výhled ≈ ••• Kč') && !/\d\s?Kč/.test(skryto) && ukazano.includes('24 000 Kč')) || {skryto, ukazano}; });
-    await T(`${nazev}: po obnovení stránky jsou částky zase schované a provize zůstala`, async () => {
+      const ok1 = mobil ? skryto === '🎉 3 auta tento měsíc ›' : skryto.includes('3 auta ≈ ••• Kč') && skryto.includes('výhled ≈ ••• Kč');
+      return (ok1 && !/\d\s?Kč/.test(skryto) && ukazano.includes('24 000 Kč')) || {skryto, ukazano}; });
+    await T(`${nazev}: po obnovení stránky ${mobil ? 'zase jen krátký řádek' : 'jsou částky zase schované'} a provize zůstala`, async () => {
       await p.reload(); await prihlas(); const t = await text();
-      return (t.includes('≈ ••• Kč') && !t.includes('klepni a zadej') && await p.locator('#provize').count() === 0) || t; });
+      const ok1 = mobil ? t === '🎉 3 auta tento měsíc ›' : t.includes('≈ ••• Kč') && !t.includes('klepni a zadej');
+      if (mobil) { await p.click('.vydelek'); if (!(await text()).includes('24 000 Kč')) return 'provize se ztratila'; await p.click('.vydelek'); }
+      return (ok1 && await p.locator('#provize').count() === 0) || t; });
     await T(`${nazev}: „✏️ provize“ – rozepsaná částka přežije živou změnu v databázi a zůstane v poli kurzor`, async () => {
       await p.click('.vydelek'); await p.click('.vydelek >> text=✏️ provize'); await p.waitForSelector('#provize');
       await p.fill('#provize', '9500');

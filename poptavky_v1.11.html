@@ -185,6 +185,7 @@ a.md-radek{text-decoration:none}
 .vydelek{border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;padding:7px 12px;font:inherit;font-size:14px;line-height:1.35;
   color:var(--ink);text-align:right;cursor:pointer;max-width:100%}
 .vydelek .vyhled{display:block;color:var(--muted);font-size:13px}
+.vydelek.kratky{padding:6px 12px}
 .vydelek-uprava{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;padding:8px 10px;font-size:14px}
 .vydelek-uprava input{width:130px;padding:7px 10px}
 .vydelek-uprava .hint{flex-basis:100%;text-align:right}
@@ -372,9 +373,10 @@ function renderHome(){
    - Jen poptávky přihlášeného prodejce (připraveno pro víc prodejců).
    - Prodáno tento měsíc = poslední „Stav → Prodáno“ v historii v tomto kalendářním měsíci (bez historie: čas úpravy).
    - Výhled = otevřené × moje úspěšnost × provize; úspěšnost = prodané / (prodané + ztracené), až od 5 uzavřených obchodů.
-   - Průměrná provize jen v tomto zařízení (localStorage), ne ve sdílené databázi. Částky schované do klepnutí (showroom). */
+   - Průměrná provize jen v tomto zařízení (localStorage), ne ve sdílené databázi. Částky schované do klepnutí (showroom).
+   - Na mobilu (do 600 px) jen jeden krátký řádek „🎉 3 auta tento měsíc ›“; klepnutí rozbalí celý blok s částkami, další sbalí. */
 const PROVIZE_KLIC = 'poptavky.provize';
-let vydelekOdkryt = false, provizeUprava = null, provizeChciFokus = false;   // provizeUprava: rozepsaná částka, null = nezadává se
+let vydelekOdkryt = false, vydelekRozbaleno = false, provizeUprava = null, provizeChciFokus = false;   // provizeUprava: rozepsaná částka, null = nezadává se
 function provize(){ try { const v = +localStorage.getItem(PROVIZE_KLIC); return v > 0 ? v : null; } catch (e) { return null; } }
 function datumProdeje(p){
   const t = Object.values(p.historie || {}).filter(h => /^Stav → Prodáno/.test(h.text || '')).map(h => h.t || 0);
@@ -395,6 +397,8 @@ function vydelek(){
   const prodane = moje.filter(p => p.stav === 'prodano'), mesic = prodane.filter(p => datumProdeje(p) >= od).length;
   const ztracene = moje.filter(p => p.stav === 'ztraceno').length, otevrene = moje.filter(p => OTEVRENE.includes(p.stav)).length;
   const uzavrene = prodane.length + ztracene, uspesnost = uzavrene >= 5 ? prodane.length / uzavrene : null, prov = provize();
+  if (MOBIL.matches && !vydelekRozbaleno)
+    return `<button type="button" class="vydelek kratky" onclick="klikVydelek()">${mesic ? `🎉 <b>${mesic} ${aut(mesic)}</b> tento měsíc` : '🚗 Tento měsíc zatím 0 aut'} ›</button>`;
   const castka = n => vydelekOdkryt ? '≈ ' + kc(n) : '≈ ••• Kč';
   let r1 = mesic ? `🎉 Tento měsíc prodáno: <b>${mesic} ${aut(mesic)}</b>` : '🚗 Tento měsíc zatím 0 aut – první kus se chystá';
   if (mesic && prov) r1 += ` ${castka(mesic * prov)}`;
@@ -405,7 +409,10 @@ function vydelek(){
   return `<button type="button" class="vydelek" onclick="klikVydelek()">${r1}<span class="vyhled">${r2}</span></button>`;
 }
 function klikVydelek(){
-  if (!provize()) { provizeUprava = ''; provizeChciFokus = true; } else vydelekOdkryt = !vydelekOdkryt;
+  if (MOBIL.matches && !vydelekRozbaleno) vydelekRozbaleno = vydelekOdkryt = true;          // mobil: rozbalit rovnou s částkami
+  else if (!provize()) { provizeUprava = ''; provizeChciFokus = true; }
+  else if (MOBIL.matches) vydelekRozbaleno = vydelekOdkryt = false;                          // mobil: sbalit = schovat
+  else vydelekOdkryt = !vydelekOdkryt;
   renderHome();
 }
 function ulozProvizi(){
@@ -726,7 +733,7 @@ function otevriAkce(id){
 }
 function zavriAkce(){ $('#md-zavoj')?.classList.add('hidden'); $('#md-panel')?.classList.add('hidden'); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') zavriAkce(); });
-MOBIL.addEventListener('change', () => { zavriAkce(); if (view === 'detail' && !psani()) renderDetail(curId); });   // otočení telefonu, změna okna
+MOBIL.addEventListener('change', () => { zavriAkce(); if (view === 'detail' && !psani()) renderDetail(curId); else if (view === 'home' && !psani()) renderHome(); });   // otočení telefonu, změna okna
 
 /* ===== Známý zákazník (v1.2) =====
    Převzato z experimentu v0.5 ověřeného v emulátoru (repo Fenclotéka, experimenty/zakaznik_poptavka_v0.5).

@@ -113,6 +113,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **Výhled** = všechny moje otevřené × moje úspěšnost × provize, zaokrouhleno na stovky. Úspěšnost = prodané / (prodané + ztracené). Méně než 5 uzavřených obchodů → „výhled spočítám po 5 uzavřených obchodech“, nic se nevymýšlí.
 - **Průměrná provize za auto:** zadá se po prvním klepnutí nebo přes „✏️ provize“. Uloží se **jen v tomhle zařízení** (`localStorage`, klíč `poptavky.provize`), ne do databáze. Na PC a iPhonu se zadává zvlášť.
 - **Částky jsou schované** („≈ ••• Kč“), klepnutí je ukáže nebo zase schová. Po obnovení stránky jsou znovu schované (showroom).
+- **Mobil (do 600 px, rozhodnutí uživatele: „nebude tam moc informací?“):** jen jeden krátký řádek „🎉 3 auta tento měsíc ›“ (při nule „🚗 Tento měsíc zatím 0 aut ›“). Klepnutí rozbalí celý blok rovnou s částkami, další klepnutí ho sbalí. Po obnovení stránky je zase sbalený. PC beze změny.
 - Do databáze se nic nezapisuje. Rozepsaná provize přežije živé překreslení.
 
 ## Aktualizace za chodu (v1.10)
@@ -181,7 +182,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_tipy_v1.8.js`: tipy při prázdném „Dnes zavolat“ – pořadí, 14denní hranice, poznámka v historii, prodané a ztracené nikdy, zmizení tipů, žádný zápis do databáze; PC i iPhone.
 - `testy/test_gdpr_v1.9.js`: SMS „Souhlas GDPR“ na PC i iPhonu – číslo příjemce, text s odkazem na formulář MB, žádný e-mail, bez telefonu nic, žádný zápis do databáze.
 - `testy/test_aktualizace_v1.10.js`: aktualizace za chodu přes lokální HTTP server se smyšlenou v1.11 – lišta, „Později“, přepnutí s otevřeným detailem, povinná verze (ne při psaní, hned na přehledu a na přihlášení), nedostupná `poptavky.html`; PC i iPhone.
-- `testy/test_vydelek_v1.11.js`: „Tento měsíc prodáno“ a výhled na PC, iPhonu 13 a SE – jen moje poptávky, měsíc podle záznamu „Stav → Prodáno“, zadání a změna provize, schování částek, méně než 5 uzavřených, nula prodaných, přepnutí na Prodáno, žádný zápis do databáze. `test_aktualizace_v1.10.js` od v1.11 funguje pro libovolnou verzi (`SOUBOR`).
+- `testy/test_vydelek_v1.11.js`: „Tento měsíc prodáno“ a výhled na PC, iPhonu 13 a SE – krátký řádek na mobilu, jen moje poptávky, měsíc podle záznamu „Stav → Prodáno“, zadání a změna provize, schování částek, méně než 5 uzavřených, nula prodaných, přepnutí na Prodáno, žádný zápis do databáze. `test_aktualizace_v1.10.js` od v1.11 funguje pro libovolnou verzi (`SOUBOR`).
 - `firebase/rules.test.mjs`: pravidla databáze.
 
 ## Konvence
