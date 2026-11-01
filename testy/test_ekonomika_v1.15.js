@@ -94,7 +94,7 @@ const POPT = {
       const d = await p.locator('.dnes').boundingBox(), e = await p.locator('.evidence').boundingBox(), t = await txt(p.locator('.dnes .card').first());
       return (d.x < e.x && t.includes('📄 GLS 450 d 4MATIC · 1 274 000 Kč') && t.includes('💬 Volal jsem')) || t; });
     if (OUT) { await p.evaluate(() => { rozbalena = 'a_gls'; renderSeznam(); }); await p.screenshot({path: path.join(OUT, `eko_v1.15_PC${sirka}.png`)}); await p.evaluate(() => { rozbalena = null; renderSeznam(); }); }
-    await T('klepnutí na řádek dál otevře detail', async () => { await radek(p, 'Bez Marže').locator('.name').click(); return (await p.isVisible('#view button:has-text("← Přehled")')) || 'ne'; });
+    await T('klepnutí na řádek dál otevře detail', async () => { await radek(p, 'Bez Marže').locator('.name').click(); return (await p.isVisible('#view button:has-text("Přehled")')) || 'ne'; });
     await T('nic se nezapsalo, žádné chyby, nic se neposouvá do stran', async () =>
       (JSON.stringify(await admin('poptavky')) === pred && p.chyby.length === 0 && await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth)) || p.chyby);
     await p.context().close();

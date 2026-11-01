@@ -66,7 +66,7 @@ const cekej = async url => { for (let i = 0; i < 60; i++) { try { if ((await fet
     await p.waitForFunction(() => document.querySelectorAll('#seznam .card').length === 4);
     return p;
   };
-  const detail = async (p, id) => { await p.evaluate(id => renderDetail(id), id); await p.waitForSelector('#view button:has-text("← Přehled")'); };
+  const detail = async (p, id) => { await p.evaluate(id => renderDetail(id), id); await p.waitForSelector('#view button:has-text("Přehled")'); };
 
   for (const vp of [{width:1280, height:900}, {width:1024, height:700}]) {
     const nazev = 'PC ' + vp.width;
