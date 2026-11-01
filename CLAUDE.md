@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.10 (2026-11-01)
+Verze dokumentu: 2.12 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -25,12 +25,19 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 ## Cílový řetězec (stavět postupně)
 1. **Sběr** ✅ v1.0
 2. **Evidence + připomínky „Dnes zavolat"** ✅ v1.0
-3. Kalkulace (sleva, cena) – **pozastaveno**: v Poptávkách nevznikne vlastní kalkulačka, výpočty řeší Mercedes Offer Studio SOLO. Případné propojení zatím neimplementovat, podklady jsou v `POSOUZENI_OfferStudio.md`.
+3. Kalkulace ✅ Offer Studio v1.4.0 (rozhodnutí uživatele 2026-11-01): **počítá Offer Studio, Poptávky budou jen zobrazovat.**
+   - Model převzatý ze SW Žádanek: sleva provázaně Kč s DPH / % / cena pro zákazníka, nákupní marže % (ručně), nákupní cena, zisk, obchodní marže (= nákupní marže − sleva %, pod 3 % nestandardní, pod 0 % pod nákupní cenou), korekce marže (náklady hrazené dealerem) a skutečný zisk. Navíc doplňkový prodej (příslušenství za peníze, jde do nabídky).
+   - Proč v Offer Studiu: ceníková cena je přesně ve výpisu DFE/GO, který se vkládá tam. Prodejce cenu zadá jen jednou a nevzniknou dvě kalkulačky, které by se musely shodovat.
+   - Marže, nákupní cena, zisk a částky korekcí jsou **jen pro prodejce**, nikdy do PDF ani e-mailu zákazníkovi.
+   - Korekci (pneu, servis, poukaz…) si prodejce může zaškrtnout „do nabídky“ (Offer Studio v1.4.1): v PDF jen název a popis, bez částky. **Subvence OL/PJJ se v nabídce nikdy neukáže** (rozhodnutí uživatele).
+   - **Zápis zpět ✅ Offer Studio v1.5.0 + Poptávky v1.14:** po vytvoření nabídky Offer Studio zapíše souhrn do `/poptavky/{id}/nabidky/{id konceptu}` a řádek do historie, Poptávky ho ukážou na PC (viz „Nabídky z Offer Studia (v1.14)“).
+   - Uživatel by správně chtěl kalkulaci u každé poptávky. Zisk ale uvidí jen u poptávek s nabídkou z Offer Studia. Ruční kalkulaci v Poptávkách přidat jen na pokyn, byla by to druhá kalkulačka.
 4. Nabídka – **základ je Mercedes Offer Studio** (rozhodnutí 2026-11-01). Makro s MB Configurator API (`Module1`, online kód) se vynechává. **Od v1.13** otevře „📄 Udělat nabídku“ v detailu na PC Offer Studio (v1.2.0) s vyplněným zákazníkem (viz níže). Podklady jsou v `POSOUZENI_OfferStudio.md`.
 5. Odeslání nabídky e-mailem ✅ Offer Studio v1.2.0 – „📄 Vytvořit PDF a e-mail“ vytvoří PDF a soubor `.eml` (koncept s přílohou PDF a textem ze šablon makra `EmailSablony`) a otevře ho v Outlooku. **Ověřeno u uživatele (2026-11-01, celá cesta):** Poptávky → „📄 Udělat nabídku“ → Offer Studio v1.2.0 → PDF → nový Outlook otevře upravitelný koncept, texty sedí, PDF je v příloze. Odešle prodejce sám, nic se nepřipojuje k poště. Offer Studio běží na pevném portu `8774`, akční nabídky (financování, bonusy) a podpis si prodejce upravuje sám v Nastavení Offer Studia.
-   - Zpětný zápis nabídky do Poptávek (`/poptavky/{id}/nabidky`, řádek do historie) **zatím není**. Stav „Nabídka odeslána“ přepíná prodejce ručně po odeslání (rozhodnutí 1 z 2026-10-28).
+   - Zpětný zápis nabídky do Poptávek je od Offer Studia v1.5.0. **Stav se nemění:** „Nabídka odeslána“ přepíná prodejce ručně po odeslání (rozhodnutí 1 z 2026-10-28).
 6. Automatické připomínky po odeslání
 7. Předání do SW Žádanek (kupní smlouva) – schválený postup, odložený po dobu pilotu Žádanek. Podklady jsou v soukromém repu Žádanek (`POSOUZENI_Poptavky.md`), do tohoto veřejného repa se nepřenášejí. Bez pokynu neimplementovat.
+   - Výjimka (rozhodnutí 2026-11-01): vzorce kalkulace ze Žádanek se převzaly do **soukromého** Offer Studia. Do Poptávek (veřejné repo) jde jen zobrazení hotových výsledků. Interní hranice marže (3 %) nedávat do kódu Poptávek natvrdo, přijde s daty z Offer Studia.
 
 ## Technologie
 - Jeden HTML soubor (`poptavky_vX.html`), bez build kroku, mobil + PC.
@@ -49,6 +56,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
   - `/poptavky`: čtení i zápis jen pro schválené účty, tj. `/uzivatele/{UID}/schvalen: true`. Seznam schválených účtů se upravuje jen v konzoli Firebase, z aplikace zapsat nejde.
   - `/zakaznici`: pravidla jsou nasazená (jen schválené účty a jen povolená pole). Od **v1.2** se používají pro známého zákazníka u nové poptávky. Evidence začíná prázdná a zákazníci přibývají z poptávek. Import z Fenclotéky je odložený: musí spárovat zákazníky podle telefonu a e-mailu, jinak vzniknou dvojí záznamy.
   - Nová pravidla prošla 81 testy v emulátoru (`firebase/rules.test.mjs`). Po nasazení bylo ověřeno čtení i zápis v Poptávkách v1.0.
+  - `/poptavky/{id}/nabidky` (od v1.14): kontrola tvaru zápisu z Offer Studia (jen povolená pole, čísla, `kdo` = přihlášený, jen k existující poptávce). 95 testů. **Uživatel je musí nasadit v konzoli Firebase.** Bez nasazení zápis funguje taky, jen bez kontroly tvaru.
 - Firebase `apiKey` v klientském kódu je OK. Žádné privátní klíče do repa.
 
 ## Datový model – `/poptavky/{pushId}`
@@ -63,6 +71,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 | prodejce | e-mail přihlášeného uživatele |
 | historie/{pushId} | `{t, kdo, text}` – log kontaktů a změn stavu |
 | zakaznik | klíč v `/zakaznici` (nepovinné, od v1.2). Vazba je jen jednosměrná, seznam poptávek zákazníka se dopočítá. Starší poptávky ho nemají. |
+| nabidky/{id konceptu} | od v1.14, zapisuje jen Offer Studio (v1.5.0+): `model`, `cena_sdph` (celkem pro zákazníka), `cena_vuz_sdph`, `sleva_sdph`, `sleva_pct`, `doplnky_sdph`, `soubor`, `zdroj: offerstudio`, `t`, `kdo`; nepovinně `interni` = `{zisk, skutecny_zisk, obchodni_marze, skutecna_marze, korekce, nestandardni, negativni}`. Jedna položka na nabídku, nové PDF ji přepíše. |
 
 ## Datový model – `/zakaznici/{key}` (od v1.2)
 Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`, `zdroj` (`dfe` | `poptavka`), `vytvoreno`, `upraveno`, `upravil` (UID), `klice/{ph:…|em:…}: true`, `vozidla/*`. Zákazník z poptávky má `zdroj: poptavka`, jméno rozdělené na jméno a příjmení a klíč telefonu nebo e-mailu. E-mail má v klíči „.“ → „,“.
@@ -109,6 +118,14 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Když Offer Studio neběží, prohlížeč ukáže chybu připojení (proto nápověda „musí běžet“). Spouští se přes `START.bat`.
 - Hláška `{"detail":"Not Found"}` = na PC běží starší Offer Studio bez `/nova` (do v1.1.9). Aktualizovat soubory `app.py`, `email_sablony.py`, `email_koncept.py`, složku `data` nechat (nalezeno uživatelem 2026-11-01).
 - Detail na PC je jinak stejný jako ve v1.4 (test porovnání ignoruje řádky `.gdpr` a `.nabidka`).
+
+## Nabídky z Offer Studia (v1.14)
+- **Rozhodnutí uživatele (2026-11-01):** Offer Studio se jednou přihlásí účtem Poptávek (heslo se neukládá, v PC jen přihlašovací klíč). Po vytvoření nabídky zapíše souhrn a řádek do historie („📄 Nabídka připravena: … · cena“, při změně ceny „📄 Nabídka upravena: …“). Stav se nemění.
+- **Detail na PC:** pod „📄 Udělat nabídku“ řádek každé nabídky (nejnovější nahoře): model · cena · sleva % · datum. Pod ním zisk a marže **schované do klepnutí** („Zisk ••• Kč“), klepnutí je ukáže i se zápisem „před korekcemi“, další schová.
+  - Varování „⚠ nízká marže“ / „⚠ pod nákupní cenou“ jen podle příznaků z Offer Studia. Hranice není v kódu Poptávek.
+- **Hlavička na PC:** v bloku „Tento měsíc prodáno“ řádek „Zisk z prodaných aut: ≈ ••• Kč (1 z 2 aut s nabídkou)“ (rozhodnutí 3a: provize zůstává, zisk přibyl). Počítá se ze skutečného zisku poslední nabídky prodaných aut tohoto měsíce. Částka se odkryje stejným klepnutím jako provize, bez provize jde odkrýt taky.
+- **Mobil (rozhodnutí uživatele):** zatím nic, ani v detailu, ani v hlavičce.
+- Poptávky nic nepočítají ani nezapisují. Detail na PC je jinak stejný jako ve v1.4.
 
 ## Komu zavolat, když dnes nikomu (v1.8)
 - Když je „Dnes zavolat“ prázdné, panel pod hecovací větou ukáže **nejvýš 3 tipy**. Klepnutí otevře detail jako u každé karty.
@@ -200,7 +217,8 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_vydelek_v1.11.js`: „Tento měsíc prodáno“ a výhled na PC, iPhonu 13 a SE – krátký řádek na mobilu, jen moje poptávky, měsíc podle záznamu „Stav → Prodáno“, zadání a změna provize, schování částek, méně než 5 uzavřených, nula prodaných, přepnutí na Prodáno, žádný zápis do databáze. `test_aktualizace_v1.10.js` od v1.11 funguje pro libovolnou verzi (`SOUBOR`).
 - `testy/test_manifest_v1.12.js`: manifest přečtený prohlížečem (Chromium) přes lokální HTTP server ve složce jako na raw.githack.com – start ze stálé adresy, rozsah celé složky, standalone, relativní cesty, odkaz z `poptavky.html`. Chování iPhonu ověřit na zařízení.
 - `testy/test_nabidka_v1.13.js`: „📄 Udělat nabídku“ na PC 1280 a 1024 – odkaz na `127.0.0.1:8774/nova` s ID, jménem, telefonem, e-mailem a „Co chce“, zvláštní znaky, umístění, na iPhonu 13 a SE není, žádný zápis do databáze. S `OFFER_STUDIO=<složka>` spustí kopii Offer Studia a ověří i předvyplněnou nabídku a oslovení v e-mailu.
-- `firebase/rules.test.mjs`: pravidla databáze.
+- `testy/test_nabidky_v1.14.js`: nabídky z Offer Studia na PC 1280 (řádek nabídky, schovaný zisk, varování podle příznaku, víc nabídek, hlavička „Zisk z prodaných aut“) a jejich absence na iPhonu, žádný zápis. S `OFFER_STUDIO=<složka>` celá cesta proti emulátorům: přihlášení Offer Studia (špatné heslo, heslo se neuloží), zápis nabídky a historie, přepsání bez nového řádku, „Nabídka upravena“ při změně ceny, zobrazení v Poptávkách, smazaná poptávka bez osiřelých dat, odhlášení.
+- `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
 
 ## Konvence
 - **Verzovat vše**: číslo verze v názvu souboru, v `<title>`, v hlavičce i v komentáři na začátku souboru.
