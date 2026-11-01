@@ -64,15 +64,15 @@ async function kontrolyV13(p, nazev, sirka, {hl, dz, ev}){
   await T(`${nazev}: formulář a detail mají dál úzký sloupec (max. 720 px)`, async () => {
     await p.click('#fab'); const f = await p.locator('main#view').boundingBox();
     await p.click('#view button:has-text("Zpět")'); await p.locator('.dnes .card').first().click(); const d = await p.locator('main#view').boundingBox();
-    await p.click('button:has-text("← Přehled")'); await p.waitForSelector('section.dnes');
+    await p.click('button:has-text("Přehled")'); await p.waitForSelector('section.dnes');
     return (f.width <= 720 && d.width <= 720) || {f: f.width, d: d.width}; });
 }
 
 // „← Přehled“ v detailu: na mobilu plovoucí dole vlevo, na PC nahoře; nesmí trvale zakrýt ovládací prvky
 async function kontrolyDetail(p, nazev, sirka, jmeno){
   const mobil = sirka <= 600, vyska = p.viewportSize().height;
-  await p.locator('.dnes .card', {hasText:'Pavel Testovací'}).click(); await p.waitForSelector('button:has-text("← Přehled")');
-  const tl = p.locator('button:has-text("← Přehled")');
+  await p.locator('.dnes .card', {hasText:'Pavel Testovací'}).click(); await p.waitForSelector('button:has-text("Přehled")');
+  const tl = p.locator('button:has-text("Přehled")');
   const r = await tl.boundingBox(), pos = await tl.evaluate(e => getComputedStyle(e.parentElement).position);
   await kontrolyHistorie(p, nazev);     // končí s rozbalenou historií, aby byl detail dlouhý
   if (!mobil) {
@@ -116,9 +116,9 @@ async function kontrolyDetail(p, nazev, sirka, jmeno){
   await T(`${nazev}: po návratu na přehled a u jiné poptávky je historie zase sbalená`, async () => {
     await p.locator('.dnes .card', {hasText:'Pavel Testovací'}).click(); await p.waitForSelector('details.historie');
     const pavel = await p.locator('details.historie').evaluate(d => d.open);
-    await p.click('button:has-text("← Přehled")'); await p.locator('.dnes .card', {hasText:'Novák Stavby'}).click(); await p.waitForSelector('details.historie');
+    await p.click('button:has-text("Přehled")'); await p.locator('.dnes .card', {hasText:'Novák Stavby'}).click(); await p.waitForSelector('details.historie');
     const novak = await p.locator('details.historie').evaluate(d => d.open);
-    await p.click('button:has-text("← Přehled")');
+    await p.click('button:has-text("Přehled")');
     return (!pavel && !novak) || {pavel, novak}; });
 }
 

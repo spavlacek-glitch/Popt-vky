@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.18 (2026-11-01)
+Verze dokumentu: 2.20 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -122,6 +122,18 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Hláška `{"detail":"Not Found"}` = na PC běží starší Offer Studio bez `/nova` (do v1.1.9). Aktualizovat soubory `app.py`, `email_sablony.py`, `email_koncept.py`, složku `data` nechat (nalezeno uživatelem 2026-11-01).
 - Detail na PC je jinak stejný jako ve v1.4 (test porovnání ignoruje řádky `.gdpr` a `.nabidka`).
 
+## Detail poptávky na PC (v1.17, v1.18)
+- **Rozhodnutí uživatele (2026-11-01):** detail na PC byl úzký (720 px) a roloval se, přitom je na PC dost místa. Tím **končí pravidlo „detail na PC je stejný jako ve v1.4“**; mobil (do 600 px) zůstává beze změny.
+- Od 960 px je detail široký až 1240 px a má **dva sloupce**:
+  - vlevo: zákazník (jméno, stav, kontakty, označení kontaktu, GDPR, „📄 Udělat nabídku“) a blok „Poptávka“ (co chce, vůz, nabídky z Offer Studia),
+  - vpravo (při posouvání zůstává vidět): Stav, Další kontakt, Zapsat kontakt / poznámku a **historie kontaktů, na PC ve výchozím stavu rozbalená** (jde sbalit, po zápisu zůstane sbalená),
+  - dole vpravo „Upravit údaje“ a „Smazat“. Pod 960 px je jeden sloupec.
+- **v1.18 (přání uživatele po zkoušce):**
+  - **Tlačítko Zpět prohlížeče** (z Fenclotéky je známo, že lidé místo „Přehled“ mačkají Zpět v prohlížeči) vrací z detailu na přehled a z úpravy údajů do detailu, ne ven z appky (`history.pushState`, Vpřed otevře detail zase). Po uložení úpravy vede jedno Zpět na přehled.
+  - „← Zpět na přehled poptávek“ na PC je výraznější, na mobilu zůstává „← Přehled“.
+  - **Kalkulace v detailu na PC:** u každé nabídky se vždy ukazují ceníková cena, sleva (Kč a %), cena vozu, doplňkový prodej a celkem s DPH, soubor a „📂 Otevřít v Offer Studiu“, aby je prodejce měl po ruce při telefonování. **Zisk a marže zůstávají schované** do klepnutí (showroom).
+- Starší testy porovnávající PC detail s v1.4 (`test_detail_v1.5.js`) pro PC neplatí; ostatní hledají místo „Co chce“ nadpis „Poptávka“ a tlačítko „Přehled“ (bez šipky).
+
 ## Vůz u poptávky (v1.16)
 - **Přání uživatele (2026-11-01):** u poptávky musí být jasné, o jaký vůz jde, stejně jako v Žádankách (`puvod_vozidla`: skladové / do výroby / od jiného dealera, lokace). Skladový vůz se pozná podle Auftragu (např. 05-576-12345). Vůz do výroby má online kód, nebo už Auftrag, když si zákazník mění auto, které je ve výrobě.
 - Ve formuláři „Vůz (nepovinné)“: původ (Skladový / Do výroby / Od dealera), jedno pole „Auftrag nebo online kód“, lokace (jen u skladového a od dealera). Nepovinné, zápis poptávky se nezdržuje.
@@ -193,7 +205,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **E-mail záměrně není (rozhodnutí uživatele):** `mailto:` umí jen prostý text a nový Outlook z něj klikací odkaz neudělá (ověřeno). Kopírování textu přes schránku (Ctrl+V) uživatel odmítl, protože přidává prodejci práci. Bez telefonu se GDPR nenabízí.
 - **Bez předvyplnění:** formulář MB údaje z odkazu nepřebírá (ověřeno uživatelem).
 - **Nic se nezapisuje** do Poptávek. Souhlasy se do appky nenapojují (rozhodnutí uživatele): eviduje je MB a prodejce ani neví o jejich odvolání.
-- Detail na PC je jinak stejný jako ve v1.4 (test porovnání ignoruje jen řádek `.gdpr`).
+- Od v1.17 má detail na PC jiné rozložení (viz „Detail poptávky na PC“).
 
 ## Uložit do kontaktů (v1.4)
 - V detailu poptávky je pole „Označení kontaktu (nepovinné)“ a tlačítko „📱 Uložit do kontaktů“. Po klepnutí se stáhne soubor `.vcf` (vCard 3.0, UTF-8). Na iPhonu ho prodejce otevře a uloží přes „Vytvořit nový kontakt“.
@@ -250,6 +262,8 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_nabidky_v1.14.js`: nabídky z Offer Studia na PC 1280 (řádek nabídky, schovaný zisk, varování podle příznaku, víc nabídek, hlavička „Zisk z prodaných aut“) a jejich absence na iPhonu, žádný zápis. S `OFFER_STUDIO=<složka>` celá cesta proti emulátorům: přihlášení Offer Studia (špatné heslo, heslo se neuloží), zápis nabídky a historie, přepsání bez nového řádku, „Nabídka upravena“ při změně ceny, zobrazení v Poptávkách, smazaná poptávka bez osiřelých dat, odhlášení.
 - `testy/test_ekonomika_v1.15.js`: ekonomika na přehledu na PC 1440 a 1280 (záhlaví, řádek s nabídkou a posledním zápisem, schovaný zisk a 👁, součet, řazení, rozbalená ekonomika s ceníkem, korekcemi a historií, odkaz do Offer Studia, hledání podle modelu, „Dnes zavolat“ vlevo s nabídkou, klepnutí otevře detail, bez posunu do stran) a na iPhonu 13 (nabídka a poslední zápis, bez zisku), žádný zápis.
 - `testy/test_vuz_v1.16.js`: vůz u poptávky na PC 1440 a iPhonu 13 – karta, detail, hledání podle Auftragu, úprava a smazání vozu v DB, žádné chyby.
+- `testy/test_detail_pc_v1.17.js`: detail na PC 1440, 1100 a 1920 ve dvou sloupcích a mobilní detail beze změny.
+- `testy/test_zpet_kalkulace_v1.18.js`: Zpět a Vpřed prohlížeče (PC i iPhone), úprava a návrat, kalkulace v detailu, schovaný a odkrytý zisk.
 - `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
 
 ## Konvence

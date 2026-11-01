@@ -56,7 +56,7 @@ const POPT = {
     await p.waitForSelector('h2:has-text("Dnes zavolat")'); await p.waitForFunction(n => Object.keys(data).length === n, Object.keys(POPT).length);
     return p;
   };
-  const detail = async (p, id) => { await p.evaluate(id => renderDetail(id), id); await p.waitForSelector('button:has-text("← Přehled")'); };
+  const detail = async (p, id) => { await p.evaluate(id => renderDetail(id), id); await p.waitForSelector('button:has-text("Přehled")'); };
   const db1 = id => admin('poptavky/' + id);
 
   console.log('== PC: detail se nezměnil (porovnání s v1.4)');

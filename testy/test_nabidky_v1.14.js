@@ -89,7 +89,7 @@ Přehled DPH
     await p.waitForFunction(() => dataNactena && Object.keys(data).length > 0); await p.waitForTimeout(300);
     return p;
   };
-  const detail = async (p, id) => { await p.evaluate(id => renderDetail(id), id); await p.waitForSelector('#view button:has-text("← Přehled")'); };
+  const detail = async (p, id) => { await p.evaluate(id => renderDetail(id), id); await p.waitForSelector('#view button:has-text("Přehled")'); };
   const pred = JSON.stringify(await admin('poptavky'));
 
   console.log('== PC 1280: zobrazení nabídek');
