@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.12 (2026-11-01)
+Verze dokumentu: 2.13 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -225,6 +225,12 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Uživatelské texty česky, klidně s lehkým humorem.
 - **Tón appky (rozhodnutí uživatele):** povzbuzovat a bavit, nikdy nesrážet. Žádné žebříčky „kdo je poslední“ ani výčitky. Humor je vítaný, pokud prodejci pomáhá nebo ho pobaví. Prodejce má zapisování bavit – když je appka vtipná a usnadní práci, bude ji používat.
 - Escapovat veškerý obsah z DB při vkládání do HTML (`esc()`).
+
+## Udržitelnost (posouzení 2026-11-01)
+- Podklady jsou v `POSOUZENI_Udrzitelnost.md`. **Rozhodnutí uživatele:** zatím nic neměnit, nejdřív testuje sám, nejvýš s jedním kolegou.
+- Před přidáním kolegy udělat zálohy (Firebase + složka `data` Offer Studia) a rozhodnout, kdo vidí čí poptávky a zisky.
+- Později přejít z raw.githack.com na Firebase Hosting nebo GitHub Pages. Kolem 2 000 poptávek zavést archiv (načítat jen otevřené a nedávné).
+- Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
 
 ## Nápady na později
 - QR kód na stojanu v showroomu, zákazník si poptávku vyplní sám (řešit zabezpečení zápisu bez přihlášení).
