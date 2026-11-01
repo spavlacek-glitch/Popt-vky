@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.21 (2026-11-01)
+Verze dokumentu: 2.22 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -278,6 +278,16 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Před přidáním kolegy udělat zálohy (Firebase + složka `data` Offer Studia) a rozhodnout, kdo vidí čí poptávky a zisky.
 - Později přejít z raw.githack.com na Firebase Hosting nebo GitHub Pages. Kolem 2 000 poptávek zavést archiv (načítat jen otevřené a nedávné).
 - Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
+
+## Příjem poptávek e-mailem (odloženo, 2026-11-01)
+- **Přání uživatele:** co přijde na **`poptavky@suw.cz`** (a případně zvláštní adresu typu `poptavky1@suw.cz`, kam si prodejce přepošle vlastní e-mail s poznámkou a odkazem na vůz), se má **samo vytěžit a objevit v Poptávkách**. Vznikla by poptávka (stav `nova`, kontakt zítra, kanál e-mail) včetně vozu (`vuz`, od v1.16) a zápisu do historie.
+- **Stav: uživatel se zeptá IT.** Nic se neimplementuje, dokud IT neodpoví. Rozhodnutí uživatele: „zatím zapiš, necháme to na později“.
+- **Proč ne firemní pošta:** IT nepovoluje automatický přístup k Outlooku (viz `KONTEXT_obchod.md`). Proto nápad využít **samostatný e-mailový systém mimo firemní poštu**, přes který se dnes posílají např. skeny z tiskáren. Žádanky přes něj jen **odesílají** (SMTP relay `192.168.3.202`, port 25, bez přihlášení, `nodemailer`). **Žádný příchozí e-mailový server v Žádankách není**, kód Žádanek poštu nepřijímá.
+- **Otevřené otázky pro IT:** (1) umí ten server přijímat poštu do schránek, nebo jen odesílat? (2) může tam vzniknout schránka (`poptavky1@suw.cz`) a půjde na ni přesměrovat poštu z firemního Outlooku, případně i z webu `vozy.suw.cz` (leady chodí přes `omnetic`, na `poptavky@suw.cz`)? (3) lze se ke schránce připojit z interního serveru přes IMAP/POP3 zvláštním účtem jen pro čtení?
+- **Možná architektura po souhlasu IT:** malá služba na stále zapnutém interním serveru čte schránku (IMAP/POP3, např. po minutě), parser vytáhne údaje a služba zapíše poptávku do Firebase přes zvláštní schválený účet (podobně jako se k Poptávkám přihlašuje Offer Studio; heslo mimo repo). Hlídat duplicity (ID zprávy, stejný telefon v krátké době) a komu poptávka patří (odesílatel = prodejce; u webového leadu neznámý, zatím výchozí prodejce).
+- **Parser musí umět tři podoby:** (a) strukturovaný lead z webu (řádky „Jméno a příjmení:“, „Telefon:“, „E-mail:“, „Model:“, „Stav:“ (skladové / předváděcí), „VIN“, „Lokace:“, „Váš dotaz:“; utm údaje se do poznámky nepřenášejí; odesílatel `Od:` je robot a **Odpověď:** nese e-mail zákazníka), (b) e-mail od prodejce s poznámkou a odkazem na vůz (odkaz `…/buy/new-car/product.html/…` = skladový, `…/onlinecode/…` = do výroby), (c) přeposlaný e-mail zákazníka. Dosud umí aplikace jen ruční „Vlož celý text e-mailu“ (v1.2+), který z Outlooku nezkopíruje ani adresu odesílatele.
+- **Konflikt s dřívějším rozhodnutím:** leady z webu MB se dosud evidují jinde a do Poptávek nepatřily (dvojí evidence). Uživatel nyní výslovně chce i leady z webu `vozy.suw.cz` (vzor z 2026-06). **Při implementaci zjistit, zda se tím neprodlužuje evidence na dvou místech**, a upravit pravidlo v sekci „Výchozí stav“.
+- Do repa nedávat skutečná data zákazníků, vzory jen fiktivní.
 
 ## Nápady na později
 - QR kód na stojanu v showroomu, zákazník si poptávku vyplní sám (řešit zabezpečení zápisu bez přihlášení).
