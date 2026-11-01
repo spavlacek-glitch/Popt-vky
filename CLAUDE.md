@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.23 (2026-11-01)
+Verze dokumentu: 2.24 (2026-11-01)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -74,6 +74,8 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 | historie/{pushId} | `{t, kdo, text}` – log kontaktů a změn stavu |
 | zakaznik | klíč v `/zakaznici` (nepovinné, od v1.2). Vazba je jen jednosměrná, seznam poptávek zákazníka se dopočítá. Starší poptávky ho nemají. |
 | vuz | od v1.16, nepovinné, zadává prodejce ručně: `puvod` (`sklad` / `vyroba` / `dealer`), `id` (Auftrag, např. 05-576-12345, nebo online kód), `lokace` (jen sklad a dealer). Prázdné pole se nezapisuje, bez vyplnění `vuz` v DB není. Pravidla DB beze změny. |
+| dohody/{id} | od v1.20: dohoda vedoucího s prodejcem k obchodu. `text` (jedna věta, ≤140), `do` (`YYYY-MM-DD`), `vyjde` (nepovinné: „uzavřít jako ztracený“ / „vrátit na poradu“), `zadal` (e-mail), `t`, `stav` = `otevrena` / `hotovo` (prodejce klepl) / `potvrzena` / `dopracovat` / `preneseno`, nepovinný `tip`. **Čas klepnutí „Hotovo“ se neukládá ani neukazuje** (rozhodnutí uživatele). |
+| duvodTicha | od v1.20, nepovinné: `{text, kdo}` – proč je obchod 14+ dní bez kontaktu (dovolená apod.), zapisuje prodejce jedním řádkem. |
 | nabidky/{id konceptu} | od v1.14, zapisuje jen Offer Studio (v1.5.0+): `model`, `cena_sdph` (celkem pro zákazníka), `cena_vuz_sdph`, `sleva_sdph`, `sleva_pct`, `doplnky_sdph`, `soubor`, `zdroj: offerstudio`, `t`, `kdo`; nepovinně `interni` = `{zisk, skutecny_zisk, obchodni_marze, skutecna_marze, korekce, nestandardni, negativni}`. Jedna položka na nabídku, nové PDF ji přepíše. |
 
 ## Datový model – `/zakaznici/{key}` (od v1.2)
@@ -265,6 +267,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_vuz_v1.16.js`: vůz u poptávky na PC 1440 a iPhonu 13 – karta, detail, hledání podle Auftragu, úprava a smazání vozu v DB, žádné chyby.
 - `testy/test_detail_pc_v1.17.js`: detail na PC 1440, 1100 a 1920 ve dvou sloupcích a mobilní detail beze změny.
 - `testy/test_zpet_kalkulace_v1.18.js`: Zpět a Vpřed prohlížeče (PC i iPhone), úprava a návrat, kalkulace v detailu, schovaný a odkrytý zisk, od v1.19 i výrazný přilepený pruh a Esc.
+- `testy/test_dohody_v1.20.js`: dohody, role vedoucího a prodejce, Hotovo bez času, Můj týden, Porada, Zpět prohlížeče, iPhone.
 - `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
 
 ## Konvence
@@ -279,18 +282,24 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - Později přejít z raw.githack.com na Firebase Hosting nebo GitHub Pages. Kolem 2 000 poptávek zavést archiv (načítat jen otevřené a nedávné).
 - Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
 
-## Pohled pro vedoucího prodeje a dohody z porady (návrh, odloženo, 2026-11-01)
-- **Přání uživatele:** vedoucí prodeje osobních vozů (5 prodejců) si každé pondělí sedne s každým prodejcem nad obchodními případy. Chce vidět **kdo a kolik má rozjednáno, v jakém stavu, ekonomiku obchodu, jak dlouho se řeší, kdy byl poslední kontakt a kolikrát se zákazníkovi ozval**. Kontakt 14+ dní prodejce musí vysvětlit (zákazník může mít dovolenou, ale 14 dní je na hraně; viz `KONTEXT_obchod.md`, odpovědi kolem 14 dní). Další pondělí se vedoucí vrací k tomu, co se dohodlo.
-- **Stav: pouze návrh, nic se neimplementuje.** Uživatel zatím testuje sám, kolegové přibudou později. Návrh se mu líbí a chce ho ukázat vedoucímu. Klikací ukázky (fiktivní data) jsou v `navrh/`: `pondelni_porada_v0.2.html` (pohled vedoucího: karty pěti prodejců bez pořadí, tabulka obchodů, dohody z minula, počet kontaktů, důvody ticha) a `dohoda_ukazka_v0.1.html` (čtyři kroky příběhu: vedoucí zapíše dohodu → prodejce ji vidí a klepne Hotovo → vedoucí potvrdí nebo vrátí → měsíční přehled).
+## Dohody z porady, Můj týden a Porada (v1.20)
+- **Přání uživatele (2026-11-01):** vedoucí prodeje osobních vozů (5 prodejců) si každé pondělí sedne s každým prodejcem nad obchodními případy. Chce vidět **kdo a kolik má rozjednáno, v jakém stavu, ekonomiku obchodu, jak dlouho se řeší, kdy byl poslední kontakt a kolikrát se zákazníkovi ozval**. Kontakt 14+ dní prodejce musí vysvětlit (viz `KONTEXT_obchod.md`, odpovědi kolem 14 dní). Další pondělí se vedoucí vrací k tomu, co se dohodlo. Uživatel to **testuje sám v obou rolích**, kolegové přibudou později.
 - **Zásady, aby to nebyl „bič“ (rozhodnutí uživatele):** aplikace má být zábava, prodejce ani vedoucí nemají mít víc zapisování.
   1. **Dohoda je jedna věta**, kterou vedoucí napíše za pár vteřin (např. „Zavolej mu a dej mu 1 % navíc.“), s hotovými větami, předvyplněným termínem (příští pondělí) a nepovinným „když to nevyjde: uzavřít jako ztracený / vrátit na poradu“. Žádná povinná pole.
-  2. **Prodejce nic nevyplňuje ani nepotvrzuje.** Dohodu vidí jako „tip od šéfa“ u svého obchodu a v „Dnes zavolat“. Klepne jen „Hotovo“.
-  3. **Rozhoduje vedoucí** (rozhodnutí uživatele): „Hotovo“ od prodejce jedním klepnutím potvrdí, jinak „Dopracovat“ s nepovinným tipem na příště. **Slovo „nesplněno“ se nepoužívá**, žádná červená, žádné body. Nesplněné jde „na další týden“.
-  4. **Bez pořadí prodejců**, označují se obchody, ne lidé. Vedoucí je sám prodejce a má stejný pohled na svoje obchody.
-  5. **14 dní bez kontaktu** je štítek pro vedoucího s tónem „co se děje / jak pomoct“, ne „obhajuje se“. Důvod (dovolená, čeká na banku) se zapíše pár slovy.
-  6. Zisk a marže jen pro vedoucího, schované do klepnutí (👁), stejně jako v Poptávkách.
-- **Co by bylo potřeba po schválení:** položka `ukoly` u poptávky (text, termín, kdo zadal, `vyjde`, výsledek `hotovo` / `potvrzeno` / `dopracovat` / `preneseno`, nepovinný `tip`) a `duvodTicha`; počet kontaktů se bere z historie (nic navíc se nezapisuje); účet vedoucího s rolí a čtením všech poptávek; pravidla databáze, kdo vidí čí poptávky a zisky; „Hotovo“ v „Dnes zavolat“ prodejce. **Před přidáním kolegů** udělat zálohy a rozhodnout, kdo vidí čí poptávky (viz „Udržitelnost“).
-- Ověřit s vedoucím: má prodejce vidět čas, kdy klepl „Hotovo“? (doporučení: ne, jen výsledek).
+  2. **Prodejce nic nevyplňuje ani nepotvrzuje.** Dohodu vidí jako „Tip od šéfa“ u obchodu (karta, detail PC i mobil) a klepne jen „✓ Hotovo“. Čas klepnutí se neukazuje.
+  3. **Rozhoduje vedoucí:** „Hotovo“ jedním klepnutím potvrdí, jinak „Dopracovat“ s nepovinným tipem na příště, nebo „↻ Na další týden“. **Slovo „nesplněno“ se nepoužívá**, žádná červená, žádné body.
+  4. **Bez pořadí prodejců** (karty abecedně), označují se obchody, ne lidé. Vedoucí je sám prodejce a vidí i „Můj týden“.
+  5. **14 dní bez kontaktu** je štítek „bez kontaktu N dní“ s tlačítkem „Zapsat, co se děje“ (důvod pár slovy → zelený štítek „důvod: …“, pole `duvodTicha`). Obchod ze seznamu nezmizí.
+  6. Zisk a marže jsou v Poradě schované do klepnutí (👁), jako jinde.
+- **Role:** vedoucí = v databázi `/uzivatele/{UID}/vedouci: true`. Nastavuje se **jen ručně v konzoli Firebase** (z aplikace zapsat nejde, `/uzivatele` je jen ke čtení). Bez příznaku je uživatel prodejce: vidí „Můj týden“, tip od šéfa a „Hotovo“, nevidí formulář dohody ani „Porada“. S příznakem vidí obojí.
+  - **Role se v pravidlech DB zatím nevynucují** (pravidla `/poptavky` dávají zápis všem schváleným, což platí i pro `dohody`). Je to jen v rozhraní. Před přidáním kolegů doplnit pravidla (tvar `dohody`, kdo smí potvrzovat) a rozhodnout, kdo vidí čí poptávky a zisky.
+- **Kontakty zákazníka** (počet a poslední) se počítají z historie: zápisy, které nejsou automatické (nezačínají „Založeno“, „Stav →“, „📄“, „🤝“, „✓ Hotovo“). Nic se kvůli tomu nezapisuje navíc.
+- **Příznaky „k probrání“** (u obchodu, ne u člověka): bez kontaktu 14+ dní, prošlý termín dalšího kontaktu, týden řešení a není nabídka, nízká marže / pod nákupní cenou (podle příznaků z Offer Studia).
+- **Můj týden** (tlačítko v hlavičce, všichni, PC i mobil): „co na mě šéf uvidí“. Moje dohody s „Hotovo“, moje obchody k probrání s počtem kontaktů a důvodem ticha. Jen pohled, nikomu se nic neposílá.
+- **Porada** (jen vedoucí, PC, tlačítko v hlavičce): nahoře „co jste si řekli minule“ (dohody, které nejsou potvrzené nebo přenesené; „prodejce hlásí hotovo“; Potvrdit / Dopracovat / Na další týden), karty prodejců (otevřené obchody, stavy, hodnota nabídek, nejdelší ticho, „k probrání“), tabulka obchodů řazená podle nejdéle bez kontaktu / hodnoty / doby řešení / marže, u obchodu „+ Dohoda“. **Pondělní program** = nejdřív minulé dohody, pak obchody s příznaky v zvoleném pořadí; prodejci nejsou řazeni.
+- **Ukázky návrhu** (fiktivní data): `navrh/pondelni_porada_v0.2.html`, `navrh/dohoda_ukazka_v0.1.html`.
+- **Zatím není:** zápis z porady do schránky (v návrhu byl), měsíční přehled s oslavou, tvar `dohody` v pravidlech DB, mobilní Porada. Ověřit s vedoucím, co chce vidět navíc.
+- Test `testy/test_dohody_v1.20.js` (18 kontrol: role, dohody, Hotovo bez času, Můj týden, Porada, Zpět prohlížeče, iPhone).
 
 ## Příjem poptávek e-mailem (odloženo, 2026-11-01)
 - **Přání uživatele:** co přijde na **`poptavky@suw.cz`** (a případně zvláštní adresu typu `poptavky1@suw.cz`, kam si prodejce přepošle vlastní e-mail s poznámkou a odkazem na vůz), se má **samo vytěžit a objevit v Poptávkách**. Vznikla by poptávka (stav `nova`, kontakt zítra, kanál e-mail) včetně vozu (`vuz`, od v1.16) a zápisu do historie.
