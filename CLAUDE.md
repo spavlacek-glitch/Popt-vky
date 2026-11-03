@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.28 (2026-11-03)
+Verze dokumentu: 2.29 (2026-11-03)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -273,6 +273,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_zpet_kalkulace_v1.18.js`: Zpět a Vpřed prohlížeče (PC i iPhone), úprava a návrat, kalkulace v detailu, schovaný a odkrytý zisk, od v1.19 i výrazný přilepený pruh a Esc.
 - `testy/test_dohody_v1.20.js`: dohody, role vedoucího a prodejce, Hotovo bez času, Můj týden, Porada, Zpět prohlížeče, iPhone.
 - `firebase/rules.test.mjs` od v1.24: 133 testů (jen své poptávky, cizí nabídky a zisk, vedoucí vše, dohody, Hotovo). Spuštění v tomto prostředí: `firebase emulators:exec` s odpojenými proxy proměnnými (`env -u HTTPS_PROXY -u https_proxy -u JAVA_TOOL_OPTIONS`) a s `host: 127.0.0.1` v konfiguraci emulátoru; jar emulátoru se stáhne přes curl do `~/.cache/firebase/emulators/`.
+- `testy/test_vlastnik_v1.25.js`: vlastník poptávky a filtr prodejce pro vedoucího (PC, iPhone), prodejce nic z toho nevidí, filtr přežije obnovení stránky (emulátory).
 - `testy/test_verze.js`: číslo verze v kódu sedí s názvem souboru, `poptavky.html` ukazuje na nejnovější existující verzi (bez prohlížeče, `node testy/test_verze.js`).
 - `testy/test_panel_v1.22.js`: panel „Další akce“ na iPhonu – zavření posunutím dolů, krátké potáhnutí, klepnutí na pozadí (bez Firebase, s atrapou SDK).
 - `testy/test_hlasky_v1.21.js`: hlášky v „Dnes zavolat“ (plné skupiny, bez duplicit, věta od uživatele, žádný sráživý tón).
@@ -289,6 +290,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **Appka (v1.24):** po přihlášení si zjistí roli. Vedoucí načítá `/poptavky`, prodejce jen `orderByChild('prodejce').equalTo(e-mail)`. Když se roli nepodaří zjistit, bere se jako prodejce. `MINIMALNI` je `poptavky_v1.24.html`, starší verze se přepnou samy (prodejce by v nich dostal „permission_denied“).
 - **Offer Studio v1.8.2:** „Vyzkoušet spojení“ čte jen vlastní poptávky, zápis k cizí nebo smazané poptávce dá hlášku „už neexistuje (smazaná?) nebo není tvoje“. Každý prodejce má vlastní Offer Studio a přihlašuje se svým účtem.
 - **Zřízení účtu (ručně v konzoli, pořadí je důležité):** záloha → sloučit PR → nasadit pravidla → Authentication „Add user“ → `uzivatele/{UID}` = `{schvalen: true, email}` → kolega se přihlásí. Podrobně `firebase/PRIDANI_PRODEJCE.md`. Účty a hesla zakládá jen uživatel.
+- **Vlastník poptávky pro vedoucího (v1.25, nalezeno uživatelem po zprovoznění kolegů):** vedoucí vidí u každé poptávky „👤 Jméno prodejce“ (karta v přehledu a v „Dnes zavolat“, mobilní detail, detail na PC; jméno se skládá z e-mailu, tedy bez diakritiky) a v řádku filtrů je výběr „Všichni prodejci / jméno – N otevřených“. Filtr platí pro přehled, „Dnes zavolat“ i tipy a pamatuje se v zařízení (`localStorage` `poptavky.filtrProdejce`). **Výchozí je „Moje“ (rozhodnutí uživatele)**: vedoucí v „Dnes zavolat“ vidí jen své hovory, ostatní přepne ve výběru na „Všichni“ nebo na jméno. Prodejce nic z toho nevidí. Test `testy/test_vlastnik_v1.25.js` (14 kontrol).
 - **Poptávka bez pole `prodejce`** (nejstarší) vidí jen vedoucí; předání jinému prodejci = změna pole `prodejce` v konzoli.
 - Ověřeno: pravidla v emulátoru (133 testů, proti starým pravidlům 23 selže), UI testy dohod, odkazu, tipů, výdělku, ekonomiky, vozu, zpět/kalkulace, detailu PC, GDPR a celá cesta Offer Studia (25 kontrol) proti emulátorům. Na skutečné databázi zatím vyzkoušeno není.
 
