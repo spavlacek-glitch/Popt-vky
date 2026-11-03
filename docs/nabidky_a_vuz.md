@@ -1,0 +1,34 @@
+# Nabídky, Offer Studio a vůz
+
+Část dokumentace projektu Poptávky; hlavní soubor je `../CLAUDE.md`.
+
+## Udělat nabídku (v1.13)
+- V detailu poptávky **na PC** je pod „Souhlas GDPR“ řádek „📄 Udělat nabídku“ (`.nabidka`). Na mobilu není, Offer Studio běží jen na PC prodejce.
+- Je to **jen odkaz** (nové okno `offerstudio`): `http://127.0.0.1:8774/nova?poptavka=<ID>&jmeno=…&telefon=…&email=…&zajem=…` („Co chce“ nejvýš 1500 znaků). Bez CORS, nic se nezapisuje, stav se nemění.
+- Offer Studio (od v1.2.0) předvyplní zákazníka, „Co chce“ dá do interních poznámek a uloží si ID poptávky. Když k poptávce už nabídku má, nabídne ji.
+- Když Offer Studio neběží, prohlížeč ukáže chybu připojení (proto nápověda „musí běžet“). Spouští se přes `START.bat`.
+- Hláška `{"detail":"Not Found"}` = na PC běží starší Offer Studio bez `/nova` (do v1.1.9). Aktualizovat soubory `app.py`, `email_sablony.py`, `email_koncept.py`, složku `data` nechat (nalezeno uživatelem 2026-11-01).
+- Detail na PC je jinak stejný jako ve v1.4 (test porovnání ignoruje řádky `.gdpr` a `.nabidka`).
+
+## Vůz u poptávky (v1.16)
+- **Přání uživatele (2026-11-01):** u poptávky musí být jasné, o jaký vůz jde, stejně jako v Žádankách (`puvod_vozidla`: skladové / do výroby / od jiného dealera, lokace). Skladový vůz se pozná podle Auftragu (např. 05-576-12345). Vůz do výroby má online kód, nebo už Auftrag, když si zákazník mění auto, které je ve výrobě.
+- Ve formuláři „Vůz (nepovinné)“: původ (Skladový / Do výroby / Od dealera), jedno pole „Auftrag nebo online kód“, lokace (jen u skladového a od dealera). Nepovinné, zápis poptávky se nezdržuje.
+- Ukazuje se řádek `🚗 Skladový · 05-576-12345 · Karlovy Vary` na kartě (všude), v detailu na PC i na mobilu a v CSV exportu. Hledání najde poptávku i podle Auftragu a online kódu.
+- **Zatím jen ručně.** Zápis z Offer Studia (původ podle odkazu: `product.html` = skladový, `onlinecode` = do výroby) zatím není, je to další možný krok. Offer Studio z `vuz` zatím nic nečte.
+- **Upřesnění uživatele (2026-11-03), odloženo „na později“:** původ se **z odkazu nedá odvodit**. „Do výroby“ je vůz na zakázku podle zákazníka, ale firma má ve výrobě i vozy s **už neměnnou konfigurací**, které se nabízejí přes online kód (`onlinecode`) – ty se nechovají jako zakázkové. Rozhodnout (až se k tomu vrátíme): zůstat u tří původů (neměnný vůz ve výrobě = „Do výroby“), nebo čtyři původy (skladový / ve výrobě s hotovou konfigurací / na zakázku / od dealera). Zápis z Offer Studia by uměl doplnit jen kód nebo Auftrag, původ by musel zůstat na prodejci.
+- Test `testy/test_vuz_v1.16.js` (PC i iPhone, 16 kontrol).
+
+## Offer Studio v1.8.0 (složky, číslování, diakritika)
+- **Složky zákazníků:** v Nastavení Offer Studia je „Složka zákazníků“ (jen v daném PC, každý prodejce si nastaví svou). PDF a Word jdou do podsložky zákazníka. Existující složka se najde podle jména bez ohledu na diakritiku, velikost písmen, pořadí jmen a číslo na konci („Novák 2“); víc shod → naposledy změněná. Jinak se založí nová. Nepřístupný disk → `data\exports` s upozorněním.
+- **Číslování:** každé nabídce se při prvním PDF přidělí pořadové číslo u zákazníka (1., 2., …) a datum. Ukazuje se v hlavičce PDF, v nabídce a v seznamu nabídek zákazníka.
+- **Diakritika v názvu souboru** zůstává (Pavláček…).
+- Podrobnosti v `README_V1_8_0.txt` v Offer Studiu.
+
+## Nabídky z Offer Studia (v1.14)
+- **Rozhodnutí uživatele (2026-11-01):** Offer Studio se jednou přihlásí účtem Poptávek (heslo se neukládá, v PC jen přihlašovací klíč). Po vytvoření nabídky zapíše souhrn a řádek do historie („📄 Nabídka připravena: … · cena“, při změně ceny „📄 Nabídka upravena: …“). Stav se nemění.
+- **Detail na PC:** pod „📄 Udělat nabídku“ řádek každé nabídky (nejnovější nahoře): model · cena · sleva % · datum. Pod ním zisk a marže **schované do klepnutí** („Zisk ••• Kč“), klepnutí je ukáže i se zápisem „před korekcemi“, další schová.
+  - Varování „⚠ nízká marže“ / „⚠ pod nákupní cenou“ jen podle příznaků z Offer Studia. Hranice není v kódu Poptávek.
+- **Hlavička na PC:** v bloku „Tento měsíc prodáno“ řádek „Zisk z prodaných aut: ≈ ••• Kč (1 z 2 aut s nabídkou)“ (rozhodnutí 3a: provize zůstává, zisk přibyl). Počítá se ze skutečného zisku poslední nabídky prodaných aut tohoto měsíce. Částka se odkryje stejným klepnutím jako provize, bez provize jde odkrýt taky.
+- **Mobil (rozhodnutí uživatele):** zisk nikde. Od v1.15 je na kartě a v detailu nabídka (model · cena), viz „Ekonomika na přehledu“.
+- Poptávky nic nepočítají ani nezapisují. Detail na PC je jinak stejný jako ve v1.4.
+
