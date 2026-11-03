@@ -125,3 +125,13 @@
 ## Provize podle modelu (zapsáno, v kódu zatím není)
 - **Zapsáno na přání uživatele (2026-11-03), zatím neimplementovat:** provize se počítá ze zisku podle modelu. **GLS, G, S atd. = 10 % ze zisku, ostatní modely 12,5 %.** Seznam modelů v desetiprocentní skupině řekl uživatel jen příkladem („atd.“), před implementací doptat přesný seznam.
 - Dnes appka drží jen „průměrnou provizi za auto“ v zařízení (`localStorage`, viz „Tento měsíc prodáno“). Provize podle modelu by mohla nahradit průměr ve výhledu a v posuvníku (např. „tvoje provize: 29 000 → 27 800 Kč“), model je v nabídce z Offer Studia (`model`).
+
+## Ekonomika případu v detailu na PC (v1.34, návrh A)
+- **Rozhodnutí uživatele (2026-11-03):** detail byl přeplácený (řádek nabídky, zisk, odkazy a posuvník na třech místech). Z návrhů A1/A2/B (`navrh/ekonomika_pripadu_*.png`, zdroj `navrh/ekonomika_pripadu_v0.1.html`) vybrána **varianta A: jeden blok pod oběma sloupci detailu**.
+- **Rozložení:** dva boxy vedle sebe, pod nimi posuvník (`.pc-eko`, třída vnitřku `.ekop`):
+  - **Zákazník platí:** model a datum poslední nabídky, ceníková cena, sleva (Kč a %), u doplňkového prodeje i „Cena vozu“ a „Doplňkový prodej“, celkem s DPH, název souboru + „📄 PDF“ a „📂 Offer Studio“. Starší nabídky jsou pod čarou jako jeden řádek (model · cena · sleva · datum · odkazy).
+  - **Tobě zůstane:** ve výchozím stavu „••• Kč“ s tlačítkem 👁 (showroom). Po klepnutí: nákupní cena bez DPH, zisk, − korekce, + dobropis a další (jen když se liší), **skutečný zisk**, obchodní (a skutečná) marže a varování z příznaků Offer Studia. 🙈 Schovat vrací zpět. Stejný příznak `nabidkyOdkryte` ovládá i posuvník. Bez interní kalkulace v nabídce je místo toho krátká věta.
+  - **Posuvník** viz předchozí sekce; levá část slider + 🏆, pravá část dopad na cenu, slevu, skutečný zisk a marži.
+- **Nákupní cena** se v Poptávkách neukládá, odvozuje se: cena vozu s DPH / 1,21 − zisk. Provize v bloku zatím není (viz „Provize podle modelu“).
+- **Pryč:** starý řádek „Nabídky“ v boxu Poptávka (funkce `nabidkyDetail`), rozbalovací zisk po klepnutí na nabídku a samostatný blok posuvníku mezi Poptávkou a dohodou. Seznam (v1.15) a mobil beze změny.
+- Test `testy/test_ekonomika_pripadu_v1.34.js` (dřív `test_posuvnik_v1.33.js`). Testy s emulátory (`test_nabidky_v1.14.js`, `test_zpet_kalkulace_v1.18.js`, `test_detail_pc_v1.17.js`) hledají v detailu starý řádek nabídky a po této změně je potřeba je při dalším spuštění upravit.
