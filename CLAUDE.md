@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.27 (2026-11-03)
+Verze dokumentu: 2.28 (2026-11-03)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -61,6 +61,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
   - `/zakaznici`: pravidla jsou nasazená (jen schválené účty a jen povolená pole). Od **v1.2** se používají pro známého zákazníka u nové poptávky. Evidence začíná prázdná a zákazníci přibývají z poptávek. Import z Fenclotéky je odložený: musí spárovat zákazníky podle telefonu a e-mailu, jinak vzniknou dvojí záznamy.
   - Nová pravidla prošla 81 testy v emulátoru (`firebase/rules.test.mjs`). Po nasazení bylo ověřeno čtení i zápis v Poptávkách v1.0.
   - `/poptavky/{id}/nabidky` (od v1.14): kontrola tvaru zápisu z Offer Studia (jen povolená pole, čísla, `kdo` = přihlášený, jen k existující poptávce). 95 testů. Pravidla se nasazují ručně v konzoli Firebase (Realtime Database → Pravidla → Publikovat). Uživatel je zkoušel nasadit a zápis z Offer Studia funguje (2026-11-01).
+  - **Více prodejců (v1.24, rozhodnutí uživatele 2026-11-03: „každý jen své“):** nová pravidla (`firebase/database.rules.json`, 133 testů; předchozí verze v `firebase/database.rules.pred-vice-prodejci.json` pro návrat). Prodejce čte a mění jen poptávky se svým e-mailem v poli `prodejce` (čtení jen dotazem `orderByChild('prodejce').equalTo(e-mail)`, proto `.indexOn: prodejce`), včetně `nabidky`, `historie` a `duvodTicha`. Vedoucí (`/uzivatele/{UID}/vedouci: true`) čte a mění vše. **Dohody:** zadává, potvrzuje a maže jen vedoucí, prodejce smí jen změnit `stav` na `hotovo` u své dohody (text, termín a `zadal` zůstanou). `/zakaznici` zůstávají společné všem schváleným (kvůli známému zákazníkovi). Prodejce nemůže převést poptávku na jiného ani ji přepsat jako celek (zápis jednotlivých polí funguje). Pravidla se nasazují ručně v konzoli, postup a pořadí v `firebase/PRIDANI_PRODEJCE.md`.
 - Firebase `apiKey` v klientském kódu je OK. Žádné privátní klíče do repa.
 
 ## Datový model – `/poptavky/{pushId}`
@@ -271,10 +272,11 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_detail_pc_v1.17.js`: detail na PC 1440, 1100 a 1920 ve dvou sloupcích a mobilní detail beze změny.
 - `testy/test_zpet_kalkulace_v1.18.js`: Zpět a Vpřed prohlížeče (PC i iPhone), úprava a návrat, kalkulace v detailu, schovaný a odkrytý zisk, od v1.19 i výrazný přilepený pruh a Esc.
 - `testy/test_dohody_v1.20.js`: dohody, role vedoucího a prodejce, Hotovo bez času, Můj týden, Porada, Zpět prohlížeče, iPhone.
+- `firebase/rules.test.mjs` od v1.24: 133 testů (jen své poptávky, cizí nabídky a zisk, vedoucí vše, dohody, Hotovo). Spuštění v tomto prostředí: `firebase emulators:exec` s odpojenými proxy proměnnými (`env -u HTTPS_PROXY -u https_proxy -u JAVA_TOOL_OPTIONS`) a s `host: 127.0.0.1` v konfiguraci emulátoru; jar emulátoru se stáhne přes curl do `~/.cache/firebase/emulators/`.
 - `testy/test_verze.js`: číslo verze v kódu sedí s názvem souboru, `poptavky.html` ukazuje na nejnovější existující verzi (bez prohlížeče, `node testy/test_verze.js`).
 - `testy/test_panel_v1.22.js`: panel „Další akce“ na iPhonu – zavření posunutím dolů, krátké potáhnutí, klepnutí na pozadí (bez Firebase, s atrapou SDK).
 - `testy/test_hlasky_v1.21.js`: hlášky v „Dnes zavolat“ (plné skupiny, bez duplicit, věta od uživatele, žádný sráživý tón).
-- `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
+- `firebase/rules.test.mjs`: pravidla databáze (133 testů, od v1.14 i `nabidky`, od v1.24 i více prodejců).
 
 ## Konvence
 - **Verzovat vše**: číslo verze v názvu souboru, v `<title>`, v hlavičce i v komentáři na začátku souboru.
@@ -282,9 +284,17 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **Tón appky (rozhodnutí uživatele):** povzbuzovat a bavit, nikdy nesrážet. Žádné žebříčky „kdo je poslední“ ani výčitky. Humor je vítaný, pokud prodejci pomáhá nebo ho pobaví. Prodejce má zapisování bavit – když je appka vtipná a usnadní práci, bude ji používat.
 - Escapovat veškerý obsah z DB při vkládání do HTML (`esc()`).
 
+## Více prodejců (v1.24, 2026-11-03)
+- **Přání uživatele:** připravit dva nové prodejce, Miroslava Sýkoru a Martina Esterku, ať appku testuje víc lidí. **Rozhodnutí:** každý jen své (poptávky, nabídky, zisk), jen role prodejce (vedoucí je jen uživatel), zákazníci společní.
+- **Appka (v1.24):** po přihlášení si zjistí roli. Vedoucí načítá `/poptavky`, prodejce jen `orderByChild('prodejce').equalTo(e-mail)`. Když se roli nepodaří zjistit, bere se jako prodejce. `MINIMALNI` je `poptavky_v1.24.html`, starší verze se přepnou samy (prodejce by v nich dostal „permission_denied“).
+- **Offer Studio v1.8.2:** „Vyzkoušet spojení“ čte jen vlastní poptávky, zápis k cizí nebo smazané poptávce dá hlášku „už neexistuje (smazaná?) nebo není tvoje“. Každý prodejce má vlastní Offer Studio a přihlašuje se svým účtem.
+- **Zřízení účtu (ručně v konzoli, pořadí je důležité):** záloha → sloučit PR → nasadit pravidla → Authentication „Add user“ → `uzivatele/{UID}` = `{schvalen: true, email}` → kolega se přihlásí. Podrobně `firebase/PRIDANI_PRODEJCE.md`. Účty a hesla zakládá jen uživatel.
+- **Poptávka bez pole `prodejce`** (nejstarší) vidí jen vedoucí; předání jinému prodejci = změna pole `prodejce` v konzoli.
+- Ověřeno: pravidla v emulátoru (133 testů, proti starým pravidlům 23 selže), UI testy dohod, odkazu, tipů, výdělku, ekonomiky, vozu, zpět/kalkulace, detailu PC, GDPR a celá cesta Offer Studia (25 kontrol) proti emulátorům. Na skutečné databázi zatím vyzkoušeno není.
+
 ## Udržitelnost (posouzení 2026-11-01)
 - Podklady jsou v `POSOUZENI_Udrzitelnost.md`. **Rozhodnutí uživatele:** zatím nic neměnit, nejdřív testuje sám, nejvýš s jedním kolegou.
-- Před přidáním kolegy udělat zálohy (Firebase + složka `data` Offer Studia) a rozhodnout, kdo vidí čí poptávky a zisky.
+- Před přidáním kolegy udělat zálohy (Firebase + složka `data` Offer Studia). **Kdo vidí čí poptávky a zisky je rozhodnuto (v1.24: každý jen své, vedoucí vše)**, pravidla DB jsou hotová. Zbývá, že `/zakaznici` jsou společné a že pravidla se nasazují ručně (`firebase/PRIDANI_PRODEJCE.md`).
 - Později přejít z raw.githack.com na Firebase Hosting nebo GitHub Pages. Kolem 2 000 poptávek zavést archiv (načítat jen otevřené a nedávné).
 - Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
 
@@ -303,7 +313,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
   5. **14 dní bez kontaktu** je štítek „bez kontaktu N dní“ s tlačítkem „Zapsat, co se děje“ (důvod pár slovy → zelený štítek „důvod: …“, pole `duvodTicha`). Obchod ze seznamu nezmizí.
   6. Zisk a marže jsou v Poradě schované do klepnutí (👁), jako jinde.
 - **Role:** vedoucí = v databázi `/uzivatele/{UID}/vedouci: true`. Nastavuje se **jen ručně v konzoli Firebase** (z aplikace zapsat nejde, `/uzivatele` je jen ke čtení). Bez příznaku je uživatel prodejce: vidí „Můj týden“, tip od šéfa a „Hotovo“, nevidí formulář dohody ani „Porada“. S příznakem vidí obojí.
-  - **Role se v pravidlech DB zatím nevynucují** (pravidla `/poptavky` dávají zápis všem schváleným, což platí i pro `dohody`). Je to jen v rozhraní. Před přidáním kolegů doplnit pravidla (tvar `dohody`, kdo smí potvrzovat) a rozhodnout, kdo vidí čí poptávky a zisky.
+  - **Role se od v1.24 vynucují i v pravidlech DB** (viz „Více prodejců“ v sekci Technologie): dohody zadává a potvrzuje jen vedoucí, prodejce jen klepne „Hotovo“, každý prodejce vidí jen své poptávky.
 - **Kontakty zákazníka** (počet a poslední) se počítají z historie: zápisy, které nejsou automatické (nezačínají „Založeno“, „Stav →“, „📄“, „🤝“, „✓ Hotovo“). Nic se kvůli tomu nezapisuje navíc.
 - **Příznaky „k probrání“** (u obchodu, ne u člověka): bez kontaktu 14+ dní, prošlý termín dalšího kontaktu, týden řešení a není nabídka, nízká marže / pod nákupní cenou (podle příznaků z Offer Studia).
 - **Můj týden** (tlačítko v hlavičce, všichni, PC i mobil): „co na mě šéf uvidí“. Moje dohody s „Hotovo“, moje obchody k probrání s počtem kontaktů a důvodem ticha. Jen pohled, nikomu se nic neposílá.

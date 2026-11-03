@@ -2,8 +2,9 @@
 // Všechna data jsou fiktivní (example.cz, smyšlená jména a VIN).
 import { test, before, after, beforeEach, describe } from 'node:test';
 import { readFileSync } from 'node:fs';
+import assert from 'node:assert/strict';
 import { initializeTestEnvironment, assertSucceeds, assertFails } from '@firebase/rules-unit-testing';
-import { ref, set, push, update, get, remove, serverTimestamp } from 'firebase/database';
+import { ref, set, push, update, get, remove, serverTimestamp, query, orderByChild, equalTo } from 'firebase/database';
 
 const [host, port] = (process.env.FIREBASE_DATABASE_EMULATOR_HOST || '127.0.0.1:9000').split(':');
 const rules = file => readFileSync(new URL(file, import.meta.url), 'utf8');
@@ -11,6 +12,9 @@ const rules = file => readFileSync(new URL(file, import.meta.url), 'utf8');
 const SCHVALENY = 'uid-prodejce';   // je v /uzivatele se schvalen: true
 const NESCHVALENY = 'uid-cizi';     // má účet ve Firebase Auth, ale není schválen
 const VYPNUTY = 'uid-byvaly';       // v /uzivatele, ale schvalen: false
+const VEDOUCI = 'uid-vedouci';      // schvalen + vedouci: true (vidí vše, zadává dohody)
+const SYKORA = 'uid-sykora';        // druhý prodejce (v1.24): vidí jen své poptávky
+const mail = uid => uid + '@example.cz';   // e-mail v přihlašovacím tokenu testů
 
 /* Fiktivní zákazník ve schváleném tvaru */
 const zakaznik = (uid, extra = {}) => ({
@@ -43,10 +47,16 @@ describe('Navrhovaná pravidla (database.rules.json)', () => {
     await env.withSecurityRulesDisabled(async ctx => {
       const d = ctx.database();
       await set(ref(d, 'uzivatele'), {
-        [SCHVALENY]: { schvalen: true, email: 'prodejce@example.cz' },
+        [SCHVALENY]: { schvalen: true, email: mail(SCHVALENY) },
+        [VEDOUCI]: { schvalen: true, vedouci: true, email: mail(VEDOUCI) },
+        [SYKORA]: { schvalen: true, email: mail(SYKORA) },
         [VYPNUTY]: { schvalen: false, email: 'byvaly@example.cz' }
       });
-      await set(ref(d, 'poptavky/p1'), { ...poptavka('prodejce@example.cz'), vytvoreno: 1, upraveno: 1, historie: { h1: { t: 1, kdo: 'x', text: 'Založeno' } } });
+      await set(ref(d, 'poptavky/p1'), { ...poptavka(mail(SCHVALENY)), vytvoreno: 1, upraveno: 1, historie: { h1: { t: 1, kdo: 'x', text: 'Založeno' } },
+        dohody: { d1: { text: 'Zavolej mu a dej mu 1 % navíc.', do: '2026-11-09', zadal: mail(VEDOUCI), t: 1, stav: 'otevrena' } } });
+      await set(ref(d, 'poptavky/p2'), { ...poptavka(mail(SYKORA)), jmeno: 'Karel Cizí', vytvoreno: 1, upraveno: 1, historie: { h1: { t: 1, kdo: 'x', text: 'Založeno' } },
+        dohody: { d1: { text: 'Pošli nabídku.', do: '2026-11-09', zadal: mail(VEDOUCI), t: 1, stav: 'otevrena' } },
+        nabidky: { n1: { model: 'GLC', cena_sdph: 1000000, t: 1, kdo: mail(SYKORA), zdroj: 'offerstudio', interni: { zisk: 50000, skutecny_zisk: 50000 } } } });
       await set(ref(d, 'zakaznici/k1'), { ...zakaznik(SCHVALENY), vytvoreno: 1, upraveno: 1 });
     });
   });
@@ -74,8 +84,8 @@ describe('Navrhovaná pravidla (database.rules.json)', () => {
   });
 
   describe('Schválený uživatel – Poptávky v1.0 fungují beze změny', () => {
-    const email = 'prodejce@example.cz';
-    test('čte celý seznam poptávek (jako ref.on("value"))', () => assertSucceeds(get(ref(db(SCHVALENY), 'poptavky'))));
+    const email = mail(SCHVALENY);
+    test('čte své poptávky (dotaz podle prodejce, jako ref.on("value"))', () => assertSucceeds(get(query(ref(db(SCHVALENY), 'poptavky'), orderByChild('prodejce'), equalTo(email)))));
     test('založí novou poptávku i s historií', () => assertSucceeds(set(push(ref(db(SCHVALENY), 'poptavky')), poptavka(email))));
     test('upraví údaje poptávky', () => assertSucceeds(update(ref(db(SCHVALENY), 'poptavky/p1'), { jmeno: 'Eva Z.', dalsiKontakt: null, upraveno: serverTimestamp() })));
     test('změní stav na nabídku a nastaví kontakt', () => assertSucceeds(update(ref(db(SCHVALENY), 'poptavky/p1'), { stav: 'nabidka', dalsiKontakt: '2026-10-31', upraveno: serverTimestamp() })));
@@ -109,6 +119,69 @@ describe('Navrhovaná pravidla (database.rules.json)', () => {
     test('Poptávky v1.13 dál upraví poptávku s nabídkou (update jiných polí)', async () => { await zapis(nab());
       return assertSucceeds(update(ref(db(SCHVALENY), 'poptavky/p1'), { stav: 'nabidka', dalsiKontakt: '2026-11-04', upraveno: serverTimestamp() })); });
     test('smaže poptávku i s nabídkou', async () => { await zapis(nab()); return assertSucceeds(remove(ref(db(SCHVALENY), 'poptavky/p1'))); });
+  });
+
+  describe('Více prodejců (v1.24): každý vidí a mění jen své, vedoucí vše', () => {
+    const A = SCHVALENY, B = SYKORA;
+    const moje = (uid, kdo = uid) => get(query(ref(db(uid), 'poptavky'), orderByChild('prodejce'), equalTo(mail(kdo))));
+    describe('čtení', () => {
+      test('prodejce přečte celý seznam jen dotazem na vlastní e-mail', async () => { const sn = await assertSucceeds(moje(A)); assert.deepEqual(Object.keys(sn.val() || {}), ['p1']); });
+      test('prodejce nepřečte celý /poptavky bez dotazu', () => assertFails(get(ref(db(A), 'poptavky'))));
+      test('prodejce nepřečte cizí poptávky dotazem na cizí e-mail', () => assertFails(moje(A, B)));
+      test('prodejce nepřečte cizí poptávku přímo', () => assertFails(get(ref(db(A), 'poptavky/p2'))));
+      test('prodejce nepřečte cizí nabídky ani zisk', () => assertFails(get(ref(db(A), 'poptavky/p2/nabidky/n1/interni'))));
+      test('prodejce přečte svou poptávku přímo (Offer Studio čte stav)', () => assertSucceeds(get(ref(db(A), 'poptavky/p1/stav'))));
+      test('prodejce přečte své nabídky i dohody', async () => { await assertSucceeds(get(ref(db(A), 'poptavky/p1/dohody'))); return assertSucceeds(get(ref(db(A), 'poptavky/p1/nabidky'))); });
+      test('neschválený ani nepřihlášený nečte ani vlastní dotaz', async () => { await assertFails(moje(NESCHVALENY)); return assertFails(get(query(ref(db(null), 'poptavky'), orderByChild('prodejce'), equalTo('x@example.cz')))); });
+      test('vedoucí přečte všechny poptávky', async () => { const sn = await assertSucceeds(get(ref(db(VEDOUCI), 'poptavky'))); assert.deepEqual(Object.keys(sn.val()).sort(), ['p1', 'p2']); });
+      test('vedoucí přečte cizí nabídky i zisk a dotaz na cizího prodejce', async () => { await assertSucceeds(get(ref(db(VEDOUCI), 'poptavky/p2/nabidky/n1/interni'))); return assertSucceeds(moje(VEDOUCI, B)); });
+      test('prodejci sdílejí /zakaznici (kvůli známému zákazníkovi)', () => assertSucceeds(get(ref(db(B), 'zakaznici'))));
+    });
+    describe('zápis prodejce', () => {
+      test('založí vlastní poptávku s historií', () => assertSucceeds(set(push(ref(db(B), 'poptavky')), poptavka(mail(B)))));
+      test('nezaloží poptávku na jméno jiného prodejce', () => assertFails(set(push(ref(db(B), 'poptavky')), poptavka(mail(A)))));
+      test('nezaloží poptávku bez prodejce', () => { const x = poptavka(mail(B)); delete x.prodejce; return assertFails(set(push(ref(db(B), 'poptavky')), x)); });
+      test('nezaloží poptávku s předvyplněnou dohodou', () => assertFails(set(push(ref(db(B), 'poptavky')), { ...poptavka(mail(B)), dohody: { d: { text: 'x', do: '2026-11-09', zadal: mail(B), t: 1, stav: 'potvrzena' } } })));
+      test('založí poptávku i zákazníka jedním zápisem z kořene (jako Poptávky)', () => assertSucceeds(update(ref(db(B)), { 'poptavky/novy1': poptavka(mail(B)), 'zakaznici/k9': zakaznik(B) })));
+      test('upraví svou poptávku, stav, kontakt, vůz', () => assertSucceeds(update(ref(db(A), 'poptavky/p1'), { stav: 'nabidka', dalsiKontakt: '2026-11-10', upraveno: serverTimestamp(), vuz: { puvod: 'sklad', id: '05-576-12345' } })));
+      test('zapíše poznámku do historie a důvod ticha u své poptávky', async () => { await assertSucceeds(push(ref(db(A), 'poptavky/p1/historie'), { t: serverTimestamp(), kdo: mail(A), text: 'Volal jsem' })); return assertSucceeds(set(ref(db(A), 'poptavky/p1/duvodTicha'), { text: 'dovolená', kdo: mail(A) })); });
+      test('smaže svou poptávku', () => assertSucceeds(remove(ref(db(A), 'poptavky/p1'))));
+      test('nezmění cizí poptávku', () => assertFails(update(ref(db(A), 'poptavky/p2'), { stav: 'ztraceno' })));
+      test('nezapíše do cizí historie ani důvodu ticha', async () => { await assertFails(push(ref(db(A), 'poptavky/p2/historie'), { t: serverTimestamp(), kdo: mail(A), text: 'x' })); return assertFails(set(ref(db(A), 'poptavky/p2/duvodTicha'), { text: 'x', kdo: mail(A) })); });
+      test('nesmaže cizí poptávku', () => assertFails(remove(ref(db(A), 'poptavky/p2'))));
+      test('nepřevede svou poptávku na jiného prodejce', () => assertFails(update(ref(db(A), 'poptavky/p1'), { prodejce: mail(B) })));
+      test('nepřevezme cizí poptávku', () => assertFails(update(ref(db(A), 'poptavky/p2'), { prodejce: mail(A) })));
+      test('nepřepíše celou poptávku najednou (set na existující)', () => assertFails(set(ref(db(A), 'poptavky/p1'), poptavka(mail(A)))));
+      test('nabídka z Offer Studia jen k vlastní poptávce', async () => {
+        const n = { model: 'GLC', cena_sdph: 1, t: serverTimestamp(), kdo: mail(A), zdroj: 'offerstudio' };
+        await assertSucceeds(set(ref(db(A), 'poptavky/p1/nabidky/k'), n));
+        return assertFails(set(ref(db(A), 'poptavky/p2/nabidky/k'), n));
+      });
+    });
+    describe('dohody: zadává a potvrzuje jen vedoucí, prodejce jen klepne Hotovo', () => {
+      test('prodejce klepne Hotovo u své dohody', () => assertSucceeds(update(ref(db(A), 'poptavky/p1/dohody/d1'), { stav: 'hotovo' })));
+      test('prodejce klepne Hotovo znovu u vrácené dohody (dopracovat)', async () => {
+        await env.withSecurityRulesDisabled(c => update(ref(c.database(), 'poptavky/p1/dohody/d1'), { stav: 'dopracovat' }));
+        return assertSucceeds(update(ref(db(A), 'poptavky/p1/dohody/d1'), { stav: 'hotovo' })); });
+      test('prodejce dohodu nepotvrdí', () => assertFails(update(ref(db(A), 'poptavky/p1/dohody/d1'), { stav: 'potvrzena' })));
+      test('prodejce nepřepíše text ani termín dohody', async () => { await assertFails(update(ref(db(A), 'poptavky/p1/dohody/d1'), { text: 'Dej mu 10 %.' })); return assertFails(update(ref(db(A), 'poptavky/p1/dohody/d1'), { do: '2030-01-01', stav: 'hotovo' })); });
+      test('prodejce dohodu nesmaže ani nepřidá novou', async () => { await assertFails(remove(ref(db(A), 'poptavky/p1/dohody/d1'))); await assertFails(push(ref(db(A), 'poptavky/p1/dohody'), { text: 'x', do: '2026-11-09', zadal: mail(A), t: 1, stav: 'hotovo' })); return assertFails(remove(ref(db(A), 'poptavky/p1/dohody'))); });
+      test('prodejce nepřepíše potvrzenou dohodu zpět na Hotovo', async () => {
+        await env.withSecurityRulesDisabled(c => update(ref(c.database(), 'poptavky/p1/dohody/d1'), { stav: 'potvrzena' }));
+        return assertFails(update(ref(db(A), 'poptavky/p1/dohody/d1'), { stav: 'hotovo' })); });
+      test('prodejce neklepne Hotovo u cizí dohody', () => assertFails(update(ref(db(A), 'poptavky/p2/dohody/d1'), { stav: 'hotovo' })));
+      test('vedoucí zadá dohodu k cizí poptávce a zapíše řádek do historie', async () => {
+        await assertSucceeds(push(ref(db(VEDOUCI), 'poptavky/p2/dohody'), { text: 'Zavolej mu.', do: '2026-11-16', zadal: mail(VEDOUCI), t: serverTimestamp(), stav: 'otevrena' }));
+        return assertSucceeds(push(ref(db(VEDOUCI), 'poptavky/p2/historie'), { t: serverTimestamp(), kdo: mail(VEDOUCI), text: '🤝 Dohoda: Zavolej mu.' })); });
+      test('vedoucí potvrdí, vrátí s tipem a přenese dohodu', async () => {
+        await assertSucceeds(update(ref(db(VEDOUCI), 'poptavky/p2/dohody/d1'), { stav: 'potvrzena' }));
+        await assertSucceeds(update(ref(db(VEDOUCI), 'poptavky/p2/dohody/d1'), { stav: 'dopracovat' }));
+        await assertSucceeds(set(ref(db(VEDOUCI), 'poptavky/p2/dohody/d1/tip'), 'Příště volej dřív.'));
+        return assertSucceeds(update(ref(db(VEDOUCI), 'poptavky/p2/dohody/d1'), { stav: 'preneseno' })); });
+      test('vedoucí změní cizí poptávku a smaže ji', async () => { await assertSucceeds(update(ref(db(VEDOUCI), 'poptavky/p2'), { stav: 'ztraceno' })); return assertSucceeds(remove(ref(db(VEDOUCI), 'poptavky/p2'))); });
+      test('druhý prodejce (ne vedoucí) dohodu k cizí poptávce nezadá', () => assertFails(push(ref(db(B), 'poptavky/p1/dohody'), { text: 'x', do: '2026-11-09', zadal: mail(B), t: 1, stav: 'otevrena' })));
+      test('prodejce se nemůže sám udělat vedoucím', () => assertFails(set(ref(db(A), `uzivatele/${A}/vedouci`), true)));
+    });
   });
 
   describe('Schválený uživatel – /zakaznici: povolená pole', () => {

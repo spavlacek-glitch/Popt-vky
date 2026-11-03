@@ -28,7 +28,7 @@ async function T(popis, fn){ celkem++; try { const r = await fn(); if (r === tru
 const cekej = async url => { for (let i = 0; i < 80; i++) { try { if ((await fetch(url)).ok) return true; } catch {} await new Promise(r => setTimeout(r, 250)); } return false; };
 
 const P = (jmeno, stav, extra = {}) => ({kanal:'telefon', jmeno, telefon:'777 123 456', email:'zakaznik@example.cz', zajem:'GLS', stav, dalsiKontakt: stav === 'prodano' ? null : '2030-01-01',
-  vytvoreno: ted - 86400000, upraveno: ted - 86400000, prodejce: JA, historie:{h:{t: ted - 86400000, kdo: JA, text:'Založeno'}}, ...extra});
+  vytvoreno: ted - 86400000, upraveno: ted - 86400000, prodejce: JA, historie:{h:{t: ted - 86400000, kdo: JA, text:'Založeno'}}, ...extra});   // od v1.24 vidí prodejce jen poptávky se svým e-mailem v poli prodejce
 const NAB = (model, cena, interni, t = ted - 3600000) => ({model, cena_sdph: cena, cena_vuz_sdph: cena, sleva_sdph: 60500, sleva_pct: 4.5, doplnky_sdph: 0, soubor: 'x.pdf', zdroj: 'offerstudio', t, kdo: JA, ...(interni ? {interni} : {})});
 const POPT = {
   s_nab: P('Jana Nováková', 'nabidka', {nabidky: {k1: NAB('GLS 450 d 4MATIC', 1274000, {zisk: 82000, skutecny_zisk: 62000, obchodni_marze: 7.5, skutecna_marze: 5.9, korekce: 20000, nestandardni: false, negativni: false})}}),
@@ -154,7 +154,7 @@ Přehled DPH
       await o.fill('#poptavky [name=email]', JA); await o.fill('#poptavky [name=heslo]', HESLO); await o.click('#poptavky button:has-text("Přihlásit")');
       await T('přihlášení k Poptávkám a test spojení', async () => {
         const t = await o.textContent('#poptavky');
-        return (t.includes('Přihlášeno jako ' + JA) && t.includes('v Poptávkách je 6 poptávek')) || t; });
+        return (t.includes('Přihlášeno jako ' + JA) && t.includes('tvých poptávek v Poptávkách: 6')) || t; });
       await T('heslo se nikam neuložilo, jen přihlašovací klíč', async () => {
         const u = JSON.parse(fs.readFileSync(path.join(kopie, 'data', 'poptavky_ucet.json'), 'utf8'));
         return (!JSON.stringify(u).includes(HESLO) && u.email === JA && !!u.refresh) || Object.keys(u); });
