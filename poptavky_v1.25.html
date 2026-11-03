@@ -501,7 +501,7 @@ function nastavFiltrProdejce(v){ filtrProdejce = v; try { localStorage.setItem(F
 function vyberProdejce(){
   if (!jeVedouci) return '';
   const vse = vsechny(), lide = [...new Set(vse.map(p => p.prodejce || ''))].sort((a, b) => jmenoProdejce(a).localeCompare(jmenoProdejce(b), 'cs'));
-  if (filtrProdejce && !lide.includes(filtrProdejce)) filtrProdejce = '';   // uložený prodejce už nemá žádnou poptávku
+  if (dataNactena && filtrProdejce && !lide.includes(filtrProdejce)) filtrProdejce = '';   // uložený prodejce už nemá žádnou poptávku (až po načtení dat, jinak by se filtr po obnovení stránky zahodil)
   const otevrene = e => vse.filter(p => (p.prodejce || '') === e && OTEVRENE.includes(p.stav)).length;
   return `<select class="fprodejce" aria-label="Prodejce" onchange="nastavFiltrProdejce(this.value)"><option value="">👤 Všichni prodejci</option>${
     lide.map(e => `<option value="${esc(e)}" ${filtrProdejce === e ? 'selected' : ''}>${esc(jmenoProdejce(e))}${e === user.email ? ' (já)' : ''} – ${otevrene(e)} otevřených</option>`).join('')}</select>`;
