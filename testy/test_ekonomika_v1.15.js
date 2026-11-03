@@ -84,8 +84,12 @@ const POPT = {
       return (await p.locator('.tab-hlava').count() === 1 && t.includes('Ceníková cena1 331 000 Kč') && t.includes('Sleva− 60 500 Kč (4,5 %)') && t.includes('Cena vozu1 270 500 Kč')
         && t.includes('Doplňkový prodej+ 3 500 Kč') && t.includes('Celkem s DPH1 274 000 Kč') && t.includes('Zisk82 000 Kč') && t.includes('Korekce (dealer hradí)− 20 000 Kč')
         && t.includes('Skutečný zisk62 000 Kč') && t.includes('Obchodní marže7,5 %') && t.includes('Volal jsem, chce ještě srovnat')) || t; });
-    await T('v ekonomice odkaz „Otevřít v Offer Studiu“ na tuto nabídku', async () =>
-      (await p.getAttribute('.eko a:has-text("Otevřít v Offer Studiu")', 'href')) === 'http://127.0.0.1:8774/draft/koncept_gls' || await p.getAttribute('.eko a:has-text("Otevřít v Offer Studiu")', 'href'));
+    await T('v ekonomice odkaz „Offer Studio“ na tuto nabídku a (v1.29) „Otevřít PDF“ na její poslední PDF', async () => {
+      const os = await p.getAttribute('.eko a:has-text("Offer Studio")', 'href'), pdf = await p.getAttribute('.eko a:has-text("Otevřít PDF")', 'href');
+      return (os === 'http://127.0.0.1:8774/draft/koncept_gls' && pdf === 'http://127.0.0.1:8774/draft/koncept_gls/pdf') || [os, pdf]; });
+    await T('v1.29: „Cena vozu“ je v ekonomice, jen když je doplňkový prodej; „Co jsem s ním řešil“ je jeden řádek na záznam s krátkým datem', async () => {
+      const r = await p.evaluate(() => [...document.querySelectorAll('.eko .hist div[title]')].map(d => ({v: d.getBoundingClientRect().height, d: d.querySelector('.d')?.textContent.trim()})));
+      return (r.length >= 1 && r.every(x => x.v < 26 && /^\d{1,2}\. \d{1,2}\.$/.test(x.d))) || r; });
     await T('druhé ▸ ekonomiku sbalí', async () => { await radek(p, 'Jana Nováková').locator('.chev').click(); return await p.locator('.eko').count() === 0 || 'zůstala'; });
     await T('hledání najde poptávku podle modelu z nabídky', async () => {
       await p.fill('#hledat', 'GLS 450'); await p.waitForTimeout(200); const n = await p.$$eval('#seznam .card .name', l => l.map(x => x.textContent));
