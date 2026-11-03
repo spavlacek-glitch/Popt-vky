@@ -1,0 +1,4 @@
+# logy z lokálního emulátoru Firebase (vznikají při spouštění testů)
+database-debug.log
+firebase-debug.log
+ui-debug.log

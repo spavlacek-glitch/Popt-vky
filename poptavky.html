@@ -13,9 +13,9 @@
 <script>
 const AKTUALNI = 'poptavky_v1.29.html';
 const MINIMALNI = 'poptavky_v1.24.html';
-// Přesun hostingu z raw.githack.com na GitHub Pages (viz PRESUN_NA_PAGES.md). Vypínač je zatím VYPNUTÝ:
-// po true stará adresa …raw.githack.com/…/main/poptavky.html přesměruje na Pages. Náhledy větví na githacku se nepřesměrovávají (cesta bez /main/).
-const PRESMEROVAT_NA_PAGES = false;
+// Přesun hostingu z raw.githack.com na GitHub Pages (viz PRESUN_NA_PAGES.md). Vypínač je ZAPNUTÝ (2026-11-03, všechna zařízení přepnutá):
+// při true stará adresa …raw.githack.com/…/main/poptavky.html přesměruje na Pages. Náhledy větví na githacku se nepřesměrovávají (cesta bez /main/).
+const PRESMEROVAT_NA_PAGES = true;
 const PAGES = 'https://spavlacek-glitch.github.io/Popt-vky/';
 if (PRESMEROVAT_NA_PAGES && /(^|\.)githack\.com$/.test(location.hostname) && location.pathname.includes('/main/')) location.replace(PAGES + AKTUALNI + location.hash);
 else location.replace(AKTUALNI + location.hash);
