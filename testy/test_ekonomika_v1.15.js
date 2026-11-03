@@ -60,8 +60,8 @@ const POPT = {
   for (const sirka of [1440, 1280]) {
     console.log(`== PC ${sirka}`);
     const p = await otevri({viewport: {width: sirka, height: 900}});
-    await T('záhlaví tabulky: Zákazník · Co řeším · Nabídka · Zisk · Stav · kontakt', async () => {
-      const t = await txt(p.locator('.tab-hlava')); return (await p.isVisible('.tab-hlava') && ['Zákazník', 'Co řeším', 'Nabídka', 'Zisk', 'Stav'].every(x => t.includes(x))) || t; });
+    await T('záhlaví tabulky (v1.26): Zákazník · Řeší / vůz · Poslední zápis · Nabídka · Sleva · Zisk · Stav · Další kontakt', async () => {
+      const t = await txt(p.locator('.tab-hlava')); return (await p.isVisible('.tab-hlava') && ['Zákazník', 'Řeší / vůz', 'Poslední zápis', 'Nabídka', 'Sleva', 'Zisk', 'Stav', 'Další kontakt'].every(x => t.includes(x))) || t; });
     await T('řádek: co chce + 💬 poslední zápis, nabídka model · cena · sleva, zisk schovaný, kontakt a stav', async () => {
       const t = await txt(radek(p, 'Jana Nováková'));
       return (t.includes('GLS do konce roku') && t.includes('💬 Volal jsem, chce ještě srovnat s leasingem · před 3 dny') && t.includes('📄 GLS 450 d 4MATIC · 1 274 000 Kč · sleva 4,5 %')
@@ -90,9 +90,9 @@ const POPT = {
     await T('hledání najde poptávku podle modelu z nabídky', async () => {
       await p.fill('#hledat', 'GLS 450'); await p.waitForTimeout(200); const n = await p.$$eval('#seznam .card .name', l => l.map(x => x.textContent));
       await p.fill('#hledat', ''); await p.waitForTimeout(200); return (n.length === 1 && n[0] === 'Jana Nováková') || n; });
-    await T('„Dnes zavolat“ zůstává vlevo a karta má nabídku i poslední zápis', async () => {
+    await T('„Dnes zavolat“ zůstává vlevo; karta (v1.26) je krátká: poslední poznámka ano, nabídka a vůz ne', async () => {
       const d = await p.locator('.dnes').boundingBox(), e = await p.locator('.evidence').boundingBox(), t = await txt(p.locator('.dnes .card').first());
-      return (d.x < e.x && t.includes('📄 GLS 450 d 4MATIC · 1 274 000 Kč') && t.includes('💬 Volal jsem')) || t; });
+      return (d.x < e.x && !t.includes('📄') && !t.includes('🚗') && t.includes('💬 Volal jsem')) || t; });
     if (OUT) { await p.evaluate(() => { rozbalena = 'a_gls'; renderSeznam(); }); await p.screenshot({path: path.join(OUT, `eko_v1.15_PC${sirka}.png`)}); await p.evaluate(() => { rozbalena = null; renderSeznam(); }); }
     await T('klepnutí na řádek dál otevře detail', async () => { await radek(p, 'Bez Marže').locator('.name').click(); return (await p.isVisible('#view .zpet-pc, .zpet button')) || 'ne'; });
     await T('nic se nezapsalo, žádné chyby, nic se neposouvá do stran', async () =>

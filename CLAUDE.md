@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.29 (2026-11-03)
+Verze dokumentu: 2.30 (2026-11-03)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -290,7 +290,14 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **Appka (v1.24):** po přihlášení si zjistí roli. Vedoucí načítá `/poptavky`, prodejce jen `orderByChild('prodejce').equalTo(e-mail)`. Když se roli nepodaří zjistit, bere se jako prodejce. `MINIMALNI` je `poptavky_v1.24.html`, starší verze se přepnou samy (prodejce by v nich dostal „permission_denied“).
 - **Offer Studio v1.8.2:** „Vyzkoušet spojení“ čte jen vlastní poptávky, zápis k cizí nebo smazané poptávce dá hlášku „už neexistuje (smazaná?) nebo není tvoje“. Každý prodejce má vlastní Offer Studio a přihlašuje se svým účtem.
 - **Zřízení účtu (ručně v konzoli, pořadí je důležité):** záloha → sloučit PR → nasadit pravidla → Authentication „Add user“ → `uzivatele/{UID}` = `{schvalen: true, email}` → kolega se přihlásí. Podrobně `firebase/PRIDANI_PRODEJCE.md`. Účty a hesla zakládá jen uživatel.
-- **Vlastník poptávky pro vedoucího (v1.25, nalezeno uživatelem po zprovoznění kolegů):** vedoucí vidí u každé poptávky „👤 Jméno prodejce“ (karta v přehledu a v „Dnes zavolat“, mobilní detail, detail na PC; jméno se skládá z e-mailu, tedy bez diakritiky) a v řádku filtrů je výběr „Všichni prodejci / jméno – N otevřených“. Filtr platí pro přehled, „Dnes zavolat“ i tipy a pamatuje se v zařízení (`localStorage` `poptavky.filtrProdejce`). **Výchozí je „Moje“ (rozhodnutí uživatele)**: vedoucí v „Dnes zavolat“ vidí jen své hovory, ostatní přepne ve výběru na „Všichni“ nebo na jméno. Prodejce nic z toho nevidí. Test `testy/test_vlastnik_v1.25.js` (14 kontrol).
+- **Vlastník poptávky pro vedoucího (v1.25, nalezeno uživatelem po zprovoznění kolegů):** vedoucí vidí u každé poptávky „👤 Jméno prodejce“ (karta v přehledu a v „Dnes zavolat“, mobilní detail, detail na PC; jméno se skládá z e-mailu, tedy bez diakritiky) a v řádku filtrů je výběr „Všichni prodejci / jméno – N otevřených“. Filtr platí pro přehled, „Dnes zavolat“ i tipy a pamatuje se v zařízení (`localStorage` `poptavky.filtrProdejce`). **Výchozí je „Moje“ (rozhodnutí uživatele)**: vedoucí v „Dnes zavolat“ vidí jen své hovory, ostatní přepne ve výběru na „Všichni“ nebo na jméno. Prodejce nic z toho nevidí. Test `testy/test_vlastnik_v1.25.js` (16 kontrol).
+- **Přehlednější přehled (v1.26, přání uživatele po zkoušce s kolegy; návrh z ChatGPT upravený podle pravidel appky):**
+  - **PC od 1500 px:** řádek = Zákazník | Řeší / vůz | Poslední zápis | Nabídka | Sleva | Zisk | Stav | Další kontakt | ▸. **1200–1499 px:** bez sloupce Sleva (sleva je v textu nabídky), cena je vždy na vlastním řádku pod modelem, aby se neuřízla. Jména a „co chce“ se zalamují na dva řádky.
+  - **„Poslední zápis“ je poslední skutečná poznámka** (ne automatické řádky „Založeno“, „Stav →“, „📄 Nabídka…“, „🤝“, „✓ Hotovo“ – `AUTO_ZAPIS`). Automatické zůstávají v historii v detailu.
+  - **Vlastník poptávky (v1.25) se ukazuje jen u cizích poptávek**, u vlastních je zbytečný.
+  - **Karty v „Dnes zavolat“ jsou krátké:** jméno a štítek, co chce, dohoda/tip od šéfa a poslední poznámka; nabídka, vůz a termín se neukazují, **termín jen když je prošlý (červeně, jako dřív)**.
+  - Z návrhu se záměrně **nepřevzalo:** viditelný zisk a „očekávaný zisk/obrat“ (zisk zůstává schovaný do klepnutí, obrat = součet nabídek by vypadal jako předpověď), červené „Dnes (urgentní)“, ztráta vozu, dohody a ekonomiky v řádku.
+  - Mobil: stejné karty, jen kratší „Dnes zavolat“. Testy `test_ekonomika_v1.15.js` a `test_vlastnik_v1.25.js` (16 kontrol) upravené na nové rozložení.
 - **Poptávka bez pole `prodejce`** (nejstarší) vidí jen vedoucí; předání jinému prodejci = změna pole `prodejce` v konzoli.
 - Ověřeno: pravidla v emulátoru (133 testů, proti starým pravidlům 23 selže), UI testy dohod, odkazu, tipů, výdělku, ekonomiky, vozu, zpět/kalkulace, detailu PC, GDPR a celá cesta Offer Studia (25 kontrol) proti emulátorům. Na skutečné databázi zatím vyzkoušeno není.
 

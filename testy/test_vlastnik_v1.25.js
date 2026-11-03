@@ -21,7 +21,7 @@ let ok = 0, celkem = 0;
 async function T(popis, fn){ celkem++; try { const r = await fn(); if (r === true) { ok++; console.log('  ✔', popis); } else console.log('  ✖', popis, JSON.stringify(r)); } catch (e) { console.log('  ✖', popis, e.message.split('\n')[0]); } }
 const P = (jmeno, prodejce, stav) => { const x = {kanal:'telefon', jmeno, telefon:'777123456', zajem:'GLC', stav, dalsiKontakt: iso(0),
   vytvoreno: ted - 3 * DEN, upraveno: ted - 3 * DEN, historie:{h0:{t: ted - 3 * DEN, kdo: prodejce || 'x', text:'Založeno (📞 Telefon)'}}}; if (prodejce) x.prodejce = prodejce; return x; };
-const POPT = { m1: P('Ivana Mirová', MIR, 'nova'), m2: P('Petr Mirský', MIR, 'nabidka'), r1: P('Karel Martinů', MAR, 'nova'), v1: P('Eva Vedoucí', VED, 'nova'), bez: P('Stará Poptávka', null, 'nova') };
+const POPT = { m1: P('Ivana Mirová', MIR, 'nova'), m2: P('Petr Mirský', MIR, 'nabidka'), r1: P('Karel Martinů', MAR, 'nova'), v1: {...P('Eva Vedoucí', VED, 'nova'), dalsiKontakt: iso(-1), historie: {h0: {t: ted - 6 * DEN, kdo: VED, text: 'Založeno (📞 Telefon)'}, h1: {t: ted - 3 * DEN, kdo: VED, text: 'Volala jsem, chce nabídku na GLC'}, h2: {t: ted - 1 * DEN, kdo: VED, text: '📄 Nabídka připravena: GLC 300 · 1 500 000 Kč'}, h3: {t: ted - 1 * DEN + 1000, kdo: VED, text: 'Stav → Nabídka odeslána'}}}, bez: P('Stará Poptávka', null, 'nova') };
 (async () => {
   await fetch(`${EMU}/.settings/rules.json?ns=${NS}`, {method:'PUT', headers:{Authorization:'Bearer owner'}, body:PRAVIDLA});
   await fetch(`${AUTH}/emulator/v1/projects/demo-poptavky/accounts`, {method:'DELETE'});
@@ -45,10 +45,16 @@ const POPT = { m1: P('Ivana Mirová', MIR, 'nova'), m2: P('Petr Mirský', MIR, '
   await T('výchozí je „Moje“: vedoucí vidí jen svou poptávku a v „Dnes zavolat“ taky', async () => {
     const e = await jmena(v, '#seznam'), d = await jmena(v, '.dnes'), sel = await v.locator('.fprodejce').inputValue();
     return (JSON.stringify(e) === JSON.stringify(['Eva Vedoucí']) && JSON.stringify(d) === JSON.stringify(e) && sel === '@moje') || [e, d, sel]; });
+  await T('v1.26: „Poslední zápis“ je poslední skutečná poznámka, ne automatický řádek o nabídce nebo stavu', async () => {
+    const c = await v.locator('#seznam .card', {hasText: 'Eva Vedoucí'}).textContent();
+    return (c.includes('💬 Volala jsem, chce nabídku na GLC') && !c.includes('Nabídka připravena') && !c.includes('Stav → Nabídka odeslána')) || c; });
+  await T('v1.26: karta v „Dnes zavolat“ je krátká – poznámka a prošlý termín (⚠), bez nabídky a vozu', async () => {
+    const c = await v.locator('.dnes .card', {hasText: 'Eva Vedoucí'}).textContent();
+    return (c.includes('💬 Volala jsem') && c.includes('⚠') && !c.includes('📄') && !c.includes('🚗')) || c; });
   await v.selectOption('.fprodejce', ''); await v.waitForTimeout(400);
-  await T('vedoucí vidí po přepnutí na „Všichni“ všech 5 poptávek a u každé jejího prodejce', async () => {
+  await T('vedoucí vidí po přepnutí na „Všichni“ všech 5 poptávek a prodejce u cizích (u vlastních (v1.26) ne)', async () => {
     const t = await v.locator('#seznam').textContent();
-    return (t.includes('👤 Miroslav Sykora') && t.includes('👤 Martin Esterka') && t.includes('👤 Vedouci Lucie') && t.includes('👤 (bez prodejce)') && (await v.locator('#seznam .card').count()) === 5) || t.slice(0, 300); });
+    return (t.includes('👤 Miroslav Sykora') && t.includes('👤 Martin Esterka') && !t.includes('👤 Vedouci Lucie') && t.includes('👤 (bez prodejce)') && (await v.locator('#seznam .card').count()) === 5) || t.slice(0, 300); });
   await T('filtr prodejce: Moje, Všichni a ostatní, u každého počet otevřených', async () => {
     const o = (await v.locator('.fprodejce option').allTextContents()).map(x => x.trim());
     return (o.length === 5 && o[1].includes('Všichni prodejci') && o.some(x => x.includes('Miroslav Sykora – 2 otevřených')) && o.some(x => x.includes('Martin Esterka – 1 otevřených')) && o[0].includes('Moje – 1 otevřených')) || o; });
