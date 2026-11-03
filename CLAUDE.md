@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.33 (2026-11-03)
+Verze dokumentu: 2.34 (2026-11-03)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -44,7 +44,8 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 
 ## Technologie
 - Jeden HTML soubor (`poptavky_vX.html`), bez build kroku, mobil + PC.
-- Hosting: GitHub + raw.githack.com (stejně jako appka Zkušební jízdy).
+- **Hosting se stěhuje z raw.githack.com na GitHub Pages (rozhodnutí uživatele 2026-11-03, postup `PRESUN_NA_PAGES.md`):** nová adresa `https://spavlacek-glitch.github.io/Popt-vky/poptavky.html`, nasazuje se samo po sloučení do `main`, `.nojekyll` v kořeni. Stará adresa se přesměruje vypínačem `PRESMEROVAT_NA_PAGES` v `poptavky.html` (zatím `false`, hlídá `testy/test_verze.js`); přepnout až po ověření Pages a přepnutí zařízení. Zařízení po přesunu: nové přihlášení, nová ikona na ploše, nová provize (nový původ). Náhledy nesloučených větví dál přes raw.githack.com (Pages umí jen `main`). Dokud Pages není zapnuté, platí níže popsaný githack.
+- Hosting (dosud): GitHub + raw.githack.com (stejně jako appka Zkušební jízdy).
   - **Po sloučení do `main` trvá několik minut** (ověřeno: víc než minutu, někdy 5–10 minut), než raw.githack.com ukáže novou verzi. Uživateli to vždy říct předem a nepovažovat to za chybu. Rychlá kontrola je přímá adresa nové verze (`…/main/poptavky_vX.Y.html`). Safari obejde svou mezipaměť přes `poptavky.html?cokoli`.
 - **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi a běžící appky nenabídnou aktualizaci (viz „Aktualizace za chodu“).
   - `MINIMALNI` (od v1.10) zvýšit **jen při změně tvaru dat**. Starší verze se pak přepnou samy.
@@ -311,7 +312,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 ## Udržitelnost (posouzení 2026-11-01)
 - Podklady jsou v `POSOUZENI_Udrzitelnost.md`. **Rozhodnutí uživatele:** zatím nic neměnit, nejdřív testuje sám, nejvýš s jedním kolegou.
 - Před přidáním kolegy udělat zálohy (Firebase + složka `data` Offer Studia). **Kdo vidí čí poptávky a zisky je rozhodnuto (v1.24: každý jen své, vedoucí vše)**, pravidla DB jsou hotová. Zbývá, že `/zakaznici` jsou společné a že pravidla se nasazují ručně (`firebase/PRIDANI_PRODEJCE.md`).
-- Později přejít z raw.githack.com na Firebase Hosting nebo GitHub Pages. Kolem 2 000 poptávek zavést archiv (načítat jen otevřené a nedávné).
+- Přechod z raw.githack.com na GitHub Pages je připravený (viz Technologie, `PRESUN_NA_PAGES.md`); Firebase Hosting až kdyby bylo potřeba soukromé repo, vrácení nasazení zpět nebo vlastní hlavičky. Kolem 2 000 poptávek zavést archiv (načítat jen otevřené a nedávné).
 - Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
 
 ## Hlášky v „Dnes zavolat“ (v1.8, rozšířeno ve v1.21)
