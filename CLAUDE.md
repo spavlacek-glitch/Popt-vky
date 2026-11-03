@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.35 (2026-11-03)
+Verze dokumentu: 2.36 (2026-11-03)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -44,7 +44,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 
 ## Technologie
 - Jeden HTML soubor (`poptavky_vX.html`), bez build kroku, mobil + PC.
-- **Hosting: GitHub Pages je zapnuté a ověřené uživatelem (2026-11-03), zařízení se postupně přepínají; přesměrování staré adresy (`PRESMEROVAT_NA_PAGES = true`) čeká, až uživatel řekne, že jsou přepnutí všichni.** Přesun z raw.githack.com na GitHub Pages (rozhodnutí uživatele 2026-11-03, postup `PRESUN_NA_PAGES.md`): nová adresa `https://spavlacek-glitch.github.io/Popt-vky/poptavky.html`, nasazuje se samo po sloučení do `main`, `.nojekyll` v kořeni. Stará adresa se přesměruje vypínačem `PRESMEROVAT_NA_PAGES` v `poptavky.html` (zatím `false`, hlídá `testy/test_verze.js`); přepnout až po ověření Pages a přepnutí zařízení. Zařízení po přesunu: nové přihlášení, nová ikona na ploše, nová provize (nový původ). Náhledy nesloučených větví dál přes raw.githack.com (Pages umí jen `main`). Dokud Pages není zapnuté, platí níže popsaný githack.
+- **Hosting: GitHub Pages je zapnuté a ověřené uživatelem (2026-11-03), všechna zařízení jsou přepnutá a přesměrování staré adresy na Pages je ZAPNUTÉ (`PRESMEROVAT_NA_PAGES = true`, 2026-11-03).** Přesun z raw.githack.com na GitHub Pages (rozhodnutí uživatele 2026-11-03, postup `PRESUN_NA_PAGES.md`): nová adresa `https://spavlacek-glitch.github.io/Popt-vky/poptavky.html`, nasazuje se samo po sloučení do `main`, `.nojekyll` v kořeni. Stará adresa se přesměruje vypínačem `PRESMEROVAT_NA_PAGES` v `poptavky.html` (teď `true`, hlídá `testy/test_verze.js`; vrácení zpět = `false` a upravit test). Přesměrovává jen `…/main/…` na githacku, náhledy větví ne. Zařízení po přesunu: nové přihlášení, nová ikona na ploše, nová provize (nový původ). Náhledy nesloučených větví dál přes raw.githack.com (Pages umí jen `main`). Dokud Pages není zapnuté, platí níže popsaný githack.
 - Hosting (dosud): GitHub + raw.githack.com (stejně jako appka Zkušební jízdy).
   - **Po sloučení do `main` trvá několik minut** (ověřeno: víc než minutu, někdy 5–10 minut), než raw.githack.com ukáže novou verzi. Uživateli to vždy říct předem a nepovažovat to za chybu. Rychlá kontrola je přímá adresa nové verze (`…/main/poptavky_vX.Y.html`). Safari obejde svou mezipaměť přes `poptavky.html?cokoli`.
 - **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi a běžící appky nenabídnou aktualizaci (viz „Aktualizace za chodu“).
@@ -353,7 +353,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 ## Stav na konci session 2026-11-03 – co zbývá
 Hotovo a sloučeno v `main`: Poptávky v1.29, Offer Studio v1.8.3, nová pravidla DB pro víc prodejců (nasazená uživatelem, ověřeno s Miroslavem Sýkorou a Martinem Esterkou), GitHub Pages (zapnuté, funguje), „Jednáme“ schované (uživatel poslední poptávku přepnul ručně).
 Otevřené, v tomto pořadí:
-1. **Přepnout zařízení na GitHub Pages**, pak zapnout `PRESMEROVAT_NA_PAGES = true` (jen na pokyn uživatele; test v `testy/test_verze.js` hlídá výchozí `false`, při zapnutí upravit).
+1. ~~Přepnout zařízení na GitHub Pages a zapnout přesměrování~~ – **hotovo 2026-11-03.** Raw.githack.com zůstává jen pro náhledy větví.
 2. **Pravidelná záloha Firebase** (uživatel dělá sám týdně exportem JSON). Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
 3. **Úklid, až se věci usadí (rozhodnutí: zatím nic, vrátit se později):** smazat starší verze `poptavky_v*.html` (nechat posledních ~5; pozor na `MINIMALNI` a testy, které je odkazují), zkrátit `CLAUDE.md` (57 kB) a rozdělit na hlavní soubor + soubory k tématům, případně rozdělit jednosouborovou appku. Archiv poptávek kolem 2 000 kusů. Firebase Hosting jen kdyby bylo potřeba soukromé repo, vrácení nasazení nebo vlastní hlavičky.
 4. **Zákazníci (`/zakaznici`) jsou společní** všem prodejcům (kvůli rozpoznání známého zákazníka). Omezit až na přání.

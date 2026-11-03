@@ -20,7 +20,7 @@ Až to na jednom zařízení funguje:
 - **Každé zařízení potřebuje po přechodu:** znovu se přihlásit, na iPhonu **smazat starou ikonu a přidat novou** z nové adresy (Sdílet → Přidat na plochu), znovu zadat provizi (ukládá se jen v zařízení), filtr prodejce se vrátí na „Moje“.
 - **Kontakty uložené v iPhonu** nesou starý odkaz na githack. Starý odkaz dál funguje, dokud neuděláme krok 4. Nové uložení kontaktu už nese novou adresu.
 
-### 4. Přesměrovat starou adresu (volitelné, až budou všichni přepnutí)
+### 4. Přesměrovat starou adresu ✅ zapnuto 2026-11-03 (všichni přepnutí)
 V souboru `poptavky.html` přepnout `const PRESMEROVAT_NA_PAGES = false;` na `true` a sloučit. Stará adresa `…raw.githack.com/…/main/poptavky.html` pak přesměruje na Pages (včetně odkazu z kontaktu). Náhledy větví na githacku se nepřesměrovávají.
 
 ## Zpět

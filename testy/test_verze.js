@@ -22,7 +22,7 @@ const beh = (hostname, pathname, zapnuto) => {
   const kod = skript.replace(/const PRESMEROVAT_NA_PAGES = (true|false);/, `const PRESMEROVAT_NA_PAGES = ${zapnuto};`);
   vm.runInNewContext(kod, {location: loc, document: {addEventListener() {}}}); return kam; };
 const A = akt, PG = 'https://spavlacek-glitch.github.io/Popt-vky/';
-K('poptavky.html: vypínač přesměrování na Pages je ve výchozím stavu VYPNUTÝ (zapíná se až po ověření Pages)', /const PRESMEROVAT_NA_PAGES = false;/.test(htmlStab));
+K('poptavky.html: přesměrování staré adresy na Pages je ZAPNUTÉ (od 2026-11-03; vrácení zpět = false)', /const PRESMEROVAT_NA_PAGES = true;/.test(htmlStab));
 K('vypnuto: githack /main/ zůstává na githacku (relativně, s #poptavka)', beh('raw.githack.com', '/spavlacek-glitch/Popt-vky/main/poptavky.html', false) === A + '#poptavka=abc');
 K('zapnuto: githack /main/ → Pages (s #poptavka)', beh('raw.githack.com', '/spavlacek-glitch/Popt-vky/main/poptavky.html', true) === PG + A + '#poptavka=abc');
 K('zapnuto: náhled větve na githacku se nepřesměruje', beh('raw.githack.com', '/spavlacek-glitch/Popt-vky/claude/jina-vetev/poptavky.html', true) === A + '#poptavka=abc');
