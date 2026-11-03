@@ -83,9 +83,9 @@ const POPT = {
       return (d === 'detail' && (await vDetailu()) === 'home') || [d, await vDetailu()]; });
     await p.locator('#seznam .card',{hasText:'Jana Skladová'}).click(); await p.waitForTimeout(300);
     if (!mobil) {
-      await T('kalkulace: ceníková, sleva Kč a %, cena vozu, doplňky, celkem – vždy vidět', async () => {
+      await T('kalkulace: ceníková, sleva Kč a %, celkem – vždy vidět (v1.27: „Cena vozu“ jen s doplňkovým prodejem, jinak by byla totéž co celkem)', async () => {
         const t = (await p.locator('.nabidky .nab').first().textContent()).replace(/\s+/g, ' ');
-        return (t.includes('Ceníková cena') && t.includes('3 221 545') && t.includes('− 322') && t.includes('10 %') && t.includes('Cena vozu') && t.includes('Celkem s DPH') && t.includes('2 899 545') && t.includes('Zisk •••') && !t.includes('90 000')) || t; });
+        return (t.includes('Ceníková cena') && t.includes('3 221 545') && t.includes('− 322') && t.includes('10 %') && !t.includes('Cena vozu') && t.includes('Celkem s DPH') && t.includes('2 899 545') && t.includes('Zisk •••') && !t.includes('90 000')) || t; });
       await T('odkaz „Otevřít v Offer Studiu“ vede na /draft/<id konceptu>', async () => (await p.locator('.nab .kod a').getAttribute('href')) === 'http://127.0.0.1:8774/draft/k');
       await T('klepnutí na zisk ho ukáže (celá kalkulace zůstane)', async () => { await p.locator('.nab small').click(); await p.waitForTimeout(300);
         const t = (await p.locator('.nabidky .nab').first().textContent()).replace(/\s+/g, ' '); return (t.includes('80 000') && t.includes('Celkem s DPH')) || t; });

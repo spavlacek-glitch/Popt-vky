@@ -45,6 +45,8 @@ const POPT = { m1: P('Ivana Mirová', MIR, 'nova'), m2: P('Petr Mirský', MIR, '
   await T('výchozí je „Moje“: vedoucí vidí jen svou poptávku a v „Dnes zavolat“ taky', async () => {
     const e = await jmena(v, '#seznam'), d = await jmena(v, '.dnes'), sel = await v.locator('.fprodejce').inputValue();
     return (JSON.stringify(e) === JSON.stringify(['Eva Vedoucí']) && JSON.stringify(d) === JSON.stringify(e) && sel === '@moje') || [e, d, sel]; });
+  await T('v1.27: výchozí řazení podle fáze – nadpisy skupin a pořadí Nová → Jednáme → Nabídka odeslána (u vedoucího zatím jen jeho jedna poptávka, skupina Nová)', async () => {
+    const nadpisy = await v.locator('#seznam .skup').allTextContents(); return nadpisy.length === 0 || nadpisy; });
   await T('v1.26: „Poslední zápis“ je poslední skutečná poznámka, ne automatický řádek o nabídce nebo stavu', async () => {
     const c = await v.locator('#seznam .card', {hasText: 'Eva Vedoucí'}).textContent();
     return (c.includes('💬 Volala jsem, chce nabídku na GLC') && !c.includes('Nabídka připravena') && !c.includes('Stav → Nabídka odeslána')) || c; });
@@ -55,9 +57,13 @@ const POPT = { m1: P('Ivana Mirová', MIR, 'nova'), m2: P('Petr Mirský', MIR, '
   await T('vedoucí vidí po přepnutí na „Všichni“ všech 5 poptávek a prodejce u cizích (u vlastních (v1.26) ne)', async () => {
     const t = await v.locator('#seznam').textContent();
     return (t.includes('👤 Miroslav Sykora') && t.includes('👤 Martin Esterka') && !t.includes('👤 Vedouci Lucie') && t.includes('👤 (bez prodejce)') && (await v.locator('#seznam .card').count()) === 5) || t.slice(0, 300); });
+  await T('v1.27: „Všichni“ – skupiny Nová (4) a Nabídka odeslána (1) v tomto pořadí, v každé nejdřív nejbližší kontakt', async () => {
+    const nadpisy = (await v.locator('#seznam .skup').allTextContents()).map(x => x.trim());
+    const nova = await v.evaluate(() => [...document.querySelectorAll('#seznam .card')].map(c => c.querySelector('.name').textContent.trim()));
+    return (nadpisy.length === 2 && nadpisy[0].startsWith('Nová') && nadpisy[1].startsWith('Nabídka odeslána') && nova.indexOf('Petr Mirský') === nova.length - 1) || [nadpisy, nova]; });
   await T('filtr prodejce: Moje, Všichni a ostatní, u každého počet otevřených', async () => {
     const o = (await v.locator('.fprodejce option').allTextContents()).map(x => x.trim());
-    return (o.length === 5 && o[1].includes('Všichni prodejci') && o.some(x => x.includes('Miroslav Sykora – 2 otevřených')) && o.some(x => x.includes('Martin Esterka – 1 otevřených')) && o[0].includes('Moje – 1 otevřených')) || o; });
+    return (o.length === 5 && o[1].includes('Všichni') && o.some(x => x.includes('Miroslav Sykora (2)')) && o.some(x => x.includes('Martin Esterka (1)')) && o[0].includes('Moje (1)')) || o; });
   await T('filtr Miroslav: v evidenci i v „Dnes zavolat“ jen jeho dvě poptávky', async () => {
     await v.selectOption('.fprodejce', MIR); await v.waitForTimeout(400);
     const e = await jmena(v, '#seznam'), d = await jmena(v, '.dnes');
