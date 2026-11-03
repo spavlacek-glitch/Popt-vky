@@ -105,3 +105,9 @@
 - **Zatím není:** zápis z porady do schránky (v návrhu byl), měsíční přehled s oslavou, tvar `dohody` v pravidlech DB, mobilní Porada. Ověřit s vedoucím, co chce vidět navíc.
 - Test `testy/test_dohody_v1.20.js` (18 kontrol: role, dohody, Hotovo bez času, Můj týden, Porada, Zpět prohlížeče, iPhone).
 
+
+## Šipky „Předchozí / Další“ v detailu (v1.31)
+- **Přání uživatele (2026-11-03):** z detailu listovat poptávkami bez návratu na přehled. Na PC jsou v modrém pruhu vpravo „‹ Předchozí  2 / 3  Další ›“ a klávesy **←** a **→**; na mobilu je řádek se dvěma velkými tlačítky nad kartou zákazníka.
+- Listuje se v **pořadí přehledu**: stejný filtr (Otevřené / Prodáno…), filtr prodejce, hledání i řazení (`poradiPrehledu()`, sdílené s `renderSeznam`). Na kraji je tlačítko vypnuté. Když poptávka z filtru mezitím vypadne (třeba přepnutá na Prodáno), drží se pořadí, ve kterém byla otevřena. Při jediné poptávce v seznamu a u poptávky mimo seznam se šipky neukazují.
+- Klávesy nefungují při psaní do pole, s Ctrl/Alt/Cmd/Shift a při otevřeném panelu „Další akce“.
+- Nic se nezapisuje, tlačítko Zpět prohlížeče dál vrací na přehled (záznam v historii se nahrazuje, nepřibývá). Test `testy/test_sipky_v1.31.js` (PC i iPhone, bez Firebase).
