@@ -1309,7 +1309,7 @@ window.addEventListener('hashchange', () => { cekaOdkaz = idZOdkazu(); if (cekaO
    - tahle verze je pod minimální (např. po změně tvaru dat) → lišta bez „Později“ a přepnutí, jakmile to nic nepřeruší:
      na přihlášení nebo na přehledu a mimo psaní do pole.
    Otevřená poptávka zůstane otevřená (předá se jako #poptavka=…, viz v1.6). Bez připojení se nic neděje. */
-const VERZE = [1, 21];
+const VERZE = [1, 22];
 const cisloVerze = soubor => { const m = /_v(\d+)\.(\d+)\.html/.exec(soubor || ''); return m ? [+m[1], +m[2]] : null; };
 const novejsi = (a, b) => a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1];     // 1.10 je novější než 1.9
 let nabidnutaVerze = null, odlozenaVerze = null, nutnaVerze = null;
