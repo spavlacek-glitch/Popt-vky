@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.25 (2026-11-01)
+Verze dokumentu: 2.26 (2026-11-03)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -31,6 +31,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
    - Marže, nákupní cena, zisk a částky korekcí jsou **jen pro prodejce**, nikdy do PDF ani e-mailu zákazníkovi.
    - Korekci (pneu, servis, poukaz…) si prodejce může zaškrtnout „do nabídky“ (Offer Studio v1.4.1): v PDF jen název a popis, bez částky. **Subvence OL/PJJ se v nabídce nikdy neukáže** (rozhodnutí uživatele).
    - **Zápis zpět ✅ Offer Studio v1.5.0 + Poptávky v1.14:** po vytvoření nabídky Offer Studio zapíše souhrn do `/poptavky/{id}/nabidky/{id konceptu}` a řádek do historie, Poptávky ho ukážou na PC (viz „Nabídky z Offer Studia (v1.14)“).
+   - **Offer Studio v1.8.1 (opravy z provozu, 2026-11-03):** sleva se dá zadat v Kč i v % zároveň (nejdřív Kč, ze zbytku %; do PDF, e-mailu a Poptávek jde celková sleva), v interní části je „Dobropis Kč bez DPH“ (přičte se jen ke skutečnému zisku, příznaky marže se jím nemění; do Poptávek jde jen výsledný `skutecny_zisk`, tvar zápisu ani pravidla DB se nezměnily) a prodejce je v PDF jen v bloku vedle zákazníka (ne v záhlaví stránky). Kalkulace bez nabídky funguje: stačí výpis, jméno ani fotky nejsou potřeba. Podrobnosti v `README_V1_8_1.txt` v Offer Studiu.
    - Uživatel by správně chtěl kalkulaci u každé poptávky. Zisk ale uvidí jen u poptávek s nabídkou z Offer Studia. Ruční kalkulaci v Poptávkách přidat jen na pokyn, byla by to druhá kalkulačka.
 4. Nabídka – **základ je Mercedes Offer Studio** (rozhodnutí 2026-11-01). Makro s MB Configurator API (`Module1`, online kód) se vynechává. **Od v1.13** otevře „📄 Udělat nabídku“ v detailu na PC Offer Studio (v1.2.0) s vyplněným zákazníkem (viz níže). Podklady jsou v `POSOUZENI_OfferStudio.md`.
 5. Odeslání nabídky e-mailem ✅ Offer Studio v1.2.0 – „📄 Vytvořit PDF a e-mail“ vytvoří PDF a soubor `.eml` (koncept s přílohou PDF a textem ze šablon makra `EmailSablony`) a otevře ho v Outlooku. **Ověřeno u uživatele (2026-11-01, celá cesta):** Poptávky → „📄 Udělat nabídku“ → Offer Studio v1.2.0 → PDF → nový Outlook otevře upravitelný koncept, texty sedí, PDF je v příloze. Odešle prodejce sám, nic se nepřipojuje k poště. Offer Studio běží na pevném portu `8774`, akční nabídky (financování, bonusy) a podpis si prodejce upravuje sám v Nastavení Offer Studia.
@@ -234,6 +235,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - **Plovoucí tlačítka (rozhodnutí uživatele, neměnit):** „← Přehled“ dole vlevo, „Další akce ⋯“ dole vpravo.
   - Panel „Další akce“ obsahuje kontakt do iPhonu (s označením), úpravu údajů a smazání s potvrzením přímo v panelu.
   - Panel je mimo překreslovaný obsah, takže ho živá aktualizace nezavře.
+- **Panel „Další akce“ se zavře i posunutím dolů (v1.22, nalezeno uživatelem v provozu):** dřív šlo jen klepnout na pozadí. Táhne se za celý panel, když je odrolovaný nahoru (ne při psaní do pole); krátké potáhnutí se vrátí, klepnutí na pozadí a Esc fungují dál. Test `testy/test_panel_v1.22.js`.
 - **Plovoucí tlačítka při psaní:** schovají se hned, vrátí se až 0,3 s po opuštění pole. Jinak by se při klepnutí na „Zapsat poznámku“ vynořila pod prstem a klepnutí by dostala ona (nalezeno testem na šířce iPhonu SE).
 
 ## Odkaz z kontaktu v iPhonu (v1.6)
@@ -268,6 +270,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_detail_pc_v1.17.js`: detail na PC 1440, 1100 a 1920 ve dvou sloupcích a mobilní detail beze změny.
 - `testy/test_zpet_kalkulace_v1.18.js`: Zpět a Vpřed prohlížeče (PC i iPhone), úprava a návrat, kalkulace v detailu, schovaný a odkrytý zisk, od v1.19 i výrazný přilepený pruh a Esc.
 - `testy/test_dohody_v1.20.js`: dohody, role vedoucího a prodejce, Hotovo bez času, Můj týden, Porada, Zpět prohlížeče, iPhone.
+- `testy/test_panel_v1.22.js`: panel „Další akce“ na iPhonu – zavření posunutím dolů, krátké potáhnutí, klepnutí na pozadí (bez Firebase, s atrapou SDK).
 - `testy/test_hlasky_v1.21.js`: hlášky v „Dnes zavolat“ (plné skupiny, bez duplicit, věta od uživatele, žádný sráživý tón).
 - `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
 
