@@ -28,5 +28,6 @@ K('zapnuto: githack /main/ → Pages (s #poptavka)', beh('raw.githack.com', '/sp
 K('zapnuto: náhled větve na githacku se nepřesměruje', beh('raw.githack.com', '/spavlacek-glitch/Popt-vky/claude/jina-vetev/poptavky.html', true) === A + '#poptavka=abc');
 K('zapnuto: na Pages ani lokálně se nic nepřesměrovává (žádná smyčka)', beh('spavlacek-glitch.github.io', '/Popt-vky/poptavky.html', true) === A + '#poptavka=abc' && beh('127.0.0.1', '/Popt-vky/main/poptavky.html', true) === A + '#poptavka=abc');
 K('.nojekyll v kořeni (Pages nespouští Jekyll)', fs.existsSync(path.join(ROOT, '.nojekyll')));
+K('index.html v kořeni přesměruje na poptavky.html (kořenová adresa Pages jinak nic nezobrazí)', fs.existsSync(path.join(ROOT, 'index.html')) && /location\.replace\('poptavky\.html'/.test(fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8')));
 if (chyb) { console.log('selhalo: ' + chyb); process.exit(1); }
 console.log('vše v pořádku');
