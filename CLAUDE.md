@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.38 (2026-11-03)
+Verze dokumentu: 2.39 (2026-11-03)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -77,7 +77,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 | prodejce | e-mail přihlášeného uživatele |
 | historie/{pushId} | `{t, kdo, text}` – log kontaktů a změn stavu |
 | zakaznik | klíč v `/zakaznici` (nepovinné, od v1.2). Vazba je jen jednosměrná, seznam poptávek zákazníka se dopočítá. Starší poptávky ho nemají. |
-| vuz | od v1.16, nepovinné, zadává prodejce ručně: `puvod` (`sklad` / `vyroba` / `dealer`), `id` (Auftrag, např. 05-576-12345, nebo online kód), `lokace` (jen sklad a dealer). Prázdné pole se nezapisuje, bez vyplnění `vuz` v DB není. Pravidla DB beze změny. |
+| vuz | od v1.16, nepovinné, zadává prodejce ručně: `puvod` (`sklad` / `objednany` / `vyroba` / `dealer`, od v1.30 čtyři), `id` (Auftrag, např. 05-576-12345, nebo online kód), `lokace` (jen sklad a dealer). Prázdné pole se nezapisuje, bez vyplnění `vuz` v DB není. Pravidla DB beze změny. |
 | dohody/{id} | od v1.20: dohoda vedoucího s prodejcem k obchodu. `text` (jedna věta, ≤140), `do` (`YYYY-MM-DD`), `vyjde` (nepovinné: „uzavřít jako ztracený“ / „vrátit na poradu“), `zadal` (e-mail), `t`, `stav` = `otevrena` / `hotovo` (prodejce klepl) / `potvrzena` / `dopracovat` / `preneseno`, nepovinný `tip`. **Čas klepnutí „Hotovo“ se neukládá ani neukazuje** (rozhodnutí uživatele). |
 | duvodTicha | od v1.20, nepovinné: `{text, kdo}` – proč je obchod 14+ dní bez kontaktu (dovolená apod.), zapisuje prodejce jedním řádkem. |
 | nabidky/{id konceptu} | od v1.14, zapisuje jen Offer Studio (v1.5.0+): `model`, `cena_sdph` (celkem pro zákazníka), `cena_vuz_sdph`, `sleva_sdph`, `sleva_pct`, `doplnky_sdph`, `soubor`, `zdroj: offerstudio`, `t`, `kdo`; nepovinně `interni` = `{zisk, skutecny_zisk, obchodni_marze, skutecna_marze, korekce, nestandardni, negativni}`. Jedna položka na nabídku, nové PDF ji přepíše. |
@@ -119,13 +119,13 @@ Hlavní pravidla jsou tady, podrobnosti jednotlivých funkcí v souborech níž.
 - `docs/email_prijem.md` – Příjem poptávek e-mailem: Příjem poptávek e-mailem
 
 ## Stav na konci session 2026-11-03 – co zbývá
-Hotovo a sloučeno v `main`: Poptávky v1.29, Offer Studio v1.8.3, nová pravidla DB pro víc prodejců (nasazená uživatelem, ověřeno s Miroslavem Sýkorou a Martinem Esterkou), GitHub Pages (zapnuté, funguje), „Jednáme“ schované (uživatel poslední poptávku přepnul ručně).
+Hotovo a sloučeno v `main`: Poptávky v1.29 (větev: v1.30 – čtyři původy vozu), Offer Studio v1.8.3, nová pravidla DB pro víc prodejců (nasazená uživatelem, ověřeno s Miroslavem Sýkorou a Martinem Esterkou), GitHub Pages (zapnuté, funguje), „Jednáme“ schované (uživatel poslední poptávku přepnul ručně).
 Otevřené, v tomto pořadí:
 1. ~~Přepnout zařízení na GitHub Pages a zapnout přesměrování~~ – **hotovo 2026-11-03.** Raw.githack.com zůstává jen pro náhledy větví.
 2. **Pravidelná záloha Firebase** (uživatel dělá sám týdně exportem JSON). Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
 3. **Úklid:** ✅ CLAUDE.md rozdělen na hlavní soubor a `docs/` (2026-11-03); starší verze smazány 2026-11-03 (v repu zůstává v1.24–v1.29, starší jsou v gitu). Výchozí soubor v testech je teď `poptavky_v1.29.html`; testy starších funkcí **nebyly po úklidu spuštěny** (emulátory tu nejsou), případné rozdíly proti dnešnímu vzhledu opravit při dalším spuštění. Zbývá: zkrátit `CLAUDE.md` (57 kB) a rozdělit na hlavní soubor + soubory k tématům, případně rozdělit jednosouborovou appku. Archiv poptávek kolem 2 000 kusů. Firebase Hosting jen kdyby bylo potřeba soukromé repo, vrácení nasazení nebo vlastní hlavičky.
 4. **Zákazníci (`/zakaznici`) jsou společní** všem prodejcům (kvůli rozpoznání známého zákazníka). Omezit až na přání.
-5. **Vůz z Offer Studia a původ vozu** (viz sekce „Vůz u poptávky“, odloženo).
+5. **Vůz z Offer Studia** (původ vozu hotový ve v1.30; zápis kódu/Auftragu z Offer Studia zatím není).
 6. **Příjem poptávek e-mailem** čeká na odpověď IT (otázky v sekci „Příjem poptávek e-mailem“).
 7. Menší nápady: šipky „předchozí / další poptávka“, zápis z porady do schránky, měsíční přehled s oslavou, další hlášky, mobilní Porada, týmové motivační věty.
 Poznámky pro práci: na emulátory Firebase v tomhle prostředí viz sekce Testy (odpojit proxy, `127.0.0.1`, jar přes curl); náhledy nesloučených větví přes raw.githack.com adresu větve; po sloučení vždy říct uživateli, že Pages/githack zdržuje, a ke každé nové verzi přepsat `AKTUALNI` i `VERZE` (hlídá `testy/test_verze.js`).

@@ -32,3 +32,5 @@
 - **Mobil (rozhodnutí uživatele):** zisk nikde. Od v1.15 je na kartě a v detailu nabídka (model · cena), viz „Ekonomika na přehledu“.
 - Poptávky nic nepočítají ani nezapisují. Detail na PC je jinak stejný jako ve v1.4.
 
+
+- **v1.30 (rozhodnutí uživatele 2026-11-03): čtyři původy vozu.** Skladový (`sklad`) / Skladový – objednaný, neměnný (`objednany`, nový: vůz ve výrobě s hotovou konfigurací, online kód nebo Auftrag) / Na zakázku (`vyroba`, dřív „Do výroby“, klíč v datech zůstal, staré záznamy se jen přejmenují) / Od dealera (`dealer`). Lokace jen u skladového a od dealera. Pravidla DB beze změny. Zápis z Offer Studia dál není (původ musí zadat prodejce).
