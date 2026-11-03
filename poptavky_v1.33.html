@@ -1025,11 +1025,11 @@ const nabidkySerazene = p => Object.values(p.nabidky || {}).filter(n => n && n.m
    zisk se mění o ústupek bez DPH (zisk = prodejní cena bez DPH − nákupní cena, takže při změně jen slevy je změna přesně ústupek / 1,21;
    nákupní cena ani vzorec marže se do Poptávek nepřenášejí). Nic se nezapisuje, nová sleva se udělá novou nabídkou v Offer Studiu.
    Hranice „nízké marže“ v kódu není: ⚠ pod nákupní cenou plyne ze znaménka zisku, „nízká marže“ jen z příznaku už zapsaného Offer Studiem. */
-const SIM_DPH = 1.21, SIM_MAX = 20000, SIM_KROK = 500;
+const SIM_DPH = 1.21, SIM_MAX = 100000, SIM_KROK = 10000;
 let simUstupek = 0, simId = null;
 function simEkvivalent(kcDph){   // „co za to koupíš“ – jen pro srandu, orientační ceny
   if (kcDph <= 0) return '';
-  const pol = kcDph >= 16000 ? ['týden u moře 🏖️', 1] : kcDph >= 6000 ? ['víkend na horách 🏔️', Math.max(1, Math.round(kcDph / 8000))]
+  const pol = kcDph >= 50000 ? ['dovolená pro celou rodinu 🏝️', Math.max(1, Math.round(kcDph / 60000))] : kcDph >= 16000 ? ['týden u moře 🏖️', Math.max(1, Math.round(kcDph / 20000))] : kcDph >= 6000 ? ['víkend na horách 🏔️', Math.max(1, Math.round(kcDph / 8000))]
     : kcDph >= 2000 ? ['plná nádrž ⛽', Math.max(1, Math.round(kcDph / 2500))] : kcDph >= 500 ? ['oběd 🍽️', Math.max(1, Math.round(kcDph / 200))] : ['káva ☕', Math.max(1, Math.round(kcDph / 60))];
   return pol[1] > 1 ? `${pol[1]}× ${pol[0]}` : pol[0];
 }
