@@ -62,6 +62,11 @@ const POPT = {
   console.log('== prodejce, PC');
   const pr = await otevri(PRO, undefined, 2);
   await T('prodejce (v1.24) nevidí cizí poptávku, vidí jen své dvě', async () => (await pr.locator('#seznam .card').count()) === 2 && !(await pr.locator('#seznam').textContent()).includes('Karel Cizí'));
+  await T('v1.29: stav „Jednáme“ se nenabízí (detail PC), jen u poptávky, která ho už má', async () => {
+    await pr.evaluate(() => renderDetail('a_ticho')); await pr.waitForTimeout(300); const a = (await pr.locator('#view .chips').first().textContent());
+    await pr.evaluate(() => renderDetail('b_cerstva')); await pr.waitForTimeout(300); const b = (await pr.locator('#view .chips').first().textContent());
+    await pr.evaluate(() => renderHome()); await pr.waitForTimeout(300);
+    return (!a.includes('Jednáme') && a.includes('Nabídka odeslána') && b.includes('Jednáme')) || [a, b]; });
   await T('prodejce nevidí „Porada“, vidí „Můj týden“', async () => !(await pr.isVisible('#b-porada')) && (await pr.isVisible('#b-tyden')));
   await T('prodejce nevidí formulář nové dohody, ale vidí tip od šéfa a „Hotovo“', async () => {
     await pr.locator('#seznam .card', {hasText:'Ivana Tichá'}).click(); await pr.waitForSelector('.dh-box'); const t = await pr.locator('.dh-box').textContent();
