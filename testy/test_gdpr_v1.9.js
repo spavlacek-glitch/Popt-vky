@@ -4,7 +4,7 @@ const { chromium, devices } = require('playwright');
 const fs = require('fs'), path = require('path'), os = require('os');
 
 const ROOT = path.join(__dirname, '..'), NS = 'demo-poptavky-default-rtdb', EMU = 'http://127.0.0.1:9000', AUTH = 'http://127.0.0.1:9099';
-const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.30.html', OUT = process.env.SCREEN_DIR;
+const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.31.html', OUT = process.env.SCREEN_DIR;
 const PRAVIDLA = fs.readFileSync(path.join(ROOT, 'firebase', 'database.rules.json'), 'utf8');
 const FORMULAR = 'https://www.mercedes-benz.cz/passengercars/content-pool/marketing-pool/contact-forms/doc.html?d=2021-06-22&can=RetailWeb&cpid=doc_ms_7672&le=D-Outlet.9058&s=generic_landing_page';
 

@@ -27,3 +27,4 @@
 - `testy/test_hlasky_v1.21.js`: hlášky v „Dnes zavolat“ (plné skupiny, bez duplicit, věta od uživatele, žádný sráživý tón).
 - `firebase/rules.test.mjs`: pravidla databáze (133 testů, od v1.14 i `nabidky`, od v1.24 i více prodejců).
 
+- `testy/test_sipky_v1.31.js`: šipky Předchozí / Další a klávesy ← → v detailu (PC 1280 a iPhone 13) – pořadí podle přehledu, krajní poptávky, psaní do pole, poptávka mimo seznam, hledání; bez Firebase (SDK nahrazené atrapou, nepotřebuje emulátory).
