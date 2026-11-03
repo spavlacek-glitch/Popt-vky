@@ -111,3 +111,17 @@
 - Listuje se v **pořadí přehledu**: stejný filtr (Otevřené / Prodáno…), filtr prodejce, hledání i řazení (`poradiPrehledu()`, sdílené s `renderSeznam`). Na kraji je tlačítko vypnuté. Když poptávka z filtru mezitím vypadne (třeba přepnutá na Prodáno), drží se pořadí, ve kterém byla otevřena. Při jediné poptávce v seznamu a u poptávky mimo seznam se šipky neukazují.
 - Klávesy nefungují při psaní do pole, s Ctrl/Alt/Cmd/Shift a při otevřeném panelu „Další akce“.
 - Nic se nezapisuje, tlačítko Zpět prohlížeče dál vrací na přehled (záznam v historii se nahrazuje, nepřibývá). Test `testy/test_sipky_v1.31.js` (PC i iPhone, bez Firebase).
+
+## Posuvník „Co když ustoupím?“ (v1.33)
+- **Přání uživatele (2026-11-03):** při telefonování vidět, co obnáší dát zákazníkovi ještě pár tisíc slevy („někdy vyhraju obchod jen tím, že ustoupím o pár tisíc, a zákazník má pocit, že vyhrál“). Beru to jako výslovný pokyn k **simulaci nad hotovou nabídkou**, ne jako druhou kalkulačku (viz „Cílový řetězec“ v `CLAUDE.md`).
+- **Kde:** jen detail na PC, samostatný blok pod „Poptávka“ (nabídky), vždy nad **poslední** nabídkou z Offer Studia. Na mobilu není (zisk tam nikdy nebyl). Bez nabídky blok není.
+- **Posuvník:** ústupek navíc 0 až 20 000 Kč s DPH po 500 Kč (`SIM_MAX`, `SIM_KROK`). Začíná u každé poptávky na nule. Nic se nezapisuje, skutečná sleva = nová nabídka v Offer Studiu.
+- **Co ukáže:** kolik zákazník zaplatí, celkovou slevu (Kč a % z ceníkové ceny), 🏆 „Zákazník právě vyhrál X Kč a má radost“ a 💸 „Tvůj ústupek = 2× plná nádrž ⛽“ (orientační ceny: káva 60, oběd 200, nádrž 2 500, víkend na horách 8 000, od 16 000 týden u moře).
+- **Zisk je schovaný** (••• Kč), odkryje se klepnutím stejným příznakem jako zisk v nabídkách (`nabidkyOdkryte`). Po odkrytí: nový zisk, kolik ubyde (bez DPH i v % zisku) a nová obchodní marže.
+- **Výpočet:** zisk = prodejní cena bez DPH − nákupní cena, takže při změně jen slevy je změna zisku přesně ústupek / 1,21 a změna marže ústupek / ceníková cena. Nákupní cena ani vzorec marže se do Poptávek **nepřenášejí**; vychází se z hotových `interni.zisk` / `skutecny_zisk` / `obchodni_marze`, které zapsalo Offer Studio.
+- **Varování:** „⚠ Pod nákupní cenou – tady už to bolí“, když by zisk klesl pod nulu (ukáže se i při schovaném zisku, nic jiného z čísel neprozradí). „⚠ Marže je už v nabídce nízká“ jen když to Offer Studio zapsalo příznakem (`nestandardni`), a jen s odkrytým ziskem. **Hranice 3 % v kódu Poptávek není.** Případné dřívější varování před nízkou marží by vyžadovalo, aby Offer Studio zapisovalo i hranici (změna pravidel DB), zatím neděláno.
+- Test `testy/test_posuvnik_v1.33.js` (PC 1440 a iPhone 13, bez Firebase).
+
+## Provize podle modelu (zapsáno, v kódu zatím není)
+- **Zapsáno na přání uživatele (2026-11-03), zatím neimplementovat:** provize se počítá ze zisku podle modelu. **GLS, G, S atd. = 10 % ze zisku, ostatní modely 12,5 %.** Seznam modelů v desetiprocentní skupině řekl uživatel jen příkladem („atd.“), před implementací doptat přesný seznam.
+- Dnes appka drží jen „průměrnou provizi za auto“ v zařízení (`localStorage`, viz „Tento měsíc prodáno“). Provize podle modelu by mohla nahradit průměr ve výhledu a v posuvníku (např. „tvoje provize: 29 000 → 27 800 Kč“), model je v nabídce z Offer Studia (`model`).
