@@ -41,13 +41,17 @@ const POPT = { m1: P('Ivana Mirová', MIR, 'nova'), m2: P('Petr Mirský', MIR, '
   };
   const jmena = async (p, sel) => (await p.locator(sel + ' .card .name').allTextContents()).map(x => x.trim()).sort();
   console.log('== vedoucí, PC');
-  const v = await otevri(VED, 5);
-  await T('vedoucí vidí všech 5 poptávek a u každé jejího prodejce', async () => {
+  const v = await otevri(VED, 1);
+  await T('výchozí je „Moje“: vedoucí vidí jen svou poptávku a v „Dnes zavolat“ taky', async () => {
+    const e = await jmena(v, '#seznam'), d = await jmena(v, '.dnes'), sel = await v.locator('.fprodejce').inputValue();
+    return (JSON.stringify(e) === JSON.stringify(['Eva Vedoucí']) && JSON.stringify(d) === JSON.stringify(e) && sel === '@moje') || [e, d, sel]; });
+  await v.selectOption('.fprodejce', ''); await v.waitForTimeout(400);
+  await T('vedoucí vidí po přepnutí na „Všichni“ všech 5 poptávek a u každé jejího prodejce', async () => {
     const t = await v.locator('#seznam').textContent();
     return (t.includes('👤 Miroslav Sykora') && t.includes('👤 Martin Esterka') && t.includes('👤 Vedouci Lucie') && t.includes('👤 (bez prodejce)') && (await v.locator('#seznam .card').count()) === 5) || t.slice(0, 300); });
-  await T('filtr prodejce: nabízí všechny, u každého počet otevřených, u mě „(já)“', async () => {
+  await T('filtr prodejce: Moje, Všichni a ostatní, u každého počet otevřených', async () => {
     const o = (await v.locator('.fprodejce option').allTextContents()).map(x => x.trim());
-    return (o.length === 5 && o[0].includes('Všichni prodejci') && o.some(x => x.includes('Miroslav Sykora – 2 otevřených')) && o.some(x => x.includes('Martin Esterka – 1 otevřených')) && o.some(x => x.includes('(já)'))) || o; });
+    return (o.length === 5 && o[1].includes('Všichni prodejci') && o.some(x => x.includes('Miroslav Sykora – 2 otevřených')) && o.some(x => x.includes('Martin Esterka – 1 otevřených')) && o[0].includes('Moje – 1 otevřených')) || o; });
   await T('filtr Miroslav: v evidenci i v „Dnes zavolat“ jen jeho dvě poptávky', async () => {
     await v.selectOption('.fprodejce', MIR); await v.waitForTimeout(400);
     const e = await jmena(v, '#seznam'), d = await jmena(v, '.dnes');
@@ -58,6 +62,11 @@ const POPT = { m1: P('Ivana Mirová', MIR, 'nova'), m2: P('Petr Mirský', MIR, '
     await v.waitForSelector('#seznam .card'); await v.waitForTimeout(500);
     return (await v.locator('.fprodejce').inputValue()) === MIR && (await v.locator('#seznam .card').count()) === 2 || await v.locator('.fprodejce').inputValue(); });
   await T('zpět na „Všichni prodejci“ ukáže vše', async () => { await v.selectOption('.fprodejce', ''); await v.waitForTimeout(400); return (await v.locator('#seznam .card').count()) === 5; });
+  await T('„Všichni“ přežije obnovení stránky (volba se pamatuje i tehdy, když není výchozí)', async () => {
+    await v.reload(); await v.waitForTimeout(600);
+    if (await v.isVisible('#l-mail')) { await v.fill('#l-mail', VED); await v.fill('#l-pass', HESLO); await v.click('button:has-text("Přihlásit")'); }
+    await v.waitForSelector('#seznam .card'); await v.waitForTimeout(500);
+    return (await v.locator('.fprodejce').inputValue()) === '' && (await v.locator('#seznam .card').count()) === 5; });
   await T('poptávka bez prodejce jde vyfiltrovat zvlášť', async () => { await v.selectOption('.fprodejce', ''); const o = await v.locator('.fprodejce option').evaluateAll(x => x.map(y => y.value)); return o.includes(''); });
   await T('detail na PC ukáže prodejce', async () => { await v.locator('#seznam .card', {hasText:'Karel Martinů'}).click(); await v.waitForTimeout(500); const t = await v.locator('#view').textContent(); return t.includes('👤 Martin Esterka') || t.slice(0, 300); });
   await T('vedoucí: žádné chyby stránky', async () => v.chyby.length === 0 || v.chyby);
@@ -67,8 +76,9 @@ const POPT = { m1: P('Ivana Mirová', MIR, 'nova'), m2: P('Petr Mirský', MIR, '
     const t = await m.locator('#view').textContent();
     return ((await m.locator('#seznam .card').count()) === 2 && (await m.locator('.fprodejce').count()) === 0 && !t.includes('👤') && !t.includes('Martin Esterka')) || t.slice(0, 200); });
   console.log('== vedoucí, iPhone');
-  const i = await otevri(VED, 5, IPHONE);
+  const i = await otevri(VED, 1, IPHONE);
   await T('mobil: karta ukáže prodejce a filtr funguje', async () => {
+    await i.selectOption('.fprodejce', ''); await i.waitForTimeout(400);
     const t = await i.locator('#seznam').textContent();
     await i.selectOption('.fprodejce', MAR); await i.waitForTimeout(400);
     return (t.includes('👤 Miroslav Sykora') && (await i.locator('#seznam .card').count()) === 1) || t.slice(0, 200); });

@@ -39,6 +39,7 @@ const POPT = {
   const otevri = async (mail, opts = {viewport:{width:1440,height:900}}, karet = 3) => {   // od v1.24 vidí prodejce jen své poptávky (2), vedoucí všechny (3)
     const ctx = await br.newContext(opts);
     await ctx.route('https://www.gstatic.com/firebasejs/10.12.2/*', r => r.fulfill({path: path.join(FB, path.basename(new URL(r.request().url()).pathname)), contentType:'application/javascript'}));
+    if (mail === VED) await ctx.addInitScript(() => { try { localStorage.setItem('poptavky.filtrProdejce', ''); } catch (e) {} });   // od v1.25 má vedoucí výchozí „Moje“; test chce vidět všechny
     const p = await ctx.newPage(); p.chyby = [];
     p.on('pageerror', e => p.chyby.push(e.message)); p.on('dialog', d => { p.chyby.push('dialog ' + d.message()); d.dismiss(); });
     await p.goto(STRANKA);

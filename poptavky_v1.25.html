@@ -494,17 +494,19 @@ function vsechny(){ return Object.entries(data).map(([id,p]) => ({id, ...p})); }
 
 /* v1.25: vedoucí vidí vlastníka poptávky a může filtrovat podle prodejce (prodejce vidí jen své, nic z toho nepotřebuje) */
 const FILTR_PRODEJCE_KLIC = 'poptavky.filtrProdejce';
-let filtrProdejce = ''; try { filtrProdejce = localStorage.getItem(FILTR_PRODEJCE_KLIC) || ''; } catch (e) {}
+const MOJE = '@moje';   // výchozí pro vedoucího (rozhodnutí uživatele): jen moje poptávky; '' = všichni prodejci, jinak e-mail prodejce
+let filtrProdejce = MOJE; try { const u = localStorage.getItem(FILTR_PRODEJCE_KLIC); if (u !== null) filtrProdejce = u; } catch (e) {}
 const vlastnik = p => jeVedouci ? `<div class="vl-radek">👤 ${esc(jmenoProdejce(p.prodejce))}</div>` : '';
-function vidiPoptavky(){ return vsechny().filter(p => !jeVedouci || !filtrProdejce || (p.prodejce || '') === filtrProdejce); }
+function vidiPoptavky(){ const f = filtrProdejce === MOJE ? user.email : filtrProdejce; return vsechny().filter(p => !jeVedouci || !f || (p.prodejce || '') === f); }
 function nastavFiltrProdejce(v){ filtrProdejce = v; try { localStorage.setItem(FILTR_PRODEJCE_KLIC, v); } catch (e) {} renderHome(); }
 function vyberProdejce(){
   if (!jeVedouci) return '';
-  const vse = vsechny(), lide = [...new Set(vse.map(p => p.prodejce || ''))].sort((a, b) => jmenoProdejce(a).localeCompare(jmenoProdejce(b), 'cs'));
-  if (dataNactena && filtrProdejce && !lide.includes(filtrProdejce)) filtrProdejce = '';   // uložený prodejce už nemá žádnou poptávku (až po načtení dat, jinak by se filtr po obnovení stránky zahodil)
+  const vse = vsechny(), ostatni = [...new Set(vse.map(p => p.prodejce || ''))].filter(e => e !== user.email).sort((a, b) => jmenoProdejce(a).localeCompare(jmenoProdejce(b), 'cs'));
+  if (dataNactena && filtrProdejce && filtrProdejce !== MOJE && !ostatni.includes(filtrProdejce)) filtrProdejce = MOJE;   // uložený prodejce už nemá žádnou poptávku (až po načtení dat, jinak by se filtr po obnovení stránky zahodil)
   const otevrene = e => vse.filter(p => (p.prodejce || '') === e && OTEVRENE.includes(p.stav)).length;
-  return `<select class="fprodejce" aria-label="Prodejce" onchange="nastavFiltrProdejce(this.value)"><option value="">👤 Všichni prodejci</option>${
-    lide.map(e => `<option value="${esc(e)}" ${filtrProdejce === e ? 'selected' : ''}>${esc(jmenoProdejce(e))}${e === user.email ? ' (já)' : ''} – ${otevrene(e)} otevřených</option>`).join('')}</select>`;
+  const o = (v, txt) => `<option value="${esc(v)}" ${filtrProdejce === v ? 'selected' : ''}>${esc(txt)}</option>`;
+  return `<select class="fprodejce" aria-label="Prodejce" onchange="nastavFiltrProdejce(this.value)">${o(MOJE, `👤 Moje – ${otevrene(user.email)} otevřených`)}${o('', '👥 Všichni prodejci')}${
+    ostatni.map(e => o(e, `${jmenoProdejce(e)} – ${otevrene(e)} otevřených`)).join('')}</select>`;
 }
 
 function renderHome(zPop){
