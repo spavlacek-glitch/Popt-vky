@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="cs">
 <head>
-<!-- Poptávky – stálá adresa | od v1.6 | ukazuje na v1.15 (2026-11-01)
+<!-- Poptávky – stálá adresa | od v1.6 (aktuální verze viz AKTUALNI níž)
      Přesměruje na aktuální verzi Poptávek a předá #poptavka=<id> (odkazy z kontaktů v iPhonu).
      Při nové verzi změň AKTUALNI – staré kontakty pak otevřou novou verzi a běžící verze od v1.10 nabídnou „Aktualizovat“.
      MINIMALNI = nejstarší verze, která ještě smí běžet. Zvyš ji jen při změně tvaru dat – starší verze (od v1.10)
@@ -13,10 +13,16 @@
 <script>
 const AKTUALNI = 'poptavky_v1.29.html';
 const MINIMALNI = 'poptavky_v1.24.html';
-location.replace(AKTUALNI + location.hash);
+// Přesun hostingu z raw.githack.com na GitHub Pages (viz PRESUN_NA_PAGES.md). Vypínač je zatím VYPNUTÝ:
+// po true stará adresa …raw.githack.com/…/main/poptavky.html přesměruje na Pages. Náhledy větví na githacku se nepřesměrovávají (cesta bez /main/).
+const PRESMEROVAT_NA_PAGES = false;
+const PAGES = 'https://spavlacek-glitch.github.io/Popt-vky/';
+if (PRESMEROVAT_NA_PAGES && /(^|\.)githack\.com$/.test(location.hostname) && location.pathname.includes('/main/')) location.replace(PAGES + AKTUALNI + location.hash);
+else location.replace(AKTUALNI + location.hash);
+document.addEventListener('DOMContentLoaded', () => { const a = document.getElementById('dal'); if (a) a.href = AKTUALNI + location.hash; });
 </script>
 </head>
 <body style="font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;padding:24px">
-<p>Otevírám Poptávky… <a href="poptavky_v1.21.html">Pokračovat</a></p>
+<p>Otevírám Poptávky… <a id="dal" href="poptavky_v1.29.html">Pokračovat</a></p>
 </body>
 </html>
