@@ -3,7 +3,7 @@
 const { chromium, devices } = require('playwright');
 const fs = require('fs'), path = require('path'), os = require('os');
 const ROOT = path.join(__dirname, '..'), NS = 'demo-poptavky-default-rtdb', EMU = 'http://127.0.0.1:9000', AUTH = 'http://127.0.0.1:9099';
-const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.16.html';
+const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.30.html';
 const PRAVIDLA = fs.readFileSync(path.join(ROOT, 'firebase', 'database.rules.json'), 'utf8');
 let html = fs.readFileSync(path.join(ROOT, SOUBOR), 'utf8');
 const a = html.indexOf('const firebaseConfig = {'), b = html.indexOf('};', a) + 2;
@@ -48,7 +48,7 @@ const POPT = {
     console.log('==', nazev);
     const p = await otevri(opts);
     await T('karta: skladový · auftrag · lokace', async () => { const t = await txt(p.locator('#seznam .card', {hasText:'Jana Skladová'})); return t.includes('🚗 Skladový · 05-576-12345 · Karlovy Vary') || t; });
-    await T('karta: do výroby · online kód (bez lokace)', async () => { const t = await txt(p.locator('#seznam .card', {hasText:'Petr Výrobní'})); return (t.includes('🚗 Do výroby · ABC123ONLINE') && !t.includes('Karlovy')) || t; });
+    await T('karta: na zakázku · online kód (bez lokace)', async () => { const t = await txt(p.locator('#seznam .card', {hasText:'Petr Výrobní'})); return (t.includes('🚗 Na zakázku · ABC123ONLINE') && !t.includes('Karlovy')) || t; });
     await T('karta bez vozu: žádný řádek vozu', async () => !(await txt(p.locator('#seznam .card', {hasText:'Bez Vozu'}))).includes('🚗'));
     await T('hledání podle auftragu', async () => { await p.fill('#hledat', '576-123'); await p.waitForTimeout(200);
       const n = await p.locator('#seznam .card').count(); await p.fill('#hledat', ''); return n === 1 || n; });
