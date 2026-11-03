@@ -36,14 +36,14 @@ const POPT = {
   const uv = await reg(VED), up = await reg(PRO);
   await admin('', 'PUT', {uzivatele:{[uv.localId]:{schvalen:true, email:VED, vedouci:true}, [up.localId]:{schvalen:true, email:PRO}}, poptavky: POPT});
   const br = await chromium.launch();
-  const otevri = async (mail, opts = {viewport:{width:1440,height:900}}) => {
+  const otevri = async (mail, opts = {viewport:{width:1440,height:900}}, karet = 3) => {   // od v1.24 vidí prodejce jen své poptávky (2), vedoucí všechny (3)
     const ctx = await br.newContext(opts);
     await ctx.route('https://www.gstatic.com/firebasejs/10.12.2/*', r => r.fulfill({path: path.join(FB, path.basename(new URL(r.request().url()).pathname)), contentType:'application/javascript'}));
     const p = await ctx.newPage(); p.chyby = [];
     p.on('pageerror', e => p.chyby.push(e.message)); p.on('dialog', d => { p.chyby.push('dialog ' + d.message()); d.dismiss(); });
     await p.goto(STRANKA);
     await p.fill('#l-mail', mail); await p.fill('#l-pass', HESLO); await p.click('button:has-text("Přihlásit")');
-    await p.waitForFunction(() => document.querySelectorAll('#seznam .card').length >= 3); await p.waitForTimeout(400);
+    await p.waitForFunction(n => document.querySelectorAll('#seznam .card').length >= n, karet); await p.waitForTimeout(400);
     return p;
   };
   console.log('== vedoucí, PC');
@@ -59,7 +59,8 @@ const POPT = {
   await v.click('.zpet-pc'); await v.waitForTimeout(400);
   await T('karta na přehledu ukáže 🤝 dohodu', async () => (await v.locator('#seznam .card', {hasText:'Ivana Tichá'}).textContent()).includes('🤝 Zavolej mu') || 'ne');
   console.log('== prodejce, PC');
-  const pr = await otevri(PRO);
+  const pr = await otevri(PRO, undefined, 2);
+  await T('prodejce (v1.24) nevidí cizí poptávku, vidí jen své dvě', async () => (await pr.locator('#seznam .card').count()) === 2 && !(await pr.locator('#seznam').textContent()).includes('Karel Cizí'));
   await T('prodejce nevidí „Porada“, vidí „Můj týden“', async () => !(await pr.isVisible('#b-porada')) && (await pr.isVisible('#b-tyden')));
   await T('prodejce nevidí formulář nové dohody, ale vidí tip od šéfa a „Hotovo“', async () => {
     await pr.locator('#seznam .card', {hasText:'Ivana Tichá'}).click(); await pr.waitForSelector('.dh-box'); const t = await pr.locator('.dh-box').textContent();
@@ -103,7 +104,7 @@ const POPT = {
     await v.click('.po-tab a'); await v.waitForTimeout(300); await v.goBack(); await v.waitForTimeout(400); const a = await v.evaluate(() => view);
     await v.goBack(); await v.waitForTimeout(400); const b = await v.evaluate(() => view); return (a === 'porada' && b === 'home') || [a, b]; });
   console.log('== iPhone');
-  const m = await otevri(PRO, IPHONE);
+  const m = await otevri(PRO, IPHONE, 2);
   await T('mobil: karta s dohodou a „Hotovo“ u dohody; detail s tipem od šéfa; bez chyb', async () => {
     const t = await m.locator('#seznam .card', {hasText:'Ivana Tichá'}).textContent(); await m.locator('#seznam .card', {hasText:'Ivana Tichá'}).click(); await m.waitForTimeout(400);
     const d = await m.locator('#view').textContent(); return (t.includes('🤝') && d.includes('Tip od šéfa') && m.chyby.length === 0) || [t.slice(0, 200), m.chyby]; });

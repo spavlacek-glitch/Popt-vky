@@ -8,7 +8,9 @@
 |---|---|
 | `database.rules.json` | navrhovaná pravidla: schválené účty, `/poptavky` beze změny tvaru, `/zakaznici` jen s povolenými poli |
 | `database.rules.produkce-v1.json` | současná pravidla podle `CLAUDE.md`, jen pro srovnávací testy |
-| `rules.test.mjs` | 81 testů pravidel (Node test runner + `@firebase/rules-unit-testing`) |
+| `rules.test.mjs` | 133 testů pravidel (Node test runner + `@firebase/rules-unit-testing`) |
+| `database.rules.pred-vice-prodejci.json` | pravidla před v1.24 (každý schválený vidí vše), pro případný návrat |
+| `PRIDANI_PRODEJCE.md` | návod pro správce: záloha, nasazení pravidel, zřízení účtu prodejce (v1.24) |
 | `firebase.json` | nastavení emulátoru (port 9000) |
 
 ## Co pravidla dělají
@@ -93,3 +95,6 @@ Nic z toho není provedeno. Každý krok je samostatné rozhodnutí.
    - Kdyby cokoli nefungovalo, vlož do Rules zálohu z kroku 1 a klikni na „Publish“. Stav se vrátí během sekund a data zůstanou nedotčená.
 
 Až budou pravidla v provozu, je potřeba upravit sekci „Pravidla DB“ v `CLAUDE.md`, ale jen na pokyn uživatele.
+
+## v1.24: každý prodejce vidí jen své
+Od v1.24 smí prodejce číst a měnit jen poptávky se svým e-mailem v `prodejce`; vedoucí (`vedouci: true`) vše. Dohody zadává a potvrzuje jen vedoucí. Postup nasazení a zřízení účtů: `PRIDANI_PRODEJCE.md`. Starší části tohoto souboru popisují původní návrh v0.1.

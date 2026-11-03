@@ -8,10 +8,21 @@
     },
 
     "poptavky": {
-      ".read": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true",
-      ".write": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true",
+      ".indexOn": ["prodejce"],
+      ".read": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true && (root.child('uzivatele').child(auth.uid).child('vedouci').val() === true || (query.orderByChild === 'prodejce' && query.equalTo === auth.token.email))",
       "$poptavka": {
+        ".read": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true && (root.child('uzivatele').child(auth.uid).child('vedouci').val() === true || data.child('prodejce').val() === auth.token.email)",
+        ".write": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true && (root.child('uzivatele').child(auth.uid).child('vedouci').val() === true || (!data.exists() && newData.child('prodejce').val() === auth.token.email && !newData.child('dohody').exists()) || (!newData.exists() && data.child('prodejce').val() === auth.token.email))",
+        "dohody": {
+          "$dohoda": {
+            ".write": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true && root.child('poptavky').child($poptavka).child('prodejce').val() === auth.token.email && data.exists() && newData.exists() && newData.child('stav').val() === 'hotovo' && (data.child('stav').val() === 'otevrena' || data.child('stav').val() === 'dopracovat' || data.child('stav').val() === 'hotovo') && newData.child('text').val() === data.child('text').val() && newData.child('do').val() === data.child('do').val() && newData.child('zadal').val() === data.child('zadal').val() && newData.child('t').val() === data.child('t').val()"
+          }
+        },
+        "$pole": {
+          ".write": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true && $pole !== 'dohody' && $pole !== 'prodejce' && root.child('poptavky').child($poptavka).child('prodejce').val() === auth.token.email"
+        },
         "nabidky": {
+          ".write": "auth != null && root.child('uzivatele').child(auth.uid).child('schvalen').val() === true && root.child('poptavky').child($poptavka).child('prodejce').val() === auth.token.email",
           "$nabidka": {
             ".validate": "$nabidka.length <= 64 && root.child('poptavky').child($poptavka).child('stav').exists() && newData.hasChildren(['model', 'cena_sdph', 't', 'kdo'])",
             "model":         { ".validate": "newData.isString() && newData.val().length <= 80" },
