@@ -84,7 +84,7 @@
 ## Hlášky v „Dnes zavolat“ (v1.8, rozšířeno ve v1.21)
 - Nad seznamem „Dnes zavolat“ je krátká povzbuzující věta podle počtu hovorů (`HECOVANI`: `nula`, `malo`, `stredne`, `hodne`, `prosle`). Věta se vybírá podle dne, takže v jednom dni zůstává stejná.
 - **Tón (rozhodnutí uživatele, 2026-11-01): suchý a černý humor.** Smí se smát situaci (telefon, konkurence, kafe), nikdy na účet zákazníka, kolegy nebo prodejce, a nikdy nesrážet („pozadu“, „poslední“ se nepoužije). Test `testy/test_hlasky_v1.21.js` to hlídá.
-- V1.21 přidala 15 vět, mimo jiné od uživatele: „Kafe je zadarmo, tak pozvi zákazníka na showroom. Je to jediné, co dostane zdarma ☕“. Další hlášky přidává uživatel nebo se navrhnou a schválí.
+- V1.21 přidala 15 vět, mimo jiné od uživatele: „Kafe je zadarmo, tak pozvi zákazníka na showroom. Je to jediné, co dostane zdarma ☕“. Další hlášky přidává uživatel nebo se navrhnou a schválí. V1.32 přidala 20 vět (4 do každé skupiny; celkem 55).
 
 ## Dohody z porady, Můj týden a Porada (v1.20)
 - **Přání uživatele (2026-11-01):** vedoucí prodeje osobních vozů (5 prodejců) si každé pondělí sedne s každým prodejcem nad obchodními případy. Chce vidět **kdo a kolik má rozjednáno, v jakém stavu, ekonomiku obchodu, jak dlouho se řeší, kdy byl poslední kontakt a kolikrát se zákazníkovi ozval**. Kontakt 14+ dní prodejce musí vysvětlit (viz `KONTEXT_obchod.md`, odpovědi kolem 14 dní). Další pondělí se vedoucí vrací k tomu, co se dohodlo. Uživatel to **testuje sám v obou rolích**, kolegové přibudou později.
