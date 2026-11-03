@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.26 (2026-11-03)
+Verze dokumentu: 2.27 (2026-11-03)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -49,6 +49,7 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 - **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi a běžící appky nenabídnou aktualizaci (viz „Aktualizace za chodu“).
   - `MINIMALNI` (od v1.10) zvýšit **jen při změně tvaru dat**. Starší verze se pak přepnou samy.
   - Tvar obou řádků (`const AKTUALNI = '…';`) neměnit, appka je čte.
+  - **V nové verzi přepsat i `const VERZE = [1, N];` v kódu appky** (spolu s názvem souboru, `<title>` a hlavičkou). Ve v1.22 zůstalo `[1, 21]`: appka se pak považuje za starší než `AKTUALNI`, lišta „Aktualizovat“ se ukazuje pořád a klepnutí nic neudělá (přepne na stejný soubor). Opraveno ve v1.23, hlídá to `testy/test_verze.js` (spouštět před každým pull requestem).
 - **`manifest.json`** (od v1.12), odkazuje na něj `poptavky.html` i každá verze (`<link rel="manifest">`):
   - `start_url: poptavky.html`: ikona na ploše startuje ze stálé adresy, takže vždy otevře nejnovější verzi,
   - `scope: ./`: k appce patří celá složka. Přepnutí na novou verzi zůstane v appce, bez lišty prohlížeče.
@@ -270,6 +271,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
 - `testy/test_detail_pc_v1.17.js`: detail na PC 1440, 1100 a 1920 ve dvou sloupcích a mobilní detail beze změny.
 - `testy/test_zpet_kalkulace_v1.18.js`: Zpět a Vpřed prohlížeče (PC i iPhone), úprava a návrat, kalkulace v detailu, schovaný a odkrytý zisk, od v1.19 i výrazný přilepený pruh a Esc.
 - `testy/test_dohody_v1.20.js`: dohody, role vedoucího a prodejce, Hotovo bez času, Můj týden, Porada, Zpět prohlížeče, iPhone.
+- `testy/test_verze.js`: číslo verze v kódu sedí s názvem souboru, `poptavky.html` ukazuje na nejnovější existující verzi (bez prohlížeče, `node testy/test_verze.js`).
 - `testy/test_panel_v1.22.js`: panel „Další akce“ na iPhonu – zavření posunutím dolů, krátké potáhnutí, klepnutí na pozadí (bez Firebase, s atrapou SDK).
 - `testy/test_hlasky_v1.21.js`: hlášky v „Dnes zavolat“ (plné skupiny, bez duplicit, věta od uživatele, žádný sráživý tón).
 - `firebase/rules.test.mjs`: pravidla databáze (95 testů, od v1.14 i `nabidky`).
