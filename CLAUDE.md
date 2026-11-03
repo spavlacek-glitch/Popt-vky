@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.31 (2026-11-03)
+Verze dokumentu: 2.32 (2026-11-03)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -298,6 +298,7 @@ Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`
   - **Karty v „Dnes zavolat“ jsou krátké:** jméno a štítek, co chce, dohoda/tip od šéfa a poslední poznámka; nabídka, vůz a termín se neukazují, **termín jen když je prošlý (červeně, jako dřív)**.
   - Z návrhu se záměrně **nepřevzalo:** viditelný zisk a „očekávaný zisk/obrat“ (zisk zůstává schovaný do klepnutí, obrat = součet nabídek by vypadal jako předpověď), červené „Dnes (urgentní)“, ztráta vozu, dohody a ekonomiky v řádku.
   - **v1.27 (úpravy po zkoušce na skutečných datech):** výchozí řazení seznamu je **podle fáze**: Nová → Jednáme → Nabídka odeslána → Prodáno → Ztraceno, uvnitř otevřených podle dalšího kontaktu (prošlé a dnešní nahoře), uvnitř uzavřených podle poslední změny; **nadpisy skupin** („Nabídka odeslána · 6“), aby „Nabídka odeslána“ nezapadla ani při 20 poptávkách (řazení klepnutím na záhlaví Nabídka / Zisk / Další kontakt zůstává, ploché bez nadpisů). Filtr prodejce je krátký („👤 Moje (10)“, „👥 Všichni“, „Jméno (N)“) a stojí v řadě vedle Otevřené/Prodáno/Ztraceno/Vše. „Cena vozu“ se v ekonomice a v detailu ukazuje **jen když je doplňkový prodej** (jinak je totéž co „Celkem s DPH“). Dlouhý název souboru se zkrátí třemi tečkami (nepřetéká doprava).
+  - **v1.28 (přání uživatele: „poptávky mi splývají“):** každá karta poptávky (přehled, „Dnes zavolat“, tipy; PC i mobil) má jemný modrošedý okraj a **barevný proužek vlevo podle stavu**, ve stejných barvách jako štítky stavu (Nová modrá, Jednáme fialová, Nabídka odeslána oranžová, Prodáno zelená, Ztraceno šedá); při najetí myší se okraj zmodrá. Třída `s-<stav>` na kartě. Jen vzhled.
   - Mobil: stejné karty, jen kratší „Dnes zavolat“. Testy `test_ekonomika_v1.15.js` a `test_vlastnik_v1.25.js` (16 kontrol) upravené na nové rozložení.
 - **Poptávka bez pole `prodejce`** (nejstarší) vidí jen vedoucí; předání jinému prodejci = změna pole `prodejce` v konzoli.
 - Ověřeno: pravidla v emulátoru (133 testů, proti starým pravidlům 23 selže), UI testy dohod, odkazu, tipů, výdělku, ekonomiky, vozu, zpět/kalkulace, detailu PC, GDPR a celá cesta Offer Studia (25 kontrol) proti emulátorům. Na skutečné databázi zatím vyzkoušeno není.
