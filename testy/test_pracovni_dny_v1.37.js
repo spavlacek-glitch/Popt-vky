@@ -1,7 +1,7 @@
-// test_pracovni_dny_v1.37.js – víkendy a české svátky se u termínů dalšího kontaktu přeskakují (funkce z poptavky_v1.40.html, bez prohlížeče)
+// test_pracovni_dny_v1.37.js – víkendy a české svátky se u termínů dalšího kontaktu přeskakují (funkce z poptavky_v1.41.html, bez prohlížeče)
 //   node testy/test_pracovni_dny_v1.37.js
 const fs=require('fs'),path=require('path'),vm=require('vm');
-const t=fs.readFileSync(path.join(__dirname,'..','poptavky_v1.40.html'),'utf8');
+const t=fs.readFileSync(path.join(__dirname,'..','poptavky_v1.41.html'),'utf8');
 const z=t.indexOf('function velikonocniNedele'),k=t.indexOf('function fmtD(iso)');
 const ctx={};vm.createContext(ctx);vm.runInContext(t.slice(z,k)+';this.svatek=svatek;this.jePracovni=jePracovni;this.volnoDen=volnoDen;',ctx);
 let s=0;const K=(p,ok)=>{console.log(ok?'  ✔':'  ✖',p);if(!ok)s++;};
