@@ -1,0 +1,74 @@
+<!doctype html><html lang="cs"><meta charset="utf-8"><title>Ekonomika případu – návrh</title><style>
+:root{--ink:#111827;--muted:#64748b;--line:#e2e8f0;--blue:#0078d6;--bg:#f3f4f6}
+*{box-sizing:border-box}body{margin:0;background:#cbd5e1;font:15px/1.4 Inter,Segoe UI,Arial,sans-serif;color:var(--ink);padding:30px;display:flex;flex-direction:column;gap:40px;align-items:center}
+.frame{width:1360px;background:var(--bg);border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.nazev{width:1360px;font-weight:800;font-size:18px;color:#0f172a}
+.top{background:#111;color:#fff;padding:14px 20px;font-weight:700;font-size:18px}.top small{color:#94a3b8;font-size:12px;margin-left:6px}
+.lista{background:#e8f2fc;border-bottom:1px solid #bcd9f5;padding:10px 24px;display:flex;align-items:center;gap:16px}
+.lista .b{background:var(--blue);color:#fff;font-weight:700;padding:12px 22px;border-radius:10px}.lista .d{color:#334155;flex:1}
+.lista .s{border:1px solid var(--line);background:#fff;border-radius:8px;padding:8px 14px;font-weight:600}
+.body{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px 24px 24px}
+.box{background:#fff;border-radius:14px;padding:16px 18px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+h3{display:flex;justify-content:space-between;align-items:center;margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.kr{display:flex;justify-content:space-between;padding:3px 0}.kr b{font-variant-numeric:tabular-nums}
+.kr.tl{border-top:1px solid var(--line);margin-top:4px;padding-top:7px;font-size:17px}.kr.tl b{font-size:20px}
+.m{color:var(--muted)}.mini{font-size:13px;color:var(--muted)}
+.skryte{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:14px;text-align:center;color:var(--muted)}
+.skryte b{display:block;font-size:22px;letter-spacing:.2em;color:#94a3b8}
+.btn{display:inline-block;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 12px;font-weight:600;font-size:13px}
+.zel{color:#15803d}.ora{color:#b45309}
+.rng{position:relative;height:8px;background:#e2e8f0;border-radius:6px;margin:14px 0 6px}.rng i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--blue)}
+.rng u{position:absolute;top:-6px;width:20px;height:20px;border-radius:50%;background:#fff;border:3px solid var(--blue);margin-left:-10px}
+.osa{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+.vyhra{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:8px 12px;margin:8px 0}
+.tab{display:flex;gap:4px;padding:12px 24px 0}.tab span{padding:10px 20px;border-radius:10px 10px 0 0;font-weight:600;color:var(--muted)}.tab .on{background:#fff;color:var(--ink);box-shadow:0 -1px 2px rgba(0,0,0,.06)}
+.pruh{display:flex;height:46px;border-radius:10px;overflow:hidden;margin:10px 0 6px;font-size:12px;font-weight:700;color:#fff}.pruh div{display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.leg{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.sou{font-size:13px;color:var(--muted);margin-top:8px}.sou a{color:#0b63c5;text-decoration:underline}
+.fakt{display:flex;gap:10px;align-items:baseline;margin:2px 0 8px}.fakt b{font-size:22px}
+</style><body>
+<div class="nazev">A1 · Jeden blok „Zákazník platí / Tobě zůstane“ – schované (výchozí stav, showroom)</div><div class="frame"><div class="top">Poptávky<small>NÁVRH</small></div><div class="lista"><div class="b">← Všechny poptávky</div><div class="d">Poptávky › <b>Jan Novák</b> · GLS 450 d 4MATIC</div><div class="s">‹ Předchozí</div><span class="m">1 / 10</span><div class="s">Další ›</div></div><div class="body">
+<div class="box"><h3>Zákazník platí</h3>
+ <div class="kr"><span>Ceníková cena</span><b>3 295 675 Kč</b></div>
+ <div class="kr"><span>Sleva (7,0 %)</span><b class="zel">− 230 697 Kč</b></div>
+ <div class="kr tl"><span>Celkem s DPH</span><b>3 064 978 Kč</b></div><div class="sou">📄 Nabídka č. 1 · 2. 11. 2026 · <a>PDF</a> · <a>Offer Studio</a></div></div>
+<div class="box"><h3>Tobě zůstane</h3><div class="skryte"><b>••• Kč</b>zisk · marže · provize<br><span class="btn" style="margin-top:8px">👁 Ukázat</span></div></div>
+</div></div>
+<div class="nazev">A2 · Totéž po klepnutí na 👁 + posuvník (ústupek +30 000 Kč)</div><div class="frame"><div class="top">Poptávky<small>NÁVRH</small></div><div class="lista"><div class="b">← Všechny poptávky</div><div class="d">Poptávky › <b>Jan Novák</b> · GLS 450 d 4MATIC</div><div class="s">‹ Předchozí</div><span class="m">1 / 10</span><div class="s">Další ›</div></div><div class="body">
+<div class="box"><h3>Zákazník platí</h3>
+ <div class="kr"><span>Ceníková cena</span><b>3 295 675 Kč</b></div>
+ <div class="kr"><span>Sleva (7,0 %)</span><b class="zel">− 230 697 Kč</b></div>
+ <div class="kr tl"><span>Celkem s DPH</span><b>3 064 978 Kč</b></div><div class="sou">📄 Nabídka č. 1 · 2. 11. 2026 · <a>PDF</a> · <a>Offer Studio</a></div></div>
+<div class="box"><h3>Tobě zůstane <span class="btn">🙈 Schovat</span></h3>
+ <div class="kr"><span class="m">Nákupní cena bez DPH</span><b>2 287 907 Kč</b></div>
+ <div class="kr"><span>Zisk</span><b>245 133 Kč</b></div>
+ <div class="kr"><span class="m">− korekce (zimní kola)</span><b>− 18 000 Kč</b></div>
+ <div class="kr tl"><span>Skutečný zisk</span><b>227 133 Kč</b></div>
+ <div class="mini">obchodní marže 9,0 % · skutečná 9,0 %</div>
+ <div class="kr" style="margin-top:8px"><span>Provize <span class="mini">(GLS 10 % ze zisku, později)</span></span><b>22 713 Kč</b></div></div>
+<div class="box" style="grid-column:1/-1"><h3>🎚 Co když ustoupím?</h3>
+ <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px">
+ <div>Ústupek navíc: <b>+ 30 000 Kč</b><div class="rng"><i style="width:30%"></i><u style="left:30%"></u></div><div class="osa"><span>0</span><span>50 000 Kč</span><span>100 000 Kč</span></div>
+  <div class="vyhra">🏆 Zákazník právě vyhrál <b>30 000 Kč</b> a má radost.<br><span class="mini">Tvůj ústupek = 1× víkend na horách 🏔️</span></div></div>
+ <div><div class="kr"><span>Zákazník zaplatí</span><b>3 034 978 Kč</b></div><div class="kr"><span>Sleva</span><b>260 697 Kč (7,9 %)</b></div>
+  <div class="kr"><span>Skutečný zisk</span><b>202 340 Kč <span class="mini">(− 24 793 Kč)</span></b></div><div class="kr"><span>Provize</span><b>20 234 Kč <span class="mini">(− 2 479 Kč)</span></b></div>
+  <div class="kr"><span>Obchodní marže</span><b>8,1 %</b></div></div></div></div>
+</div></div>
+<div class="nazev">B · Samostatná záložka „Ekonomika“ s pruhem „Kam jde cena“</div><div class="frame"><div class="top">Poptávky<small>NÁVRH</small></div><div class="lista"><div class="b">← Všechny poptávky</div><div class="d">Poptávky › <b>Jan Novák</b> · GLS 450 d 4MATIC</div><div class="s">‹ Předchozí</div><span class="m">1 / 10</span><div class="s">Další ›</div></div><div class="tab"><span>Přehled</span><span class="on">Ekonomika</span><span>Historie</span></div>
+<div class="body" style="padding-top:0"><div class="box" style="grid-column:1/-1;border-radius:0 14px 14px 14px">
+ <div class="fakt"><b>3 064 978 Kč</b><span class="m">cena pro zákazníka s DPH · sleva 230 697 Kč (7,0 %) z ceníkové 3 295 675 Kč</span></div>
+ <h3>Kam jde cena</h3>
+ <div class="pruh"><div style="flex:531938.3305785125;background:#64748b">DPH</div><div style="flex:2287906.611570248;background:#0f766e">Nákupní cena</div><div style="flex:18000;background:#d97706"></div><div style="flex:227133.05785123957;background:#15803d">Skutečný zisk</div></div>
+ <div class="leg"><span><i style="background:#64748b"></i>DPH 531 938 Kč</span><span><i style="background:#0f766e"></i>Nákupní cena 2 287 907 Kč</span><span><i style="background:#d97706"></i>Korekce 18 000 Kč</span><span><i style="background:#15803d"></i>Skutečný zisk 227 133 Kč</span></div>
+</div>
+<div class="box"><h3>Čísla případu <span class="btn">🙈 Schovat</span></h3>
+ <div class="kr"><span>Zisk před korekcemi</span><b>245 133 Kč</b></div><div class="kr"><span>Korekce (zimní kola)</span><b>− 18 000 Kč</b></div>
+ <div class="kr tl"><span>Skutečný zisk</span><b>227 133 Kč</b></div>
+ <div class="mini">obchodní marže 9,0 % · skutečná 9,0 %</div>
+ <div class="kr" style="margin-top:8px"><span>Provize <span class="mini">(GLS 10 %, později)</span></span><b>22 713 Kč</b></div>
+ <div class="sou">📄 Nabídka č. 1 · 2. 11. 2026 · <a>PDF</a> · <a>Offer Studio</a></div></div>
+<div class="box"><h3>🎚 Co když ustoupím?</h3>Ústupek navíc: <b>+ 30 000 Kč</b><div class="rng"><i style="width:30%"></i><u style="left:30%"></u></div><div class="osa"><span>0</span><span>50 000 Kč</span><span>100 000 Kč</span></div>
+ <div class="vyhra">🏆 Zákazník vyhrál <b>30 000 Kč</b> · tvůj ústupek = 1× víkend na horách 🏔️</div>
+ <div class="kr"><span>Zákazník zaplatí</span><b>3 034 978 Kč</b></div><div class="kr"><span>Skutečný zisk</span><b>202 340 Kč</b></div><div class="kr"><span>Provize</span><b>20 234 Kč</b></div></div>
+</div></div>
+</body></html>
