@@ -6,7 +6,7 @@ const { chromium, devices } = require('playwright');
 const fs = require('fs'), path = require('path'), os = require('os');
 
 const ROOT = path.join(__dirname, '..'), NS = 'demo-poptavky-default-rtdb', EMU = 'http://127.0.0.1:9000', AUTH = 'http://127.0.0.1:9099';
-const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.34.html';
+const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.35.html';
 const TMP = fs.mkdtempSync(path.join(os.tmpdir(), 'poptavky-odkaz-'));
 // Kopie appky přesměrovaná na emulátory a beze změny stálá adresa poptavky.html (přesměrování na aktuální verzi)
 let html = fs.readFileSync(path.join(ROOT, SOUBOR), 'utf8');

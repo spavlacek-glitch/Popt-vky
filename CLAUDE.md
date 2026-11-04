@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.44 (2026-11-03)
+Verze dokumentu: 2.45 (2026-11-04)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -119,11 +119,11 @@ Hlavní pravidla jsou tady, podrobnosti jednotlivých funkcí v souborech níž.
 - `docs/email_prijem.md` – Příjem poptávek e-mailem: Příjem poptávek e-mailem
 
 ## Stav na konci session 2026-11-03 – co zbývá
-Hotovo a sloučeno v `main`: Poptávky v1.30 (čtyři původy vozu); v1.32 (dalších 20 hlášek); větev: v1.33 + v1.34 (posuvník „Co když ustoupím?“ a „Ekonomika případu“ v detailu na PC, návrh A), Offer Studio v1.8.3, nová pravidla DB pro víc prodejců (nasazená uživatelem, ověřeno s Miroslavem Sýkorou a Martinem Esterkou), GitHub Pages (zapnuté, funguje), „Jednáme“ schované (uživatel poslední poptávku přepnul ručně).
+Hotovo a sloučeno v `main`: Poptávky v1.30 (čtyři původy vozu); v1.32 (dalších 20 hlášek); větev: v1.33–v1.35 (posuvník „Co když ustoupím?“; detail na PC se záložkami Přehled / Ekonomika / Historie, návrh B), Offer Studio v1.8.3, nová pravidla DB pro víc prodejců (nasazená uživatelem, ověřeno s Miroslavem Sýkorou a Martinem Esterkou), GitHub Pages (zapnuté, funguje), „Jednáme“ schované (uživatel poslední poptávku přepnul ručně).
 Otevřené, v tomto pořadí:
 1. ~~Přepnout zařízení na GitHub Pages a zapnout přesměrování~~ – **hotovo 2026-11-03.** Raw.githack.com zůstává jen pro náhledy větví.
 2. **Pravidelná záloha Firebase** (uživatel dělá sám týdně exportem JSON). Vyjasnit vlastnictví projektu Firebase (osobní údaje zákazníků firmy).
-3. **Úklid:** ✅ CLAUDE.md rozdělen na hlavní soubor a `docs/` (2026-11-03); starší verze smazány 2026-11-03 (v repu zůstává v1.24–v1.29, starší jsou v gitu). Výchozí soubor v testech je teď `poptavky_v1.34.html`; testy starších funkcí **nebyly po úklidu spuštěny** (emulátory tu nejsou), případné rozdíly proti dnešnímu vzhledu opravit při dalším spuštění. Zbývá: případně rozdělit jednosouborovou appku. Archiv poptávek kolem 2 000 kusů. Firebase Hosting jen kdyby bylo potřeba soukromé repo, vrácení nasazení nebo vlastní hlavičky.
+3. **Úklid:** ✅ CLAUDE.md rozdělen na hlavní soubor a `docs/` (2026-11-03); starší verze smazány 2026-11-03 (v repu zůstává v1.24–v1.29, starší jsou v gitu). Výchozí soubor v testech je teď `poptavky_v1.35.html`; testy starších funkcí **nebyly po úklidu spuštěny** (emulátory tu nejsou), případné rozdíly proti dnešnímu vzhledu opravit při dalším spuštění. Zbývá: případně rozdělit jednosouborovou appku. Archiv poptávek kolem 2 000 kusů. Firebase Hosting jen kdyby bylo potřeba soukromé repo, vrácení nasazení nebo vlastní hlavičky.
 4. **Zákazníci (`/zakaznici`) jsou společní** všem prodejcům (kvůli rozpoznání známého zákazníka). Omezit až na přání.
 5. **Vůz z Offer Studia** (původ vozu hotový ve v1.30; zápis kódu/Auftragu z Offer Studia zatím není).
 6. **Příjem poptávek e-mailem** čeká na odpověď IT (otázky v sekci „Příjem poptávek e-mailem“).
