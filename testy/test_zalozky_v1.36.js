@@ -1,7 +1,7 @@
-// test_zalozky_v1.35.js – záložky detailu na PC (Přehled / Ekonomika / Historie), Ekonomika podle návrhu B a posuvník „Co když ustoupím?“;
-// iPhone záložky nemá. Bez Firebase (SDK = atrapa).   SOUBOR=poptavky_v1.35.html node testy/test_zalozky_v1.35.js   (SCREEN_DIR=… uloží snímky)
+// test_zalozky_v1.36.js – záložky detailu na PC (Přehled / Ekonomika / Historie), Ekonomika podle návrhu B a posuvník „Co když ustoupím?“;
+// iPhone záložky nemá. Bez Firebase (SDK = atrapa).   SOUBOR=poptavky_v1.36.html node testy/test_zalozky_v1.36.js   (SCREEN_DIR=… uloží snímky)
 const {chromium,devices}=require('playwright');const path=require('path');
-const SOUBOR=process.env.SOUBOR||'poptavky_v1.35.html',OUT=process.env.SCREEN_DIR;
+const SOUBOR=process.env.SOUBOR||'poptavky_v1.36.html',OUT=process.env.SCREEN_DIR;
 let selhani=0;const K=(popis,ok)=>{console.log(ok?'  ✔':'  ✖',popis);if(!ok)selhani++;};
 const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='then'?undefined:mk(),apply:()=>mk(),construct:()=>mk()});window.firebase=mk();})();`;
 const NAB={model:'GLS 450 d 4MATIC',cena_sdph:3064977,cena_vuz_sdph:3064977,sleva_sdph:230697,sleva_pct:7,soubor:'x.pdf',t:5000,kdo:'a@b.cz',zdroj:'offerstudio',
@@ -25,11 +25,12 @@ const nbsp=x=>x.replace(/ /g,' ');
   K('tři záložky: Přehled, Ekonomika, Historie (2)',(await p.locator('.pc-zalozky button').allInnerTexts()).join('|')==='Přehled|Ekonomika|Historie (2)');
   K('výchozí je Přehled (zákazník, stav, poznámka), bez ekonomiky',await p.locator('.pc-zalozky button.on').innerText()==='Přehled'&&await p.locator('#d-pozn').count()===1&&await p.locator('#sim-posuvnik').count()===0);
   K('v Přehledu je „Naposledy …“ s odkazem na Historii (bez rozbalené historie)',(await txt()).includes('Naposledy')&&(await txt()).includes('Celá historie (2)')&&await p.locator('.hist').count()===0);
+  K('Přehled: soubor nabídky + 📄 PDF + 📂 Offer Studio jsou po ruce u poptávky',await p.evaluate(()=>{const a=[...document.querySelectorAll('.nab-soubory a')].map(x=>x.href);return document.querySelector('.nab-soubory').innerText.includes('x.pdf')&&a.length===2&&a[0].includes('/pdf')&&a[1].includes('/draft/');}));
   // poznámka přežije přepnutí
   await p.fill('#d-pozn','rozepsáno');await tab('Ekonomika').click();
   K('Ekonomika: cena pro zákazníka a sleva v hlavičce',(await txt()).includes('3 064 977 Kč')&&(await txt()).includes('sleva 230 697 Kč')&&(await txt()).includes('z ceníkové 3 295 674 Kč'));
   K('Ekonomika: ve výchozím stavu je zisk schovaný (pruh není, nákupní cena není)',await p.locator('.pruh').count()===0&&!(await txt()).includes('Nákupní cena')&&(await txt()).includes('•••')&&!(await txt()).includes('282 000'));
-  K('Ekonomika: posuvník je vpravo, odkazy PDF a Offer Studio vlevo',await p.locator('#sim-posuvnik').count()===1&&await p.locator('.eko-sou a').count()===2);
+  K('Ekonomika: posuvník je tu, soubor a odkazy PDF / Offer Studio tu NEJSOU',await p.locator('#sim-posuvnik').count()===1&&await p.locator('.eko-sou').count()===0&&!(await txt()).includes('x.pdf'));
   await p.locator('.eko-hlava button',{hasText:'Ukázat'}).click();
   K('po odkrytí: pruh „Kam jde cena“ s DPH, nákupní cenou, korekcí a ziskem',await p.locator('.pruh div').count()===4&&(await txt()).includes('Skutečný zisk 282 000 Kč')&&(await txt()).includes('Korekce 18 000 Kč')&&(await txt()).includes('Nákupní cena 2 233 039 Kč'));
   K('po odkrytí: čísla případu (zisk 300 000, korekce − 18 000, skutečný zisk 282 000, marže)',(await txt()).includes('300 000 Kč')&&(await txt()).includes('− 18 000 Kč')&&(await txt()).includes('9,1 %'));

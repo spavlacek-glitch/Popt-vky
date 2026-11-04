@@ -6,7 +6,7 @@ const { chromium, devices } = require('playwright');
 const fs = require('fs'), path = require('path'), os = require('os'), { spawn } = require('child_process');
 
 const ROOT = path.join(__dirname, '..'), NS = 'demo-poptavky-default-rtdb', EMU = 'http://127.0.0.1:9000', AUTH = 'http://127.0.0.1:9099';
-const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.35.html', OUT = process.env.SCREEN_DIR, OS_DIR = process.env.OFFER_STUDIO;
+const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.36.html', OUT = process.env.SCREEN_DIR, OS_DIR = process.env.OFFER_STUDIO;
 const PRAVIDLA = fs.readFileSync(path.join(ROOT, 'firebase', 'database.rules.json'), 'utf8');
 
 let html = fs.readFileSync(path.join(ROOT, SOUBOR), 'utf8');

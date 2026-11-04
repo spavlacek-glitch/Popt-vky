@@ -28,4 +28,4 @@
 - `firebase/rules.test.mjs`: pravidla databáze (133 testů, od v1.14 i `nabidky`, od v1.24 i více prodejců).
 
 - `testy/test_sipky_v1.31.js`: šipky Předchozí / Další a klávesy ← → v detailu (PC 1280 a iPhone 13) – pořadí podle přehledu, krajní poptávky, psaní do pole, poptávka mimo seznam, hledání; bez Firebase (SDK nahrazené atrapou, nepotřebuje emulátory).
-- `testy/test_zalozky_v1.35.js`: záložky detailu na PC, Ekonomika (návrh B) a posuvník „Co když ustoupím?“ (dřív test_ekonomika_pripadu_v1.34.js a test_posuvnik_v1.33.js) na PC 1440 (cena, 🏆, ekvivalent, schovaný a odkrytý zisk, marže, varování, nulování, bez nabídky) a jeho absence na iPhonu 13; bez Firebase (atrapa SDK). `SCREEN_DIR=…` uloží snímek.
+- `testy/test_zalozky_v1.36.js`: záložky detailu na PC, Ekonomika (návrh B) a posuvník „Co když ustoupím?“ (dřív test_ekonomika_pripadu_v1.34.js a test_posuvnik_v1.33.js) na PC 1440 (cena, 🏆, ekvivalent, schovaný a odkrytý zisk, marže, varování, nulování, bez nabídky) a jeho absence na iPhonu 13; bez Firebase (atrapa SDK). `SCREEN_DIR=…` uloží snímek.
