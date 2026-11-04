@@ -13,7 +13,7 @@ const FB = process.env.FIREBASE10;
 const PRAVIDLA = fs.readFileSync(path.join(ROOT, 'firebase', 'database.rules.json'), 'utf8');   // nasazená pravidla
 
 // Dočasná kopie v1.2: jen konfigurace a přesměrování na emulátory, zbytek beze změny
-const SOUBOR = process.env.SOUBOR || 'poptavky_v1.37.html';
+const SOUBOR = process.env.SOUBOR || 'poptavky_v1.38.html';
 let html = fs.readFileSync(path.join(ROOT, SOUBOR), 'utf8');
 const a = html.indexOf('const firebaseConfig = {'), b = html.indexOf('};', a) + 2;
 html = html.slice(0, a) + `const firebaseConfig = {apiKey:"demo-key", authDomain:"demo-poptavky.firebaseapp.com", databaseURL:"${EMU}?ns=${NS}", projectId:"demo-poptavky"};` + html.slice(b);

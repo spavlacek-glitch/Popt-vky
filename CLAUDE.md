@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.47 (2026-11-04)
+Verze dokumentu: 2.48 (2026-11-04)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
