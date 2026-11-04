@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.46 (2026-11-04)
+Verze dokumentu: 2.47 (2026-11-04)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -86,8 +86,8 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 Pole povolená pravidly: `jmeno`, `prijmeni`, `firma`, `ico`, `telefon`, `email`, `zdroj` (`dfe` | `poptavka`), `vytvoreno`, `upraveno`, `upravil` (UID), `klice/{ph:…|em:…}: true`, `vozidla/*`. Zákazník z poptávky má `zdroj: poptavka`, jméno rozdělené na jméno a příjmení a klíč telefonu nebo e-mailu. E-mail má v klíči „.“ → „,“.
 
 ## Pravidla chování (musí platit)
-- Nová poptávka → stav `nova`, další kontakt = zítra.
-- Přepnutí na `nabidka` → další kontakt = dnes + 3 dny, zápis do historie.
+- Nová poptávka → stav `nova`, další kontakt = zítra (od v1.37 nejbližší **pracovní den**).
+- Přepnutí na `nabidka` → další kontakt = dnes + 3 dny (od v1.37 přeskočí víkend a české svátky, stejně tlačítka Zítra / +3 dny / +týden / +2 týdny; ručně zadané volno appka jen označí ⚠), zápis do historie.
 - `prodano` / `ztraceno` → další kontakt = null (zmizí z „Dnes zavolat").
 - Každá změna stavu se zapíše do historie.
 - „Dnes zavolat" = otevřené stavy (`nova`, `nabidka`, `jednani`) s `dalsiKontakt <= dnes`, prošlé červeně.
