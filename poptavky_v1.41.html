@@ -1,0 +1,1862 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<!-- Poptávky – evidence poptávek | verze 1.41 | 2026-11-04
+     v1.1: hecovací věta dne v „Dnes zavolat“
+     v1.2: známý zákazník u nové poptávky (/zakaznici) – vyhledání, Vybrat, „Je to nový zákazník“; převzato z ověřeného experimentu v0.5
+     v1.3: jen vzhled přehledu – „Dnes zavolat“ odděleně od evidence, na PC dva sloupce, nízká hlavička na mobilu;
+           v detailu na mobilu modré plovoucí „← Přehled“ dole vlevo; historie kontaktů v detailu sbalená
+     v1.4: „📱 Uložit do kontaktů“ v detailu – soubor vCard (.vcf) z ověřeného experimentu vcard_v0.1, volitelné označení kontaktu
+     v1.5: nový detail poptávky jen na mobilu (do 600 px) podle schváleného prototypu; detail na PC beze změny (v1.4)
+     v1.6: kontakt v iPhonu nese odkaz „Poptávky“ (poptavky.html#poptavka=<id>), který otevře rovnou detail poptávky;
+           ověřeno experimentem vcard_odkaz_v0.1
+     v1.7: jen vzhled přehledu na PC – širší, „Dnes zavolat“ přilepené vlevo, export v hlavičce evidence,
+           hledání a filtry na jednom řádku, od 1200 px poptávky jako řádky ve sloupcích; mobil beze změny
+     v1.8: prázdné „Dnes zavolat“ nabídne až 3 tipy, komu zavolat – „Dlouho ticho“ (otevřená poptávka 14+ dní bez zápisu)
+           a nejbližší budoucí kontakt; jen čtení dat, nic se nezapisuje
+     v1.9: „Souhlas GDPR“ v detailu – připraví SMS s odkazem na formulář souhlasu MB; odešle prodejce sám,
+           nic se nezapisuje (e-mail záměrně ne – Outlook z mailto: neudělá klikací odkaz)
+     v1.10: aktualizace za chodu – appka se při spuštění, návratu do popředí a každých 30 min podívá do poptavky.html;
+           novější verze → lišta „Aktualizovat“, pod minimální verzí → přepnutí, jakmile to nic nepřeruší
+     v1.11: „🎉 Tento měsíc prodáno: 3 auta ≈ … Kč“ a výhled z rozjednaných – jen moje poptávky, průměrná provize
+           jen v zařízení (localStorage), částky schované do klepnutí; do databáze se nic nezapisuje
+     v1.12: manifest.json – všechny verze ve složce patří k appce na ploše (aktualizace bez lišty prohlížeče)
+           a ikona se spouští ze stálé adresy poptavky.html (vždy nejnovější verze)
+     v1.13: „📄 Udělat nabídku“ v detailu na PC – otevře Mercedes Offer Studio (127.0.0.1:8774) s vyplněným
+           zákazníkem a ID poptávky; je to jen odkaz, nic se nezapisuje, stav se nemění
+     v1.14: nabídky z Offer Studia (od v1.5.0) v detailu na PC – model, cena, sleva a zisk (schovaný do klepnutí);
+           v hlavičce na PC „Zisk z prodaných aut“ tento měsíc; jen čtení, Poptávky nic nepočítají ani nezapisují
+     v1.41: u nabídky je „✏️ Upravit (jiná sleva / cena)“ (otevře stejnou nabídku) a „➕ Nabídka na jiné auto“ je nenápadný odkaz; v bloku Nabídka je nejvýš jedno modré tlačítko.
+     v1.40: „➕ Další nabídka“ otevře rovnou novou nabídku pro stejného zákazníka (odkaz má nova=1), ne stávající nabídku s hláškou.
+     v1.39: návod ke spuštění Offer Studia odpovídá Offer Studiu v1.8.9 (po START.bat se prohlížeč sám neotevře, otevře se z „Udělat nabídku“).
+     v1.38: jedna karta Poptávek a jedna karta Offer Studia. Karta Poptávek se jmenuje „poptavky“, takže „← Zpět do Poptávek“ z Offer Studia
+            přepne do ní místo otevření nové; „Udělat nabídku“ a „Offer Studio“ přepnou do už otevřené karty Offer Studia (otevriOS).
+     v1.37: jednoduchost pro víc prodejců. Termíny „zítra / +3 dny / +týden“ přeskočí víkend a české svátky (pracovniDen). Detail na PC je podle
+            mobilu „příběh případu“: kdo, co chce, naposledy, teď. Řídké věci (označení kontaktu, SMS, uložení do kontaktů) jsou pod „Další“.
+            „📄 Udělat nabídku“ je hlavní tlačítko a umí vysvětlit, jak spustit Offer Studio; po vzniku nabídky se nabídne „Nabídka odeslána“.
+     v1.36: soubor nabídky + „📄 PDF“ + „📂 Offer Studio“ jsou v Přehledu u poptávky (po ruce při telefonu), ne v Ekonomice
+     v1.35: detail na PC má záložky Přehled / Ekonomika / Historie; Ekonomika podle návrhu B (cena, pruh „Kam jde cena“, čísla případu, posuvník „Co když ustoupím?“); pravý sloupec se už nepřilepuje
+     v1.34: „Ekonomika případu“ v detailu na PC – jeden blok „Zákazník platí / Tobě zůstane“ + posuvník místo rozházených řádků nabídek, zisku a posuvníku (návrh A, přání uživatele)
+     v1.33: posuvník „Co když ustoupím?“ v detailu na PC – simulace nad poslední nabídkou z Offer Studia (nic se nezapisuje)
+     v1.32: dalších 20 hlášek v „Dnes zavolat“ (4 do každé skupiny, suchý humor)
+     v1.31: šipky „‹ Předchozí / Další ›“ v detailu (PC i mobil, klávesy ← →) – listují poptávkami v pořadí přehledu (stejný filtr, hledání i řazení); nic se nezapisuje
+     v1.30: původ vozu má čtyři hodnoty: Skladový / Skladový – objednaný (neměnný) / Na zakázku / Od dealera (klíče sklad / objednany / vyroba / dealer; dřívější „Do výroby“ = klíč vyroba, nově popisek „Na zakázku“; lokace jen u skladového a od dealera)
+     v1.29: „📄 Otevřít PDF“ u poslední nabídky (rozbalená ekonomika i detail na PC; otevře PDF přes Offer Studio v1.8.3 na tomhle PC);
+            „Co jsem s ním řešil“ je jeden řádek na záznam (datum · text); stav „Jednáme“ se už nenabízí (poptávky, které ho mají, ho dál ukazují)
+     v1.28: karty poptávek mají jemný modrošedý okraj a barevný proužek vlevo podle stavu (Nová modrá, Jednáme fialová, Nabídka odeslána oranžová, Prodáno zelená, Ztraceno šedá) – jen vzhled
+     v1.27: úpravy podle zkoušky v1.26 – výchozí řazení podle fáze (Nová, Jednáme, Nabídka odeslána; uvnitř podle dalšího kontaktu) s nadpisy skupin;
+            kratší filtr prodejce hned vedle Otevřené/Prodáno/Ztraceno/Vše; „Cena vozu“ jen když se liší od „Celkem s DPH“; dlouhý název souboru se zkrátí
+     v1.26: přehlednější přehled (návrh z ChatGPT upravený podle pravidel appky): na PC od 1200 px jeden řádek na poptávku se sloupci Zákazník | Řeší / vůz | Poslední zápis | Nabídka | Sleva | Zisk | Stav | Další kontakt;
+            „poslední zápis“ je poslední skutečná poznámka (bez automatických řádků „Nabídka připravena“, „Stav →“); vlastník poptávky se ukazuje jen u cizích poptávek;
+            karty v „Dnes zavolat“ jsou kratší (jméno, co chce, poslední poznámka; termín jen když je prošlý)
+     v1.25: vedoucí vidí u poptávky jejího prodejce (karta, mobilní detail) a v přehledu může filtrovat podle prodejce (Všichni / jméno + počet otevřených)
+     v1.24: víc prodejců – každý prodejce načítá a vidí jen své poptávky (dotaz podle prodejce), vedoucí vidí všechny; nová pravidla databáze (firebase/database.rules.json)
+     v1.23: oprava – v1.22 měla v kódu staré číslo verze (1.21), takže lišta „Aktualizovat“ nabízela pořád stejnou verzi a klepnutí nic neudělalo
+     v1.22: panel „Další akce“ na mobilu jde zavřít posunutím dolů (nejen klepnutím na pozadí)
+     v1.21: víc hlášek v „Dnes zavolat“ (suchý a černý humor podle uživatele, nikdy na účet lidí)
+     v1.20: dohody z porady (vedoucí napíše jednu větu, prodejce klepne „Hotovo“, vedoucí potvrdí nebo vrátí), „Můj týden“ pro prodejce a „Porada“ pro vedoucího
+     v1.19: na PC je nad detailem pruh „← Všechny poptávky“ (výrazné modré tlačítko, přilepený při posouvání) a klávesa Esc vrací na přehled
+     v1.18: tlačítko Zpět prohlížeče vrací z detailu na přehled; „← Zpět na přehled“ je výraznější; detail nabídky na PC ukazuje celou cenovou kalkulaci (zisk dál schovaný)
+     v1.17: detail poptávky na PC je široký a ve dvou sloupcích (vlevo zákazník, nabídka a vůz, vpravo stav, další kontakt, zápis a historie); mobil beze změny
+     v1.16: vůz u poptávky – původ (skladový / do výroby / od dealera), Auftrag nebo online kód, lokace (ručně, nepovinné)
+     v1.15: ekonomika na přehledu – u každé poptávky nabídka (model · cena · sleva) a poslední zápis (i na mobilu);
+           na PC od 1200 px tabulka se sloupci Nabídka a Zisk (schovaný 👁), řazení, součet a rozbalovací
+           „Ekonomika poptávky“ (▸); „Dnes zavolat“ na svém místě; jen čtení, nic se nezapisuje -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cut">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Poptávky">
+<meta name="theme-color" content="#111111">
+<link rel="manifest" href="manifest.json">   <!-- v1.12: start ze stálé adresy, rozsah = celá složka -->
+<title>Poptávky v1.41</title>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+:root{--bg:#f3f4f6;--card:#fff;--ink:#111;--muted:#6b7280;--line:#e5e7eb;--acc:#0078d6;--red:#dc2626;--green:#16a34a;--amber:#d97706}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:16px}
+.hidden{display:none!important}
+header{background:#111;color:#fff;padding:12px 16px;padding-top:max(12px,env(safe-area-inset-top));display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+header h1{font-size:18px;margin:0;flex:1;cursor:pointer;white-space:nowrap}
+header small{color:#9ca3af;font-size:12px}
+header button{background:none;border:1px solid #444;color:#ddd;border-radius:8px;padding:5px 9px;font-size:13px;flex-shrink:0}
+/* v1.10: lišta s novou verzí – visí pod (přilepenou) hlavičkou, takže je vidět i při posouvání */
+.nova-verze{position:absolute;left:0;right:0;top:100%;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  background:#e6f1fb;color:var(--ink);border-bottom:1px solid #bfdbfe;padding:8px 12px 8px 16px;font-size:14.5px;line-height:1.3}
+.nova-verze span{flex:1 1 0;min-width:0}
+header .nova-verze button{background:var(--acc);color:#fff;border:0;border-radius:99px;padding:8px 14px;font-size:14px;font-weight:600}
+header .nova-verze button.pozdeji{background:none;color:var(--muted);font-weight:400;padding:8px 4px}
+.nova-verze.nutna{background:#fef3c7;border-bottom-color:#fde68a}
+#view{padding-top:calc(14px + var(--lista, 0px))}   /* obsah začíná pod lištou, nic nezakryje */
+#who{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+main{max-width:720px;margin:0 auto;padding:14px 14px 100px}
+/* v1.17: detail na PC – široký, dva sloupce */
+.pc-detail{display:block}
+@media (min-width:960px){
+  main:has(.pc-detail){max-width:1240px;padding-left:24px;padding-right:24px}
+  .pc-detail{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:0 18px;align-items:start}
+  .pc-detail .pc-konec{grid-column:1 / -1}
+  .pc-detail .ekop,.pc-detail .pc-hist-str{grid-column:1 / -1}
+  .pc-detail .pc-lev,.pc-detail .pc-prav{min-width:0}
+  .pc-detail .pc-lista{grid-column:1 / -1;position:sticky;top:calc(50px + var(--lista, 0px));z-index:4;display:flex;align-items:center;gap:16px;margin:0 -24px 12px;padding:10px 24px;background:#e8f2fc;border-bottom:1px solid #bcd9f5}
+  .pc-detail .zpet-pc{flex:0 0 auto;white-space:nowrap;font-weight:700;padding:12px 24px;font-size:17px;border-radius:10px;box-shadow:0 1px 3px rgba(0,120,214,.35)}
+  .pc-detail .pc-lista .drobek{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#334155;font-size:15px}
+  .pc-detail .pc-lista .drobek .jm{color:var(--ink);font-weight:700}
+  .pc-detail .pc-lista .sipky{flex:0 0 auto;display:flex;align-items:center;gap:8px}
+  .pc-detail .pc-lista kbd{font:inherit;font-size:12px;border:1px solid #9ec5ea;border-radius:5px;padding:1px 6px;background:#fff;color:#334155}
+  .pc-detail .pc-konec{display:flex;gap:8px;justify-content:flex-end}
+  .pc-detail .pc-konec .btn{flex:0 0 auto;min-width:160px}
+  .pc-detail .box h3.pc-nadpis{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+}
+h2{font-size:16px;margin:18px 0 8px}
+.card{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;box-shadow:0 1px 2px rgba(0,0,0,.06);cursor:pointer}
+.card .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.card .name{font-weight:600}
+.skup{margin:14px 4px 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.tab-hlava + .skup{margin-top:6px}
+.vl-radek{font-size:12px;font-weight:600;color:var(--muted)}
+.fprodejce{margin-left:0;width:auto;font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);border-radius:99px;background:var(--card);color:var(--ink);max-width:100%}
+.card .sub{color:var(--muted);font-size:14px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{font-size:12px;padding:2px 8px;border-radius:99px;background:#e5e7eb;white-space:nowrap}
+.b-nova{background:#dbeafe;color:#1e40af}.b-nabidka{background:#fef3c7;color:#92400e}.b-jednani{background:#ede9fe;color:#5b21b6}
+.b-prodano{background:#dcfce7;color:#166534}.b-ztraceno{background:#f3f4f6;color:#6b7280}
+/* v1.28: karta poptávky = jemný modrošedý okraj + barevný proužek vlevo podle stavu (stejné barvy jako štítky stavu), aby řádky nesplývaly */
+.card[class*=" s-"]{border:1px solid #cbd7ea;border-left:5px solid var(--pruh,#cbd7ea);padding-left:12px}
+.card.s-nova{--pruh:#3b82f6}.card.s-jednani{--pruh:#8b5cf6}.card.s-nabidka{--pruh:#f59e0b}.card.s-prodano{--pruh:#22c55e}.card.s-ztraceno{--pruh:#9ca3af}
+.card[class*=" s-"]:hover{border-top-color:#7fb0e6;border-right-color:#7fb0e6;border-bottom-color:#7fb0e6}
+.late{color:var(--red);font-weight:600}
+.empty{color:var(--muted);text-align:center;padding:14px}
+.hec{color:var(--muted);font-size:14px;margin:-4px 0 8px}
+.hec.late{color:var(--red)}
+input,textarea,select{width:100%;font:inherit;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+textarea{min-height:80px;resize:vertical}
+label.f{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.chip{border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 12px;font-size:14px;cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chips input{display:none}
+.btn{display:inline-block;border:0;border-radius:10px;padding:11px 16px;font:inherit;font-weight:600;background:var(--acc);color:#fff;cursor:pointer;text-decoration:none;text-align:center}
+.btn.sec{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.btn.red{background:#fff;color:var(--red);border:1px solid #fecaca}
+.btn.sm{padding:7px 11px;font-size:14px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.row .btn{flex:1}
+#fab{position:fixed;right:16px;bottom:max(16px,env(safe-area-inset-bottom));border-radius:99px;padding:14px 20px;box-shadow:0 4px 14px rgba(0,0,0,.25);font-size:16px}
+.box{background:var(--card);border-radius:12px;padding:14px;margin-bottom:10px}
+.hist{border-left:3px solid var(--line);padding:4px 0 4px 10px;margin:8px 0;font-size:14px}
+.hist small{color:var(--muted);display:block}
+/* v1.3: historie v detailu sbalená – klepnutím na nadpis rozbalit / sbalit */
+.historie{margin-top:12px;border-top:1px solid var(--line)}
+.historie summary{list-style:none;cursor:pointer;position:relative;min-height:44px;padding:10px 28px 8px 0;font-size:15px;font-weight:600}
+.historie summary::-webkit-details-marker{display:none}
+.historie summary::after{content:'▾';position:absolute;right:4px;top:10px;color:var(--muted);transition:transform .15s}
+.historie[open] summary::after{transform:rotate(180deg)}
+.kontakt input{flex:1 1 160px;min-width:0}
+.kontakt .btn{flex:0 0 auto;white-space:nowrap}
+/* v1.5: detail na mobilu (vykresluje se jen do 600 px) */
+.md-karta{background:var(--card);border-radius:14px;padding:16px;margin-bottom:12px}
+.md-stavy{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.md-stavy .badge{font-size:12.5px;font-weight:600;padding:3px 10px}
+.md-termin{font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:99px;background:#f9fafb;color:var(--muted);border:1px solid var(--line)}
+.md-termin.dnes{background:#e6f1fb;color:var(--acc);border-color:transparent}
+.md-termin.pozde{background:#fef2f2;color:var(--red);border-color:transparent}
+.md-jmeno{font-size:24px;margin:8px 0 2px;text-wrap:balance;overflow-wrap:anywhere}
+.md-meta{color:var(--muted);font-size:13px}
+.md-label{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
+.md-cochce{white-space:pre-wrap;overflow-wrap:anywhere;font-size:16.5px}
+.md-cochce.zkr{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.md-odkaz{background:none;border:0;padding:6px 0 0;color:var(--acc);font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.md-kontakt{display:grid;grid-template-columns:1.25fr 1fr;gap:8px;margin-top:16px}
+.md-kontakt.jeden{grid-template-columns:1fr}
+.md-akce{display:flex;flex-direction:column;justify-content:center;gap:1px;min-height:58px;border-radius:12px;padding:8px 14px;
+  border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none;min-width:0}
+.md-akce b{font-size:16px}
+.md-akce span{font-size:13px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-variant-numeric:tabular-nums}
+.md-akce.hlavni{background:var(--acc);border-color:var(--acc);color:#fff}
+.md-akce.hlavni span{color:#dbeafe}
+.md-nadpis{font-size:17px;margin:0 0 2px}
+.md-pod{color:var(--muted);font-size:13px;margin:0 0 6px}
+.md-zapsat{display:flex;justify-content:flex-end;margin-top:8px}
+.md-zapsat .btn{border-radius:99px;min-height:44px;padding:11px 20px}
+.md-zapsat .btn:disabled{background:var(--line);color:var(--muted);cursor:default}
+.md-oddel{height:1px;background:var(--line);margin:16px 0}
+.md-datum{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.md-datum .md-label{margin:0}
+.md-datum b{font-size:18px;text-align:right}
+.md-datum b.pozde{color:var(--red)}
+.md-chipy{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.md-chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:0 14px;min-height:40px;font:inherit;font-size:15px;
+  display:inline-flex;align-items:center;position:relative;cursor:pointer;color:var(--ink)}
+.md-chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.md-chip input[type=date]{position:absolute;inset:0;opacity:0;width:100%;height:100%;padding:0;border:0;cursor:pointer}
+.md-seg{display:grid;grid-template-columns:1fr 1.65fr 1fr;background:#f9fafb;border:1px solid var(--line);border-radius:12px;padding:3px;gap:3px;margin-top:8px}
+.md-seg button{border:0;background:none;border-radius:9px;min-height:42px;padding:4px 6px;font:inherit;font-size:14.5px;line-height:1.15;font-weight:600;color:var(--muted);text-wrap:balance;cursor:pointer}
+.md-seg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.md-uzavrit{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.md-uzavrit button{min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);font:inherit;font-weight:600;font-size:14.5px;cursor:pointer;color:var(--ink)}
+.md-uzavrit .prodano.on{background:#dcfce7;border-color:var(--green);color:var(--green)}
+.md-uzavrit .ztraceno.on{background:var(--line);border-color:var(--muted)}
+.md-hist{margin-top:0;border-top:0}
+.sipky .sip{padding:8px 14px;font-weight:600;white-space:nowrap}
+.sipky .sip:disabled{opacity:.4;cursor:default}
+.sipky .sip-poc{color:var(--muted);font-size:13px;min-width:46px;text-align:center}
+.sipky.mob{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 10px}
+.sipky.mob .sip{flex:1;min-height:44px}
+.md-vic{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:4;border-radius:99px;min-height:48px;padding:0 20px;
+  font:inherit;font-size:16px;font-weight:600;background:var(--card);color:var(--ink);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.22);cursor:pointer}
+.md-zavoj{position:fixed;inset:0;background:rgba(17,17,17,.38);z-index:20}
+.md-panel{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--card);border-radius:18px 18px 0 0;max-height:85vh;overflow:auto;
+  padding:8px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.md-uchyt{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 10px}
+.md-panel.tahne{transition:none}.md-panel{transition:transform .18s ease-out;overscroll-behavior:contain}
+.md-panel h3{font-size:15px;margin:0 0 12px;color:var(--muted);font-weight:600}
+.md-vcf{background:#f9fafb;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px}
+.md-vcf label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px}
+.md-r{display:flex;gap:8px;flex-wrap:wrap}
+.md-r input{flex:1 1 150px;min-width:0}
+.md-r .btn{border-radius:99px;min-height:44px;white-space:nowrap}
+.md-radek{display:flex;align-items:center;gap:12px;width:100%;min-height:52px;border:0;border-top:1px solid var(--line);background:none;
+  text-align:left;font:inherit;font-size:16px;padding:0 2px;cursor:pointer;color:var(--ink)}
+.md-radek span{width:28px;text-align:center}
+.md-radek.cervena{color:var(--red)}
+.md-potvrd{background:#fef2f2;border-radius:12px;padding:12px;margin-top:8px}
+.md-potvrd p{margin:0 0 10px;font-size:14.5px}
+.md-r2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.md-r2 .btn{border-radius:99px;min-height:44px}
+.btn.md-smazat{background:var(--red)}
+.historie .posledni{display:block;font-weight:400;font-size:13px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.err{color:var(--red);font-size:14px;margin-top:8px}
+.tools{display:flex;gap:8px;margin-top:8px}
+/* v1.2: známý zákazník */
+.hint{color:var(--muted);font-size:13px}
+.panel{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-top:10px}
+.panel b{font-size:14px}
+#zakaznici:empty{display:none}
+.zak{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:8px;overflow-wrap:anywhere;background:#fff}
+.zak.silna{border-color:#86efac;background:#f0fdf4}
+.zak .top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.zak .name{font-weight:600}
+.zak .sub{color:var(--muted);font-size:14px;margin-top:2px}
+.zak table{width:100%;border-collapse:collapse;margin-top:6px;font-size:14px}
+.zak td{padding:4px 0;border-top:1px solid var(--line);vertical-align:top}
+.zak td.d{text-align:right;white-space:nowrap;color:var(--muted)}
+.b-tel{background:#dcfce7;color:#166534}.b-jm{background:#fef3c7;color:#92400e}
+/* v1.3: přehled – dnešní úkoly v teplém panelu odděleně od evidence; na PC dva sloupce.
+   Místo pro budoucí ceny: na kartě vpravo u štítku stavu, souhrn hodnot vpravo v .sekce-hlava evidence. */
+.dnes{background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:2px 12px 6px;margin-bottom:8px}
+.dnes h2{margin-top:12px}
+.dnes .empty{padding:8px 4px 12px}
+/* v1.8: tipy, komu zavolat, když „Dnes zavolat“ je prázdné */
+.tipy-nadpis{font-size:14px;font-weight:600;margin:2px 0 8px}
+.tip-duvod{font-size:12.5px;font-weight:600;color:var(--amber);margin:0 0 3px 4px}
+/* v1.9: souhlas GDPR */
+.gdpr{align-items:center}
+.gdpr .hint{flex:0 0 auto}
+.gdpr .btn{flex:0 0 auto}
+.nabidka{align-items:center}
+.nabidka .btn{flex:0 0 auto}
+.pc-zalozky{display:flex;gap:4px;margin:0 0 12px;grid-column:1 / -1;border-bottom:1px solid var(--line)}
+.pc-zalozky button{font:inherit;font-weight:600;padding:10px 20px;border:0;border-radius:10px 10px 0 0;background:none;color:var(--muted);cursor:pointer}
+.pc-zalozky button.on{background:#fff;color:var(--ink);box-shadow:0 -1px 2px rgba(0,0,0,.06)}
+.pc-zalozky button:hover:not(.on){color:var(--ink)}
+.pribeh .pr-label{display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:14px 0 3px}
+.pr-cochce{font-size:18px;line-height:1.4;white-space:pre-wrap}
+.pr-kroky{display:grid;grid-template-columns:1fr auto;gap:8px 20px;align-items:start;margin-top:4px;padding:10px 12px;background:#f8fafc;border-radius:10px}
+.pr-kroky .pr-label{margin-top:0}
+.os-blok{margin-top:14px;padding-top:12px;border-top:1px solid #eef2f7}
+.os-blok>.hint{display:block;margin-top:6px}
+.os-jine{margin-top:8px;font-size:14px}.os-jine a{color:#0b63c5;font-weight:600}.os-jine .hint{margin-left:8px}
+.os-hlavni{font-size:16px;padding:12px 18px;margin-right:8px}
+.os-info{margin-top:10px;padding:10px 12px;background:#fff7e6;border-radius:10px;font-size:14px}.os-info ol,.os-pomoc ol{margin:6px 0 0 20px;padding:0}
+.os-pomoc{margin-top:8px;font-size:13px;color:var(--muted)}.os-pomoc summary{cursor:pointer}
+.os-vyzva{margin:10px 0;padding:10px 12px;background:#ecfdf5;border-radius:10px;font-size:15px}.os-vyzva .btn{margin:8px 0 4px;display:block}.os-vyzva .hint{display:block}
+.dalsi{margin-top:12px;font-size:13px;color:var(--muted)}.dalsi summary{cursor:pointer}
+.volno{color:#b45309;font-weight:600;font-size:12.5px}
+.posl-zapis{margin-top:10px;font-size:13px;cursor:pointer;padding-top:8px;border-top:1px solid #eef2f7}.posl-zapis a{color:#0b63c5;white-space:nowrap}.posl-zapis .m{color:var(--muted)}
+.pc-hist-str .hist{padding:6px 0}
+.ekop .pc-eko{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.ekop .eko-hlava{grid-column:1 / -1}
+.ekop .eko-cena{margin-bottom:10px}.ekop .eko-cena b{font-size:26px;margin-right:10px}.ekop .eko-cena .m{color:var(--muted)}
+.nab-soubory .eko-sou{margin-top:4px;font-size:14px;color:var(--ink)}
+.nab-soubory .eko-soubor{max-width:70%}
+.ekop .pruh{display:flex;height:46px;border-radius:10px;overflow:hidden;margin:8px 0 6px;font-size:12px;font-weight:700;color:#fff}.ekop .pruh div{display:flex;align-items:center;justify-content:center;white-space:nowrap;min-width:0;overflow:hidden}
+.ekop .leg{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted)}.ekop .leg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.ekop .kr{display:flex;justify-content:space-between;gap:10px;padding:3px 0}.ekop .kr b{font-variant-numeric:tabular-nums}
+.ekop .kr.tl{border-top:1px solid #e2e8f0;margin-top:4px;padding-top:7px;font-size:17px}.ekop .kr.tl b{font-size:20px}
+.ekop .kr.m{color:var(--muted)}.ekop .kr.zel b{color:#15803d}
+.ekop .ekomini{font-size:13px;color:var(--muted)}.ekop .m{color:var(--muted)}
+.ekop .pc-nadpis{display:flex;justify-content:space-between;align-items:center}
+.eko-model{margin-bottom:6px}
+.eko-sou{margin-top:8px;font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:baseline;min-width:0}
+.eko-sou a,.eko-star a{color:#0b63c5;white-space:nowrap}
+.eko-soubor{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 1 auto}
+.eko-star{margin-top:8px;font-size:13px;color:var(--muted);border-top:1px solid #e2e8f0;padding-top:6px}
+.ekop .skryte{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:10px;padding:14px;text-align:center;color:var(--muted);cursor:pointer}
+.ekop .skryte b{display:block;font-size:22px;letter-spacing:.2em;color:#94a3b8}
+.ekop .sim-mrizka{display:grid;grid-template-columns:1fr;gap:10px;align-items:start}
+.ekop .nizka{color:#b45309}
+.sim{margin-top:0}
+.sim h3{margin:0 0 4px}
+.sim .sim-pop{color:var(--muted);font-size:13px;margin-bottom:10px}
+.sim input[type=range]{width:100%;margin:6px 0 2px;accent-color:#0078d6;min-height:28px}
+.sim .sim-osa{display:flex;justify-content:space-between;color:var(--muted);font-size:12px}
+.sim .sim-hl{font-size:20px;font-weight:800;margin:6px 0 2px}
+.sim .sim-vyhra{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:15px}
+.sim .sim-tebe{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:8px 12px;margin:8px 0;font-size:14px}
+.sim .sim-kupa{font-size:15px;margin:6px 0}
+.sim .sim-var{color:#b45309;font-weight:600;margin-top:6px}
+.sim .sim-skryte{cursor:pointer;color:var(--muted)}
+.ekop .varovani{color:#b91c1c}
+a.md-radek{text-decoration:none}
+.sekce-hlava{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+/* v1.11: výdělek z prodaných aut – vpravo v hlavičce evidence („Místo pro budoucí ceny“) */
+.vydelek{border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;padding:7px 12px;font:inherit;font-size:14px;line-height:1.35;
+  color:var(--ink);text-align:right;cursor:pointer;max-width:100%}
+.vydelek .vyhled{display:block;color:var(--muted);font-size:13px}
+.vydelek.kratky{padding:6px 12px}
+.vydelek-uprava{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;padding:8px 10px;font-size:14px}
+.vydelek-uprava input{width:130px;padding:7px 10px}
+.vydelek-uprava .hint{flex-basis:100%;text-align:right}
+@media (max-width:959px){ .vydelek,.vydelek-uprava{width:100%;text-align:left;justify-content:flex-start} .vydelek-uprava .hint{text-align:left} }
+@media (min-width:960px){
+  main:has(.dash){max-width:1240px}
+  .dash{display:grid;grid-template-columns:minmax(320px,400px) minmax(0,1fr);gap:24px;align-items:start}
+  .dash .dnes{margin-top:6px;margin-bottom:0}
+  /* v1.7: pracovní přehled na PC – širší, „Dnes zavolat“ zůstává při posouvání vidět, export v hlavičce evidence,
+     od 1200 px hledání a filtry na jednom řádku. Jen CSS, pořadí prvků (a tím mobil) beze změny. */
+  main:has(.dash){max-width:1600px;padding-left:24px;padding-right:24px}
+  .dash{grid-template-columns:minmax(320px,380px) minmax(0,1fr)}
+  .dash .dnes{position:sticky;top:calc(63px + var(--lista, 0px));max-height:calc(100vh - 79px - var(--lista, 0px));overflow-y:auto}   /* v1.10: pod lištou s novou verzí */
+  .evidence{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:center}
+  .evidence .sekce-hlava{grid-column:1}
+  .evidence .tools{grid-column:2;grid-row:1;margin:0;justify-self:end}
+  .evidence #hledat,.evidence .chips{grid-column:1 / -1}
+  .evidence #seznam{grid-column:1 / -1;margin-top:12px}
+  .dash .card:hover{box-shadow:0 0 0 1px #cbd5e1,0 2px 6px rgba(0,0,0,.08)}
+}
+/* v1.7: na širokém PC je poptávka v evidenci jeden řádek: jméno | co chce | další kontakt | stav */
+@media (min-width:1200px){
+  .evidence #hledat{grid-column:1}
+  .evidence .chips{grid-column:2;margin:0}
+  #seznam .card{display:grid;grid-template-columns:minmax(150px,1.1fr) minmax(0,2.4fr) 220px 130px;grid-template-areas:"jm co kdy st";
+    align-items:center;column-gap:16px;padding:10px 14px;margin-bottom:6px}   /* v1.15: sloupce přepsané níže */
+  #seznam .card .top{display:contents}
+  #seznam .card .name{grid-area:jm;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #seznam .card .badge{grid-area:st;justify-self:end}
+  #seznam .card .sub{grid-area:co;margin:0}
+  #seznam .card .sub + .sub{grid-area:kdy}
+}
+/* v1.15: ekonomika na přehledu */
+.card .nab-radek{font-size:14px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .nab-radek.prazdne,.card .zisk-sl,.card .chev,.card .sl-sl,.tab-hlava,.tab-soucet{display:none}
+.card .vuz-radek{font-size:13px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .posl{color:var(--muted);font-size:13px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .zisk-sl .m{display:block;font-size:12px;color:var(--muted)}
+.card .cervena{color:#b91c1c}.card .oranzova{color:#b45309}
+.eko{grid-column:1 / -1;cursor:default;margin-top:10px;padding:12px 14px;border-top:1px dashed #cbd5e1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 24px;font-size:14px}
+.eko h4{margin:0 0 4px;font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.eko .r{display:flex;justify-content:space-between;gap:10px;padding:1px 0;min-width:0}.eko .r b{white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}.eko .r .soub{font-weight:400}
+.kalk .kod{overflow-wrap:anywhere}
+.eko .hist{grid-column:1 / -1;border-top:1px solid #eef2f7;padding-top:8px;color:#334155}
+.eko .hist div{padding:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.eko .hist .d{color:var(--muted);display:inline-block;min-width:54px;font-variant-numeric:tabular-nums}
+.eko .skryte{cursor:pointer;color:var(--muted)}
+@media (min-width:960px){
+  .card .chev{display:inline-flex;align-items:center;justify-content:center;border:0;background:#f1f5f9;border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px;color:#334155}
+  .card .chev:hover{background:#e2e8f0}
+  .tab-soucet{display:block;margin-top:10px;padding:10px 14px;border-radius:10px;background:#f8fafc;border:1px solid #e2e8f0;font-size:14px}
+}
+@media (min-width:1200px){
+  main:has(.dash){max-width:1920px}
+  /* v1.26: jeden řádek, samostatné sloupce (jm co pos nab sl zi st kdy ch) */
+  #seznam .card{grid-template-columns:minmax(120px,1fr) minmax(0,1.5fr) minmax(0,1.5fr) minmax(130px,1.1fr) 56px 90px 120px 110px 28px;
+    grid-template-areas:"jm co pos nab sl zi st kdy ch";column-gap:12px;row-gap:2px}
+  .tab-hlava{grid-template-columns:minmax(120px,1fr) minmax(0,1.5fr) minmax(0,1.5fr) minmax(130px,1.1fr) 56px 90px 120px 110px 28px;column-gap:12px}
+  #seznam .card .co{display:contents}
+  #seznam .card .co-a{grid-area:co;min-width:0}
+  #seznam .card .co-b{grid-area:pos;min-width:0}
+  #seznam .card .co-b .posl{margin:0;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  #seznam .card .sl-sl{display:block;grid-area:sl;text-align:right;font-size:14px}
+  #seznam .card .sl-in{display:none}
+  #seznam .card .badge{justify-self:start}
+  .tab-hlava .sl{text-align:right}.tab-hlava .st{text-align:left}
+  #seznam .card .name{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  #seznam .card .co-a .sub{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  #seznam .card .co .sub{margin:0}
+  #seznam .card .nab-radek{grid-area:nab;margin:0}
+  #seznam .card .nab-radek.prazdne{display:block;color:var(--muted)}
+  #seznam .card .zisk-sl{display:block;grid-area:zi;text-align:right}
+  #seznam .card .sub.kdy{grid-area:kdy;margin:0;text-align:left;font-size:13px}
+  #seznam .card .sub.kdy .lbl{display:none}
+  #seznam .card .nab-radek{display:block;white-space:normal}
+  #seznam .card .nab-radek .nm,#seznam .card .nab-radek .pr{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #seznam .card .nab-radek .tc{display:none}
+  #seznam .card .chev{grid-area:ch}
+  .tab-hlava{display:grid;padding:0 14px 6px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+  .tab-hlava span{cursor:default}.tab-hlava .raz{cursor:pointer;text-decoration:underline dotted}
+  .tab-hlava .zi{text-align:right}
+}
+/* v1.26: na užším PC (1200–1499 px) není samostatný sloupec Sleva, sleva je v textu nabídky */
+@media (min-width:1200px) and (max-width:1499px){
+  #seznam .card{grid-template-columns:minmax(110px,1fr) minmax(0,1.4fr) minmax(0,1.4fr) minmax(120px,1.1fr) 84px 108px 100px 28px;grid-template-areas:"jm co pos nab zi st kdy ch"}
+  .tab-hlava{grid-template-columns:minmax(110px,1fr) minmax(0,1.4fr) minmax(0,1.4fr) minmax(120px,1.1fr) 84px 108px 100px 28px}
+  #seznam .card .sl-sl,.tab-hlava .sl{display:none}
+  #seznam .card .sl-in{display:inline}
+}
+@media (max-width:600px){
+  header{padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top))}
+  #who{display:none}
+  /* „← Přehled“ v detailu na dosah palce: modré plovoucí tlačítko dole vlevo (jako „+ Nová poptávka“), nad bezpečnou oblastí iPhonu.
+     Spodní odstup stránky je vždy větší než tlačítko, takže obsah jde celý odrolovat nad něj.
+     Při psaní do pole se schová, aby nezakrylo pole ani klávesnici. (Tmavá spodní lišta zabírala moc místa – vráceno.) */
+  .zpet{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom, 0px));z-index:4;margin:0}
+  .zpet .btn.sec{background:var(--acc);color:#fff;border:0;border-radius:99px;padding:12px 18px;font-size:16px;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+  main:has(.zpet){padding-bottom:max(100px, calc(84px + env(safe-area-inset-bottom, 0px)))}
+  /* v1.5: při psaní se tlačítka schovají hned, vrátí se až 0,3 s po opuštění pole – jinak by se při klepnutí na
+     „Zapsat poznámku“ vynořila přímo pod prstem a klepnutí by dostala ona (ověřeno testem na šířce iPhonu SE) */
+  .zpet,.md-vic{transition:visibility 0s linear .3s}
+  body:has(#view input:focus, #view textarea:focus) .zpet,
+  body:has(#view input:focus, #view textarea:focus) .md-vic{visibility:hidden;transition-delay:0s}
+}
+/* v1.20: dohody, Můj týden, Porada */
+.md-karta-lite{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.dh-radek{font-size:13px;margin-top:3px;display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}
+.dh-radek .dh-t{background:#e4f1fc;border-radius:8px;padding:2px 8px;font-weight:600;color:#0b4a7d}
+.dh-radek .dh-t.cekam{background:#eef2f7;color:var(--muted);font-weight:600}
+.dh-radek .dh-t.dop{background:#fdf1d9;color:#8a5200}
+.mini{border:1px solid var(--line);background:#fff;border-radius:8px;padding:4px 10px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.mini.pri{background:var(--acc);color:#fff;border-color:var(--acc)}
+.dh-box h3{margin:0 0 6px;font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+.dh-box .tipsef{background:#e4f1fc;border-radius:10px;padding:8px 10px;font-size:15px}
+.dh-box .tipsef small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.dh-box .tipsef .kdo{display:block;font-weight:700;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#0b4a7d}
+.dh-box form{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.dh-box form input,.dh-box form select{font:inherit;border:1px solid var(--line);border-radius:8px;padding:8px;width:100%;background:#fff}
+.dh-box .sab{display:flex;gap:6px;flex-wrap:wrap}
+.dh-box .rada{display:flex;gap:8px;flex-wrap:wrap}
+.dh-box .stare{margin-top:8px;font-size:13px;color:var(--muted)}
+.dh-box .stare summary{cursor:pointer;font-weight:600}
+.tyden-sekce{background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.tyden-sekce h2{margin:0 0 8px;font-size:15px}
+.fl-r{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.fl{font-size:12px;font-weight:600;border-radius:6px;padding:1px 7px;background:#fdf1d9;color:#8a5200}
+.fl.bad{background:#fde7e4;color:#b42318} .fl.ok{background:#e2f4ea;color:#1b7a43}
+.po-tym{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:12px}
+.po-os{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:left;cursor:pointer;font:inherit;display:flex;flex-direction:column;gap:6px}
+.po-os[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.po-os b{font-size:16px}.po-os .vel{font-size:30px;font-weight:700;line-height:1}
+.po-os .rz{font-size:13px;font-weight:600;background:#fdf1d9;color:#8a5200;border-radius:8px;padding:3px 9px;align-self:flex-start}
+.po-os .rz.nic{background:#e2f4ea;color:#1b7a43}
+.po-tab{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);border-radius:12px;overflow:hidden}
+.po-tab th{text-align:left;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+.po-tab td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+.po-tab .m{display:block;font-size:12.5px;color:var(--muted)}
+.po-tab .dl{font-weight:700;color:#8a5200}
+.po-nastroje{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:8px 0}
+.po-min{display:grid;grid-template-columns:minmax(0,200px) minmax(0,1fr) auto;gap:6px 14px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px}
+.po-min small{display:block;color:var(--muted);font-size:12.5px}
+.po-min .tip{grid-column:1 / -1}.po-min .tip input{width:100%;font:inherit;border:1px solid var(--line);border-radius:8px;padding:6px 8px}
+@media (min-width:960px){main:has(.po-wide){max-width:1400px;padding-left:24px;padding-right:24px}}
+.po-nastroje label{display:flex;align-items:center;gap:8px;margin:0;font-size:14px}.po-nastroje select{font:inherit;border:1px solid var(--line);border-radius:8px;padding:6px 8px;background:#fff}
+.po-nastroje input[type=checkbox]{width:18px;height:18px;margin:0}
+.po-min .ak{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
+.po-tab .dh-t{display:inline-block}
+@media (max-width:760px){.po-min{grid-template-columns:1fr}.po-min .ak{justify-content:flex-start}}
+</style>
+</head>
+<body>
+
+<div id="login" class="hidden"><main>
+  <h1 style="margin-top:40px">Poptávky</h1>
+  <p style="color:var(--muted)">Přihlas se firemním účtem z Firebase.</p>
+  <label class="f">E-mail</label><input id="l-mail" type="email" autocomplete="username">
+  <label class="f">Heslo</label><input id="l-pass" type="password" autocomplete="current-password">
+  <div class="row"><button class="btn" onclick="prihlasit()">Přihlásit</button></div>
+  <div id="l-err" class="err"></div>
+</main></div>
+
+<div id="app" class="hidden">
+  <header>
+    <h1 onclick="renderHome()">Poptávky <small>v1.41</small></h1>
+    <small id="who"></small>
+    <button id="b-tyden" class="hidden" onclick="renderTyden()">Můj týden</button>
+    <button id="b-porada" class="hidden" onclick="renderPorada()">Porada</button>
+    <button onclick="auth.signOut()">Odhlásit</button>
+    <div id="nova-verze" class="nova-verze hidden" role="status"></div>
+  </header>
+  <main id="view"></main>
+  <button id="fab" class="btn" onclick="renderForm()">+ Nová poptávka</button>
+  <div id="md-zavoj" class="md-zavoj hidden" onclick="zavriAkce()"></div>
+  <div id="md-panel" class="md-panel hidden" role="dialog" aria-modal="true" aria-label="Další akce"></div>
+</div>
+
+<script>
+/* ===== NASTAVENÍ – doplň z Firebase konzole (Project settings → Your apps → Web) ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyD0iDpkNfycvqqsiCEEWUg5DUnYy_PpFiY",
+  authDomain: "poptavky-sw.firebaseapp.com",
+  databaseURL: "https://poptavky-sw-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "poptavky-sw",
+  storageBucket: "poptavky-sw.firebasestorage.app",
+  messagingSenderId: "602272019737",
+  appId: "1:602272019737:web:3e5d564c80f0b3346cc188"
+};
+/* ================================================================================== */
+
+const STAVY = {nova:'Nová', nabidka:'Nabídka odeslána', jednani:'Jednáme', prodano:'Prodáno', ztraceno:'Ztraceno'};
+const OTEVRENE = ['nova','nabidka','jednani'];
+const VUZ_PUVOD = {sklad:'Skladový', objednany:'Skladový – objednaný (neměnný)', vyroba:'Na zakázku', dealer:'Od dealera'};   // v1.30: čtyři původy
+const VUZ_BEZ_LOKACE = ['objednany', 'vyroba'];   // vůz ve výrobě ještě nikde nestojí
+function vuzTxt(p){   // v1.16: „Skladový · 05-576-12345 · Karlovy Vary“ (nic, když vůz není vyplněný)
+  const v = p.vuz; if (!v) return '';
+  return [VUZ_PUVOD[v.puvod] || '', v.id || '', v.lokace || ''].filter(Boolean).join(' · ');
+}
+const KANALY = {showroom:'🏢 Showroom', telefon:'📞 Telefon', email:'✉️ E-mail'};
+const TS = () => firebase.database.ServerValue.TIMESTAMP;
+
+let data = {}, view = 'home', curId = null, filtr = 'otevrene', hledat = '', user = null, ref = null;
+let ZAKAZNICI = [], zakRef = null, vybrany = null, novy = null, poUlozeni = null;   // v1.2: známý zákazník
+let oznaceni = {id: null, text: ''};   // v1.4: rozepsané označení kontaktu – živé překreslení detailu ho nesmaže
+let detailTab = 'prehled', poznRozepsana = {id: null, text: ''};   // v1.35: záložka detailu na PC (šipky Předchozí / Další ji drží)
+let historieOtevrena = null, historiePcZavrena = null;   // v1.17: na PC je historie ve výchozím stavu rozbalená
+let celyText = null;           // v1.5: id poptávky s rozbaleným „Co chce“ v mobilním detailu
+const MOBIL = matchMedia('(max-width: 600px)');   // v1.5: mobilní detail do 600 px, na PC detail z v1.4   // v1.3: id poptávky s rozbalenou historií – živé překreslení detailu ji nesbalí, návrat na přehled ano
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s/g,'');
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+function dnes(off = 0){ const d = new Date(); d.setDate(d.getDate() + off);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+/* v1.37: pracovní dny – termíny dalšího kontaktu přeskočí sobotu, neděli a české státní svátky.
+   Velikonoce (Velký pátek od 2016, Velikonoční pondělí) se počítají; ostatní svátky jsou pevné. */
+function velikonocniNedele(r){ const a = r % 19, b = Math.floor(r / 100), c = r % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3),
+  h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451),
+  mes = Math.floor((h + l - 7 * m + 114) / 31), den = ((h + l - 7 * m + 114) % 31) + 1; return new Date(r, mes - 1, den); }
+const PEVNE_SVATKY = {'1-1':'Nový rok','1-5':'Svátek práce','8-5':'Den vítězství','5-7':'Cyril a Metoděj','6-7':'Jan Hus','28-9':'Den české státnosti',
+  '28-10':'Vznik republiky','17-11':'Den boje za svobodu','24-12':'Štědrý den','25-12':'1. svátek vánoční','26-12':'2. svátek vánoční'};
+function svatek(d){   // název svátku, nebo ''
+  const pevny = PEVNE_SVATKY[d.getDate() + '-' + (d.getMonth() + 1)]; if (pevny) return pevny;
+  const v = velikonocniNedele(d.getFullYear()), rozdil = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()) - v) / 86400000);
+  return rozdil === 1 ? 'Velikonoční pondělí' : rozdil === -2 ? 'Velký pátek' : ''; }
+const jePracovni = d => d.getDay() !== 0 && d.getDay() !== 6 && !svatek(d);
+function isoNaDatum(iso){ const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); }
+function pracovniDen(off = 0){   // dnes + off dní, a když to padne na volno, nejbližší následující pracovní den
+  const d = new Date(); d.setDate(d.getDate() + off); let pojistka = 0;
+  while (!jePracovni(d) && pojistka++ < 14) d.setDate(d.getDate() + 1);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function volnoDen(iso){   // '' / 'víkend' / 'svátek (název)' – jen upozornění u ručně zadaného data
+  if (!iso) return ''; const d = isoNaDatum(iso), s = svatek(d);
+  return s ? 'svátek (' + s + ')' : (d.getDay() === 0 || d.getDay() === 6) ? 'víkend' : ''; }
+function fmtD(iso){ if(!iso) return '—'; const [y,m,d] = iso.split('-'); return `${+d}. ${+m}. ${y}`; }
+function fmtTs(ts){ if(!ts) return ''; const d = new Date(ts);
+  return d.toLocaleDateString('cs-CZ') + ' ' + d.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'}); }
+function kdyKontakt(p){ if(!p.dalsiKontakt || !OTEVRENE.includes(p.stav)) return '';
+  const t = dnes(); const late = p.dalsiKontakt < t;
+  return `<span class="${late?'late':''}">${p.dalsiKontakt===t?'dnes':fmtD(p.dalsiKontakt)}${late?' ⚠':''}</span>`; }
+const psani = () => ['INPUT','TEXTAREA'].includes(document.activeElement?.tagName);
+
+/* ===== Start + přihlášení ===== */
+if (firebaseConfig.apiKey === 'DOPLNIT') {
+  document.body.innerHTML = '<main><h2>Chybí nastavení Firebase</h2><p>Otevři soubor v editoru a doplň <b>firebaseConfig</b> nahoře ve skriptu.</p></main>';
+  throw new Error('firebaseConfig není vyplněn');
+}
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth(), db = firebase.database();
+
+auth.onAuthStateChanged(u => {
+  user = u;
+  if (u) {
+    $('#login').classList.add('hidden'); $('#app').classList.remove('hidden');
+    $('#who').textContent = u.email;
+    jeVedouci = false; $('#b-tyden').classList.remove('hidden'); $('#b-porada').classList.add('hidden');
+    // v1.24: poptávky se načítají až po zjištění role. Vedoucí čte všechny, prodejce jen dotazem na vlastní e-mail
+    // (pravidla databáze čtení celého seznamu prodejci nedovolí). Když se role nepodaří zjistit, bere se jako prodejce.
+    const nactiPoptavky = () => {
+      if (!user || user.uid !== u.uid || ref) return;
+      ref = jeVedouci ? db.ref('poptavky') : db.ref('poptavky').orderByChild('prodejce').equalTo(u.email);
+      ref.on('value', s => {
+        data = s.val() || {}; dataNactena = true;
+        if (cekaOdkaz !== null) { otevriOdkaz(); return; }   // v1.6: přišel jsem z odkazu v kontaktu iPhonu
+        if (view === 'home') renderHome();
+        else if (view === 'detail' && !psani()) renderDetail(curId);
+        else if (view === 'tyden' && !psani()) renderTyden(true);
+        else if (view === 'porada' && !psani()) renderPorada(true);
+      }, e => alert('Chyba databáze: ' + e.message));
+    };
+    db.ref('uzivatele/' + u.uid + '/vedouci').once('value').then(v => {   // v1.20: roli vedoucího nastavuje správce v konzoli Firebase (z aplikace zapsat nejde)
+      jeVedouci = v.val() === true; $('#b-porada').classList.toggle('hidden', !jeVedouci);
+      nactiPoptavky();
+      if (view === 'home') renderHome(true); else if (view === 'detail' && !psani()) renderDetail(curId);
+    }, () => nactiPoptavky());
+    zakRef = db.ref('zakaznici');
+    zakRef.on('value', s => {
+      ZAKAZNICI = Object.entries(s.val() || {}).map(([key, z]) => naKatalog(key, z));
+      if (view === 'form' && $('#zakaznici') && !psani()) prekresli();
+    }, () => { ZAKAZNICI = []; });                     // bez zákazníků poptávky fungují jako ve v1.1
+    renderHome();
+  } else {
+    if (ref) { ref.off(); ref = null; }
+    data = {};
+    if (zakRef) zakRef.off();
+    dataNactena = false;
+    $('#app').classList.add('hidden'); $('#login').classList.remove('hidden');
+  }
+});
+
+function prihlasit(){
+  $('#l-err').textContent = '';
+  auth.signInWithEmailAndPassword($('#l-mail').value.trim(), $('#l-pass').value)
+    .catch(e => $('#l-err').textContent = 'Přihlášení se nepovedlo: ' + e.code);
+}
+
+/* ===== Přehled ===== */
+function vsechny(){ return Object.entries(data).map(([id,p]) => ({id, ...p})); }
+
+/* v1.25: vedoucí vidí vlastníka poptávky a může filtrovat podle prodejce (prodejce vidí jen své, nic z toho nepotřebuje) */
+const FILTR_PRODEJCE_KLIC = 'poptavky.filtrProdejce';
+const MOJE = '@moje';   // výchozí pro vedoucího (rozhodnutí uživatele): jen moje poptávky; '' = všichni prodejci, jinak e-mail prodejce
+let filtrProdejce = MOJE; try { const u = localStorage.getItem(FILTR_PRODEJCE_KLIC); if (u !== null) filtrProdejce = u; } catch (e) {}
+const vlastnik = p => jeVedouci && p.prodejce !== user.email ? `<div class="vl-radek">👤 ${esc(jmenoProdejce(p.prodejce))}</div>` : '';   // v1.26: u vlastních poptávek je jméno zbytečné
+function vidiPoptavky(){ const f = filtrProdejce === MOJE ? user.email : filtrProdejce; return vsechny().filter(p => !jeVedouci || !f || (p.prodejce || '') === f); }
+function nastavFiltrProdejce(v){ filtrProdejce = v; try { localStorage.setItem(FILTR_PRODEJCE_KLIC, v); } catch (e) {} renderHome(); }
+function vyberProdejce(){
+  if (!jeVedouci) return '';
+  const vse = vsechny(), ostatni = [...new Set(vse.map(p => p.prodejce || ''))].filter(e => e !== user.email).sort((a, b) => jmenoProdejce(a).localeCompare(jmenoProdejce(b), 'cs'));
+  if (dataNactena && filtrProdejce && filtrProdejce !== MOJE && !ostatni.includes(filtrProdejce)) filtrProdejce = MOJE;   // uložený prodejce už nemá žádnou poptávku (až po načtení dat, jinak by se filtr po obnovení stránky zahodil)
+  const otevrene = e => vse.filter(p => (p.prodejce || '') === e && OTEVRENE.includes(p.stav)).length;
+  const o = (v, txt) => `<option value="${esc(v)}" ${filtrProdejce === v ? 'selected' : ''}>${esc(txt)}</option>`;
+  return `<select class="fprodejce" aria-label="Prodejce (počet otevřených)" title="Čí poptávky ukázat (v závorce počet otevřených)" onchange="nastavFiltrProdejce(this.value)">${o(MOJE, `👤 Moje (${otevrene(user.email)})`)}${o('', '👥 Všichni')}${
+    ostatni.map(e => o(e, `${jmenoProdejce(e)} (${otevrene(e)})`)).join('')}</select>`;
+}
+
+function renderHome(zPop){
+  const fokusProvize = provizeChciFokus || document.activeElement?.id === 'provize'; provizeChciFokus = false;   // v1.11: rozepsaná provize přežije překreslení
+  if (!zPop && history.state && PODSTR.includes(history.state.v)) { ignorujPop = true; history.back(); }   // v1.18: zásobník historie zůstane čistý
+  view = 'home'; curId = null; detailTab = 'prehled'; poznRozepsana = {id: null, text: ''}; poUlozeni = null; historieOtevrena = null; historiePcZavrena = null; oznaceni = {id: null, text: ''}; celyText = null; zavriAkce(); $('#fab').classList.remove('hidden');
+  const t = dnes();
+  const volat = vidiPoptavky().filter(p => OTEVRENE.includes(p.stav) && p.dalsiKontakt && p.dalsiKontakt <= t)
+                         .sort((a,b) => a.dalsiKontakt.localeCompare(b.dalsiKontakt));
+  const chip = (k, txt) => `<span class="chip ${filtr===k?'on':''}" onclick="filtr='${k}';renderHome()">${txt}</span>`;
+  const hlaska = hlaskaPrehled; hlaskaPrehled = '';
+  $('#view').innerHTML = `${hlaska ? `<div class="err" style="margin:0 0 10px">${esc(hlaska)}</div>` : ''}<div class="dash">
+    <section class="dnes">
+      <h2>📞 Dnes zavolat (${volat.length})</h2>
+      ${hecni(volat)}
+      ${volat.map(p => karta(p, false, true)).join('')}
+      ${volat.length ? '' : tipy()}
+    </section>
+    <section class="evidence">
+      <div class="sekce-hlava"><h2>Poptávky</h2>${vydelek()}</div>
+      <input id="hledat" placeholder="Hledat jméno, telefon, e-mail, model…" value="${esc(hledat)}" oninput="hledat=this.value;renderSeznam()">
+      <div class="chips">${chip('otevrene','Otevřené')}${chip('prodano','Prodáno')}${chip('ztraceno','Ztraceno')}${chip('vse','Vše')}${vyberProdejce()}</div>
+      <div id="seznam"></div>
+      <div class="tools"><button class="btn sec sm" onclick="exportCSV()">⬇ Export do Excelu (CSV)</button></div>
+    </section>
+  </div>`;
+  renderSeznam();
+  if (provizeUprava !== null && fokusProvize) { const i = $('#provize'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+}
+
+/* ===== Výdělek z prodaných aut (v1.11) =====
+   Slaví prodané: „🎉 Tento měsíc prodáno: 3 auta ≈ 24 000 Kč“ a ukáže realistický výhled z rozjednaných.
+   - Jen poptávky přihlášeného prodejce (připraveno pro víc prodejců).
+   - Prodáno tento měsíc = poslední „Stav → Prodáno“ v historii v tomto kalendářním měsíci (bez historie: čas úpravy).
+   - Výhled = otevřené × moje úspěšnost × provize; úspěšnost = prodané / (prodané + ztracené), až od 5 uzavřených obchodů.
+   - Průměrná provize jen v tomto zařízení (localStorage), ne ve sdílené databázi. Částky schované do klepnutí (showroom).
+   - Na mobilu (do 600 px) jen jeden krátký řádek „🎉 3 auta tento měsíc ›“; klepnutí rozbalí celý blok s částkami, další sbalí. */
+const PROVIZE_KLIC = 'poptavky.provize';
+let vydelekMaZisk = false;   // v1.14: na PC je co odkrýt i bez provize
+let vydelekOdkryt = false, vydelekRozbaleno = false, provizeUprava = null, provizeChciFokus = false;   // provizeUprava: rozepsaná částka, null = nezadává se
+function provize(){ try { const v = +localStorage.getItem(PROVIZE_KLIC); return v > 0 ? v : null; } catch (e) { return null; } }
+function datumProdeje(p){
+  const t = Object.values(p.historie || {}).filter(h => /^Stav → Prodáno/.test(h.text || '')).map(h => h.t || 0);
+  return t.length ? Math.max(...t) : (p.upraveno || 0);
+}
+const kc = n => Math.round(n).toLocaleString('cs-CZ') + ' Kč';
+const aut = n => n === 1 ? 'auto' : n >= 2 && n <= 4 ? 'auta' : 'aut';
+const obchodu = n => n === 1 ? 'obchod' : n >= 2 && n <= 4 ? 'obchody' : 'obchodů';
+function vydelek(){
+  if (!user || !dataNactena) return '';   // bez načtených dat by krátce problikla „0 aut“
+  if (provizeUprava !== null) return `<div class="vydelek-uprava"><label for="provize">Průměrná provize za auto</label>
+    <input id="provize" inputmode="numeric" autocomplete="off" placeholder="např. 8 000" value="${esc(provizeUprava)}"
+      oninput="provizeUprava = this.value" onkeydown="if (event.key === 'Enter') ulozProvizi()">
+    <button type="button" class="btn sm" onclick="ulozProvizi()">Uložit</button>
+    <button type="button" class="btn sec sm" onclick="provizeUprava = null; renderHome()">Zrušit</button>
+    <span class="hint">Uloží se jen v tomhle zařízení, nikdo jiný ji neuvidí.</span></div>`;
+  const moje = vsechny().filter(p => p.prodejce === user.email), d = new Date(), od = new Date(d.getFullYear(), d.getMonth(), 1).getTime();
+  const prodane = moje.filter(p => p.stav === 'prodano'), mesic = prodane.filter(p => datumProdeje(p) >= od).length;
+  const ztracene = moje.filter(p => p.stav === 'ztraceno').length, otevrene = moje.filter(p => OTEVRENE.includes(p.stav)).length;
+  const uzavrene = prodane.length + ztracene, uspesnost = uzavrene >= 5 ? prodane.length / uzavrene : null, prov = provize();
+  if (MOBIL.matches && !vydelekRozbaleno)
+    return `<button type="button" class="vydelek kratky" onclick="klikVydelek()">${mesic ? `🎉 <b>${mesic} ${aut(mesic)}</b> tento měsíc` : '🚗 Tento měsíc zatím 0 aut'} ›</button>`;
+  const castka = n => vydelekOdkryt ? '≈ ' + kc(n) : '≈ ••• Kč';
+  let r1 = mesic ? `🎉 Tento měsíc prodáno: <b>${mesic} ${aut(mesic)}</b>` : '🚗 Tento měsíc zatím 0 aut – první kus se chystá';
+  if (mesic && prov) r1 += ` ${castka(mesic * prov)}`;
+  let r2 = `Rozjednáno: ${otevrene} ${obchodu(otevrene)}`;
+  if (otevrene && prov) r2 += uspesnost === null ? ' · výhled spočítám po 5 uzavřených obchodech' : ` · výhled ${castka(Math.round(otevrene * uspesnost * prov / 100) * 100)}`;
+  if (!prov) r2 += ' · klepni a zadej provizi';
+  // v1.14: zisk z prodaných aut tento měsíc – jen na PC, jen z nabídek z Offer Studia (poslední nabídka poptávky)
+  const sZiskem = prodane.filter(p => datumProdeje(p) >= od).map(p => (nabidkySerazene(p)[0] || {}).interni).filter(Boolean);
+  vydelekMaZisk = !MOBIL.matches && sZiskem.length > 0;
+  if (vydelekMaZisk) r2 += `<span class="vyhled zisk-mesic">Zisk z prodaných aut: ${vydelekOdkryt ? '≈ ' + kc(sZiskem.reduce((s, i) => s + (i.skutecny_zisk != null ? i.skutecny_zisk : i.zisk), 0)) : '≈ ••• Kč'}${sZiskem.length < mesic ? ` (${sZiskem.length} z ${mesic} aut s nabídkou)` : ''}</span>`;
+  else if (vydelekOdkryt) r2 += ` · <span class="md-odkaz" style="padding:0;font-size:13px" onclick="event.stopPropagation(); provizeUprava = String(provize()); provizeChciFokus = true; renderHome()">✏️ provize</span>`;
+  return `<button type="button" class="vydelek" onclick="klikVydelek()">${r1}<span class="vyhled">${r2}</span></button>`;
+}
+function klikVydelek(){
+  if (MOBIL.matches && !vydelekRozbaleno) vydelekRozbaleno = vydelekOdkryt = true;          // mobil: rozbalit rovnou s částkami
+  else if (!provize() && !(vydelekMaZisk && !vydelekOdkryt)) { provizeUprava = ''; provizeChciFokus = true; }
+  else if (MOBIL.matches) vydelekRozbaleno = vydelekOdkryt = false;                          // mobil: sbalit = schovat
+  else vydelekOdkryt = !vydelekOdkryt;
+  renderHome();
+}
+function ulozProvizi(){
+  const v = parseInt(String(provizeUprava || '').replace(/\D/g, ''), 10);
+  if (!(v > 0)) { $('#provize').focus(); return; }
+  try { localStorage.setItem(PROVIZE_KLIC, String(v)); } catch (e) {}
+  provizeUprava = null; vydelekOdkryt = true; renderHome();
+}
+
+/* Hecovací věta podle množství práce – jedna věta na celý den (nemění se při obnovení seznamu) */
+const HECOVANI = {
+  nula:    ['Dnes nikomu. Kafe si zasloužíš ☕', 'Dneska teda nic moc, kámo. Co takhle obejít showroom?', 'Čistý stůl, čistá hlava.', 'Nikdo nečeká. Ideální den ulovit novou poptávku 🎯',
+            'Žádné hovory. Ticho před bouří, nebo konkurence.', 'Prázdný seznam. Buď jsi výjimečný, nebo se zapomnělo zapsat.', 'Dnes nikomu. Zákazníci si zatím nerozmysleli, že koupí jinde.',
+            'Kafe je zadarmo, tak pozvi zákazníka na showroom. Je to jediné, co dostane zdarma ☕',
+            'Nikdo nečeká. Ticho v telefonu je dnes oficiálně v ceně.', 'Prázdný seznam. Vypadá to jako tvůj nejproduktivnější den, dokud nezazvoní telefon.', 'Dnes bez hovorů. Klimatizace v showroomu si aspoň užívá pozornost.', 'Volno. Využij ho, než si zákazníci vzpomenou, že existuje prodejce.'],
+  malo:    ['Pár telefonů a máš hotovo 📞', 'Na rozcvičku akorát.', 'Tohle dáš do první kávy.', 'Malá dávka, velký efekt.',
+            'Dokud nikdo nezvedne, má každý obchod stoprocentní šanci.', 'Tři telefony. Cesta na oběd bude delší.', 'Pár hovorů. Zvládneš i po obědě.',
+            'Pár hovorů. Číslo vytočit je těžší než samotný hovor.', 'Málo hovorů, málo výmluv.', 'Hovory na jednu ruku. Druhá ať drží kafe ☕', 'Tohle zvládneš dřív, než ti vychladne káva.'],
+  stredne: ['Slušná porce. Hezky jeden po druhým.', 'Dneska se bude volat, kámo 💪', 'Rozjeď to, než přijde první zákazník do showroomu.', 'Každej hovor je o krok blíž k podpisu.',
+            'Nezvedá? Zavolej znova. Pojišťovna to dělá taky a vydělává.', 'Zvedne to jen každý třetí. Zbytek je statistika, ne osobní selhání.', 'Volání je jako tankování: nikdo ho nemá rád, ale bez něj nedojedeš.',
+            'Zákazník po telefonu nekouše. Většinou.', 'Slušná porce. Telefon se dnes nudit nebude.', 'Zavolat, zapsat, zopakovat. Prostě taneční kroky pro prodejce.', 'Ten, kdo zvedne, bude rád, že ses ozval.'],
+  hodne:   ['Fofr! Nejdřív ty červený, pak zbytek.', 'Dneska nejsi prodejce, dneska jsi call centrum 😅', 'Velká hromada = velká šance. Jedeme!', 'Kafe až po pátým hovoru ☕',
+            'Tohle není práce, tohle je kardio pro hlasivky.', 'Dnes volej, jako by od toho záviselo, kdo platí oběd. Spoiler: záleží.', 'Hromada hovorů. Aspoň nebudeš mít pocit, že máš moc volného času.',
+            'Hodně hovorů. Aspoň se tě dnes nikdo nezeptá, jestli nemáš co dělat.', 'Maratón se taky běží po jednom kroku. Tady po jednom hovoru 🏃', 'Plný seznam. Hlasivky si dej pod pojištění, nejlépe havarijní.', 'Je to hromada, ale každý hovor je jen jeden hovor. Tak jedem.'],
+  prosle:  ['Někdo už čeká déle, než by měl ⚠', 'Červený první, ty už se ozvat chtěj.', 'Prošlý kontakty chladnou. Ohřej je!',
+            'Prošlé kontakty chladnou. Zákazníci se nezlobí, jen kupují jinde.', 'Zákazník čeká na zavolání. Konkurence čeká na tvoji chybu.', 'Červené jsou ti, co už pomalu zapomínají, že u nás chtěli koupit.',
+            'Někdo už se těší na zavolání. Pojďme ho nenechat čekat.', 'Červené položky zatím jen čekají. Zavolej a rázem budou zelené.', 'Termín prošel, ale zákazníci tu pořád jsou. To je dobrá zpráva.', 'Dnes si můžeš dát červené do pořádku. Stačí pár hovorů.']
+};
+function vetaDne(skupina){
+  let h = 0; for (const ch of dnes() + skupina) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const vety = HECOVANI[skupina]; return vety[h % vety.length];
+}
+function hecni(volat){
+  const n = volat.length;
+  if (!n) return `<div class="empty">${esc(vetaDne('nula'))}</div>`;
+  const skupina = n <= 3 ? 'malo' : n <= 8 ? 'stredne' : 'hodne';
+  const prosle = volat.some(p => p.dalsiKontakt < dnes());
+  return `<div class="hec">${esc(vetaDne(skupina))}</div>` + (prosle ? `<div class="hec late">${esc(vetaDne('prosle'))}</div>` : '');
+}
+
+/* v1.8: Komu zavolat, když dnes nikomu – jen přeskládá existující otevřené poptávky, nic nezapisuje.
+   „Dlouho ticho“ = otevřená poptávka, u které se 14+ dní nic nezapsalo (úprava, změna stavu ani poznámka v historii);
+   doplní ji nejbližší budoucí kontakt. Nejvýš 3 tipy, klepnutí otevře detail jako u každé karty. */
+const TICHO_DNI = 14;
+function posledniZapis(p){
+  return Math.max(p.upraveno || 0, p.vytvoreno || 0, ...Object.values(p.historie || {}).map(h => h.t || 0));
+}
+function tipy(){
+  const t = dnes(), ted = Date.now(), otevrene = vidiPoptavky().filter(p => OTEVRENE.includes(p.stav));
+  const ticho = otevrene.map(p => ({p, dni: Math.floor((ted - posledniZapis(p)) / 86400000)}))
+                        .filter(x => x.dni >= TICHO_DNI).sort((a, b) => b.dni - a.dni);
+  const vyber = ticho.slice(0, 2).map(({p, dni}) => [p, `🔇 Dlouho ticho – ${dni} dní bez zápisu`]);
+  otevrene.filter(p => p.dalsiKontakt && p.dalsiKontakt > t && !vyber.some(([q]) => q.id === p.id))
+          .sort((a, b) => a.dalsiKontakt.localeCompare(b.dalsiKontakt))
+          .slice(0, 3 - vyber.length)
+          .forEach(p => vyber.push([p, `⏭ Na řadě ${p.dalsiKontakt === dnes(1) ? 'zítra' : fmtD(p.dalsiKontakt)} – klidně už dnes`]));
+  if (!vyber.length) return '';
+  return `<div class="tipy"><div class="tipy-nadpis">Komu zavolat, když dnes nikomu:</div>
+    ${vyber.map(([p, duvod]) => `<div class="tip-duvod">${esc(duvod)}</div>${karta(p)}`).join('')}</div>`;
+}
+
+function poradiPrehledu(){   // v1.31: stejný seznam, jaký ukazuje přehled (filtr, hledání, řazení) – používají ho i šipky v detailu
+  let list = vidiPoptavky().filter(p => filtr==='otevrene' ? OTEVRENE.includes(p.stav) : filtr==='vse' ? true : p.stav===filtr);
+  if (hledat.trim()) { const q = norm(hledat); list = list.filter(p => norm([p.jmeno,p.telefon,p.email,p.zajem,vuzTxt(p),...nabidkySerazene(p).map(n => n.model)].join(' ')).includes(q)); }
+  // v1.15: řazení podle záhlaví (od 1200 px); výchozí nejnovější nahoře jako dřív
+  const cena = p => (posledniNabidka(p) || {}).cena_sdph ?? -1, zisk = p => ziskNabidky(posledniNabidka(p)) ?? -Infinity;
+  // v1.27: výchozí řazení „fáze“ – Nová → Jednáme → Nabídka odeslána → Prodáno → Ztraceno; uvnitř otevřených podle dalšího kontaktu (nejdřív prošlé a dnešní), uvnitř uzavřených podle poslední změny
+  const FAZE = ['nova', 'jednani', 'nabidka', 'prodano', 'ztraceno'], fz = p => { const i = FAZE.indexOf(p.stav); return i < 0 ? 9 : i; };
+  const dalsi = (a, b) => (a.dalsiKontakt || '9999').localeCompare(b.dalsiKontakt || '9999');
+  const RAZENI = {faze: (a, b) => fz(a) - fz(b) || (OTEVRENE.includes(a.stav) ? dalsi(a, b) || (b.vytvoreno || 0) - (a.vytvoreno || 0) : (b.upraveno || 0) - (a.upraveno || 0)),
+    cena: (a,b) => cena(b) - cena(a), zisk: (a,b) => zisk(b) - zisk(a), kontakt: (a,b) => dalsi(a, b)};
+  list.sort(RAZENI[razeni] || RAZENI.faze);
+  return list;
+}
+let poradiCache = [];
+function sousedi(id){   // v1.31: {i, n, pred, dal} pro poptávku v pořadí přehledu (když z něj mezitím vypadla, drží se pořadí, ve kterém jsme ji otevřeli)
+  let ids = poradiPrehledu().map(p => p.id);
+  if (!ids.includes(id)) ids = poradiCache.includes(id) ? poradiCache.filter(x => x === id || data[x]) : [];
+  else poradiCache = ids;
+  const i = ids.indexOf(id); if (i < 0) return null;
+  return {i, n: ids.length, pred: ids[i - 1] || null, dal: ids[i + 1] || null};
+}
+function jdiNaSousedni(smer){
+  if (view !== 'detail') return;
+  const s = sousedi(curId), id = s && (smer < 0 ? s.pred : s.dal); if (!id) return;
+  renderDetail(id); window.scrollTo(0, 0);
+}
+function sipky(id, mobil){
+  const s = sousedi(id); if (!s || s.n < 2) return '';
+  const b = (smer, txt, cil) => `<button type="button" class="btn sec sip" ${cil ? '' : 'disabled'} onclick="jdiNaSousedni(${smer})" title="Klávesa ${smer < 0 ? '←' : '→'}">${txt}</button>`;
+  return `<span class="sipky${mobil ? ' mob' : ''}">${b(-1, '‹ Předchozí', s.pred)}<span class="sip-poc">${s.i + 1} / ${s.n}</span>${b(1, 'Další ›', s.dal)}</span>`;
+}
+function renderSeznam(){
+  const list = poradiPrehledu();
+  const raz = (k, txt, cls = '') => `<span class="${cls} raz" onclick="razeni = razeni === '${k}' ? 'faze' : '${k}'; renderSeznam()">${txt}${razeni === k ? ' ↓' : ''}</span>`;
+  const hlava = `<div class="tab-hlava"><span>Zákazník</span><span>Řeší / vůz</span><span>Poslední zápis</span>${raz('cena', 'Nabídka')}<span class="sl">Sleva</span>
+    <span class="zi"><span class="raz" onclick="razeni = razeni === 'zisk' ? 'faze' : 'zisk'; renderSeznam()">Zisk${razeni === 'zisk' ? ' ↓' : ''}</span>
+      <span style="cursor:pointer" title="${ekoOdkryta ? 'Schovat zisk' : 'Ukázat zisk'}" onclick="ekoOdkryta = !ekoOdkryta; renderSeznam()">${ekoOdkryta ? '🙈' : '👁'}</span></span>
+    <span class="st">Stav</span>${raz('kontakt', 'Další kontakt', 'kd')}<span></span></div>`;
+  const sNab = list.map(posledniNabidka).filter(Boolean), sZiskem = sNab.filter(n => n.interni);
+  const soucet = list.length ? `<div class="tab-soucet">Celkem ${list.length} ${list.length === 1 ? 'poptávka' : list.length <= 4 ? 'poptávky' : 'poptávek'}`
+    + (sNab.length ? ` · ${sNab.length} s nabídkou za <b>${esc(kcK(sNab.reduce((s, n) => s + (n.cena_sdph || 0), 0)))}</b>` : ' · zatím bez nabídek')
+    + (sZiskem.length ? ` · zisk <b>${ekoOdkryta ? '≈ ' + esc(kcK(sZiskem.reduce((s, n) => s + ziskNabidky(n), 0))) : '••• Kč'}</b>${sZiskem.length < sNab.length ? ` (z ${sZiskem.length} nabídek)` : ''}` : '') + '</div>' : '';
+  // nadpisy skupin („Nabídka odeslána · 6“) jen ve výchozím řazení a když je skupin víc
+  const stavy = [...new Set(list.map(p => p.stav))], skupiny = razeni === 'faze' && stavy.length > 1;
+  const radky = list.map((p, i) => (skupiny && (i === 0 || list[i - 1].stav !== p.stav) ? `<div class="skup">${esc(STAVY[p.stav] || p.stav)} · ${list.filter(q => q.stav === p.stav).length}</div>` : '') + karta(p, true)).join('');
+  $('#seznam').innerHTML = list.length ? hlava + radky + soucet : '<div class="empty">Nic tu není.</div>';
+}
+
+/* v1.15: ekonomika na přehledu. Poptávky nic nepočítají – jen ukazují poslední nabídku z Offer Studia.
+   Zisk jen na PC a schovaný (👁, platí pro celou stránku do obnovení); na mobilu model · cena a poslední zápis. */
+let ekoOdkryta = false, rozbalena = null, razeni = 'faze';
+const OS_ADRESA = 'http://127.0.0.1:8774';
+/* v1.38: odkazy do Offer Studia a zpět používají pojmenované karty, aby prodejce neměl dvanáct oken. Poptávky se jmenují „poptavky“
+   (Offer Studio na ně míří přes window.open(…, 'poptavky')) a Offer Studio „offerstudio“. Po klepnutí se karta ještě pokusí přijít do popředí;
+   když ji prohlížeč nepustí, otevře se odkaz obvyklým způsobem (target). */
+try { window.name = 'poptavky'; } catch (e) {}
+function otevriOS(a){
+  try { const w = window.open(a.href, a.target || 'offerstudio'); if (w) { try { w.focus(); } catch (e) {} return false; } } catch (e) {}
+  return true;
+}
+const posledniNabidka = p => nabidkySerazene(p)[0] || null;
+const kcK = n => Math.round(n).toLocaleString('cs-CZ') + ' Kč';
+const kratD = ts => { const d = new Date(ts || 0); return `${d.getDate()}. ${d.getMonth() + 1}.`; };   // v1.29: krátké datum bez roku a času
+function predKolika(ts){
+  const d = Math.floor((Date.now() - ts) / 86400000);
+  return d <= 0 ? 'dnes' : d === 1 ? 'včera' : d < 5 ? `před ${d} dny` : `před ${d} dny`;
+}
+function posledniPoznamka(p){   // v1.26: poslední skutečná poznámka; automatické řádky (Založeno, Stav →, 📄 Nabídka…, 🤝, ✓ Hotovo) zůstávají jen v historii v detailu
+  const h = Object.values(p.historie || {}).filter(x => x && x.text && !AUTO_ZAPIS.test(x.text)).sort((a, b) => (b.t || 0) - (a.t || 0));
+  return h[0] || null;
+}
+const ziskNabidky = n => n && n.interni ? (n.interni.skutecny_zisk != null ? n.interni.skutecny_zisk : n.interni.zisk) : null;
+function ziskBunka(n){
+  if (!n || !n.interni) return '<span class="muted">—</span>';
+  if (!ekoOdkryta) return '<span class="muted">••• Kč</span>';
+  const i = n.interni, m = i.skutecna_marze != null ? i.skutecna_marze : i.obchodni_marze;
+  const cls = i.negativni || ziskNabidky(n) < 0 ? 'cervena' : i.nestandardni ? 'oranzova' : '';
+  return `<span class="${cls}">${esc(kcK(ziskNabidky(n)))}</span><span class="m ${cls}">${esc(pctCz(m))}${i.negativni ? ' ⚠' : i.nestandardni ? ' ⚠' : ''}</span>`;
+}
+function ekonomika(p){
+  const n = posledniNabidka(p), dalsich = nabidkySerazene(p).length - 1, r = (a, b) => `<div class="r"><span>${a}</span><b>${b}</b></div>`;
+  let cena = '<div><h4>Nabídka</h4><div class="muted">Zatím bez nabídky.</div>' + (MOBIL.matches ? '' : `<div style="margin-top:6px"><a class="btn sec sm" href="${esc(odkazNabidky(p.id, p))}" target="offerstudio" onclick="event.stopPropagation();return otevriOS(this)">📄 Udělat nabídku</a></div>`) + '</div>';
+  let zisk = '<div><h4>Zisk</h4><div class="muted">—</div></div>', info = '<div></div>';
+  if (n) {
+    const katalog = (n.cena_vuz_sdph || 0) + (n.sleva_sdph || 0);
+    cena = `<div><h4>Cena pro zákazníka</h4>${r('Ceníková cena', esc(kcK(katalog)))}${r('Sleva', esc((n.sleva_sdph ? '− ' + kcK(n.sleva_sdph) : '0 Kč') + ` (${pctCz(n.sleva_pct || 0)})`))}
+      ${n.doplnky_sdph ? r('Cena vozu', esc(kcK(n.cena_vuz_sdph || 0))) + r('Doplňkový prodej', '+ ' + esc(kcK(n.doplnky_sdph))) : ''}${r('Celkem s DPH', esc(kcK(n.cena_sdph || 0)))}</div>`;   // v1.27: bez doplňků je „Cena vozu“ totéž co „Celkem“
+    const i = n.interni;
+    if (i) zisk = ekoOdkryta
+      ? `<div><h4>Zisk (jen pro tebe)</h4>${r('Zisk', esc(kcK(i.zisk)))}${i.korekce ? r('Korekce (dealer hradí)', '− ' + esc(kcK(i.korekce))) : ''}
+        ${r('Skutečný zisk', `<span class="${ziskNabidky(n) < 0 ? 'cervena' : ''}">${esc(kcK(ziskNabidky(n)))}</span>`)}${r('Obchodní marže', `<span class="${i.negativni ? 'cervena' : i.nestandardni ? 'oranzova' : ''}">${esc(pctCz(i.obchodni_marze))}</span>`)}
+        ${i.skutecna_marze != null ? r('Skutečná marže', esc(pctCz(i.skutecna_marze))) : ''}${i.negativni ? '<div class="cervena">⚠ pod nákupní cenou</div>' : i.nestandardni ? '<div class="oranzova">⚠ nízká marže</div>' : ''}</div>`
+      : `<div><h4>Zisk (jen pro tebe)</h4><div class="skryte" onclick="event.stopPropagation(); ekoOdkryta = true; renderSeznam()">Zisk ••• Kč · marže ••• – klepni pro zobrazení</div></div>`;
+    else zisk = '<div><h4>Zisk</h4><div class="muted">V nabídce nebyla zadaná nákupní marže.</div></div>';
+    info = `<div><h4>${esc(n.model || 'Nabídka')}</h4>${r('Připravena', esc(n.t ? new Date(n.t).toLocaleDateString('cs-CZ') + ' · ' + predKolika(n.t) : '—'))}
+      ${n.soubor ? r('Soubor', `<span class="soub" title="${esc(n.soubor)}">${esc(n.soubor)}</span>`) : ''}${dalsich > 0 ? r('Starší nabídky', esc(String(dalsich))) : ''}
+      ${MOBIL.matches ? '' : (kl => `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${n.soubor ? `<a class="btn sec sm" href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(kl) + '/pdf')}" target="offerstudio_pdf" onclick="event.stopPropagation()" title="Otevře poslední PDF nabídky (přes Offer Studio na tomhle PC)">📄 Otevřít PDF</a>` : ''}<a class="btn sec sm" href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(kl))}" target="offerstudio" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF" onclick="event.stopPropagation();return otevriOS(this)">✏️ Upravit (jiná sleva / cena)</a></div>`)(Object.keys(p.nabidky).find(k => p.nabidky[k] === n) || '')}</div>`;
+  }
+  const hist = Object.values(p.historie || {}).sort((a, b) => (b.t || 0) - (a.t || 0)).slice(0, 4);
+  return `<div class="eko" onclick="event.stopPropagation()">${cena}${zisk}${info}
+    <div class="hist"><h4>Co jsem s ním řešil</h4>${hist.map(h => `<div title="${esc(fmtTs(h.t))} · ${esc(h.text)}"><span class="d">${esc(kratD(h.t))}</span> ${esc(h.text)}</div>`).join('') || '<div class="muted">—</div>'}</div></div>`;
+}
+function karta(p, vSeznamu, kompakt){   // kompakt (v1.26): karta v „Dnes zavolat“ – jméno, co chce, poslední poznámka; termín jen když je prošlý
+  const k = kdyKontakt(p), n = posledniNabidka(p), pz = posledniPoznamka(p);
+  const nab = n ? `<span class="nm">📄 ${esc(n.model || 'Nabídka')}</span><span class="tc"> · </span><span class="pr"><b>${esc(kcK(n.cena_sdph || 0))}</b>${n.sleva_sdph ? `<span class="sl-in"> · sleva ${esc(pctCz(n.sleva_pct || 0))}</span>` : ''}</span>` : '';   // v1.26: model a cena zvlášť, aby se cena v tabulce nikdy neuřízla
+  const slevaTxt = n && n.sleva_sdph ? esc(pctCz(n.sleva_pct || 0)) : '—';
+  return `<div class="card s-${esc(p.stav || 'nova')}${kompakt ? ' kompakt' : ''}" onclick="renderDetail('${p.id}')">
+    <div class="top"><span class="name">${esc(p.jmeno || p.telefon || p.email || '(bez jména)')}</span>
+      <span class="badge b-${p.stav}">${STAVY[p.stav]||p.stav}</span></div>
+    <div class="co"><div class="co-a">${vlastnik(p)}<div class="sub">${(KANALY[p.kanal]||'').split(' ')[0]} ${esc(p.zajem || '')}</div>
+      ${vuzTxt(p) && !kompakt ? `<div class="vuz-radek" title="${esc(vuzTxt(p))}">🚗 ${esc(vuzTxt(p))}</div>` : ''}
+      ${dohodaRadek(p)}</div>
+      <div class="co-b">${pz ? `<div class="posl" title="${esc(pz.text)}">💬 ${esc(pz.text)} · ${esc(predKolika(pz.t || 0))}</div>` : ''}</div></div>
+    ${kompakt ? '' : n ? `<div class="nab-radek">${nab}</div>` : '<div class="nab-radek prazdne">bez nabídky</div>'}
+    ${vSeznamu ? `<div class="sl-sl">${slevaTxt}</div>` : ''}
+    ${vSeznamu && !MOBIL.matches ? `<div class="zisk-sl">${ziskBunka(n)}</div>` : ''}
+    ${k && (!kompakt || /late/.test(k)) ? `<div class="sub kdy"><span class="lbl">Další kontakt: </span>${k}</div>` : ''}
+    ${vSeznamu && !MOBIL.matches ? `<button type="button" class="chev" title="Ekonomika poptávky" onclick="event.stopPropagation(); rozbalena = rozbalena === '${p.id}' ? null : '${p.id}'; renderSeznam()">${rozbalena === p.id ? '▾' : '▸'}</button>
+      ${rozbalena === p.id && !MOBIL.matches ? ekonomika(p) : ''}` : ''}
+  </div>`;
+}
+
+/* ===== Formulář (nová / úprava) ===== */
+function renderForm(id){
+  if (id) stavHistorie('form', id); else stavHistorie('form', null);
+  view = 'form'; $('#fab').classList.add('hidden'); vybrany = null; novy = null;
+  const hledani = id ? '' : ' oninput="prekresli()"';
+  const p = id ? data[id] : {kanal:'showroom', dalsiKontakt:pracovniDen(1)};
+  const kanal = k => `<label class="chip ${p.kanal===k?'on':''}"><input type="radio" name="kanal" value="${k}" ${p.kanal===k?'checked':''} onchange="kanalZmena()">${KANALY[k]}</label>`;
+  $('#view').innerHTML = `
+    <h2>${id ? 'Upravit poptávku' : 'Nová poptávka'}</h2>
+    <div class="chips" id="kanaly">${Object.keys(KANALY).map(kanal).join('')}</div>
+    <div id="paste" class="box ${p.kanal==='email' && !id ? '' : 'hidden'}">
+      <label class="f" style="margin-top:0">Vlož celý text e-mailu (včetně řádku Od:)</label>
+      <textarea id="f-paste" placeholder="Ctrl+V z Outlooku…"></textarea>
+      <div class="row"><button class="btn sec" onclick="vytahni()">✨ Vytáhnout údaje</button></div>
+    </div>
+    <label class="f">Jméno</label><input id="f-jmeno" value="${esc(p.jmeno)}" autocomplete="off"${hledani}>
+    <label class="f">Telefon</label><input id="f-tel" type="tel" value="${esc(p.telefon)}"${hledani}>
+    ${id ? '' : '<div id="zakaznici"></div>'}
+    <label class="f">E-mail</label><input id="f-mail" type="email" value="${esc(p.email)}">
+    <label class="f">Co chce / poptávka</label><textarea id="f-zajem">${esc(p.zajem)}</textarea>
+    <label class="f">Vůz (nepovinné)</label>
+    <select id="f-vuz-puvod" onchange="vuzZmena()"><option value="">— zatím nevím —</option>${Object.keys(VUZ_PUVOD).map(k => `<option value="${k}" ${(p.vuz||{}).puvod===k?'selected':''}>${VUZ_PUVOD[k]}</option>`).join('')}</select>
+    <input id="f-vuz-id" placeholder="Auftrag (05-576-12345) nebo online kód" value="${esc((p.vuz||{}).id||'')}" maxlength="60" autocomplete="off" style="margin-top:6px">
+    <input id="f-vuz-lokace" placeholder="Lokace vozu (např. Karlovy Vary)" value="${esc((p.vuz||{}).lokace||'')}" maxlength="60" autocomplete="off" style="margin-top:6px" class="${(p.vuz||{}).puvod && !VUZ_BEZ_LOKACE.includes(p.vuz.puvod) ? '' : 'hidden'}">
+    <label class="f">Další kontakt</label><input id="f-dalsi" type="date" value="${esc(p.dalsiKontakt||'')}">
+    ${id ? '' : '<label class="f">Poznámka (nepovinné)</label><textarea id="f-pozn" style="min-height:50px"></textarea>'}
+    <div id="f-err" class="err"></div>
+    <div class="row">
+      <button class="btn sec" onclick="${id ? `renderDetail('${id}')` : 'renderHome()'}">Zpět</button>
+      <button class="btn" onclick="ulozit(${id ? `'${id}'` : ''})">Uložit</button>
+    </div>`;
+}
+
+function vuzZmena(){   // lokace dává smysl u skladového a od dealera
+  const k = $('#f-vuz-puvod').value; $('#f-vuz-lokace').classList.toggle('hidden', VUZ_BEZ_LOKACE.includes(k) || !k);
+}
+function kanalZmena(){
+  const k = document.querySelector('input[name=kanal]:checked').value;
+  document.querySelectorAll('#kanaly .chip').forEach(c => c.classList.toggle('on', c.querySelector('input').checked));
+  $('#paste')?.classList.toggle('hidden', k !== 'email');
+}
+
+function vytahni(){
+  const t = $('#f-paste').value; if (!t.trim()) return;
+  const myDom = (user.email.split('@')[1] || '').toLowerCase();
+  const mails = (t.match(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g) || []).filter(m => !m.toLowerCase().endsWith('@' + myDom));
+  const tel = (t.match(/(\+420[\s-]?)?\b\d{3}[\s-]?\d{3}[\s-]?\d{3}\b/) || [])[0];
+  let jm = ''; const m = t.match(/^(?:Od|From)\s*:\s*"?([^"<\[\n\r]+?)"?\s*[<\[]/m);
+  if (m) jm = m[1].trim();
+  if (!jm && mails[0]) { const lp = mails[0].split('@')[0]; if (/^[a-z]+[._][a-z]+$/i.test(lp)) jm = lp.split(/[._]/).map(cap).join(' '); }
+  const fill = (sel, v) => { if (v && !$(sel).value.trim()) $(sel).value = v; };
+  fill('#f-jmeno', jm); fill('#f-mail', mails[0]); fill('#f-tel', tel); fill('#f-zajem', t.trim().slice(0, 1500));
+  if ($('#zakaznici')) prekresli();
+}
+
+function ulozit(id){
+  const v = {
+    kanal: document.querySelector('input[name=kanal]:checked').value,
+    jmeno: $('#f-jmeno').value.trim(), telefon: $('#f-tel').value.trim(), email: $('#f-mail').value.trim(),
+    zajem: $('#f-zajem').value.trim(), dalsiKontakt: $('#f-dalsi').value || null, upraveno: TS()
+  };
+  const vz = {puvod: $('#f-vuz-puvod').value, id: $('#f-vuz-id').value.trim(), lokace: $('#f-vuz-lokace').value.trim()};
+  if (VUZ_BEZ_LOKACE.includes(vz.puvod) || !vz.puvod) vz.lokace = '';
+  v.vuz = (vz.puvod || vz.id || vz.lokace) ? Object.fromEntries(Object.entries(vz).filter(([, x]) => x)) : null;   // v1.16
+  if (!v.telefon && !v.email) { $('#f-err').textContent = 'Vyplň aspoň telefon nebo e-mail – jinak se mu neozveš 🙂'; return; }
+  if (id) { db.ref('poptavky/' + id).update(v).then(() => renderDetail(id)); return; }
+  const pozn = $('#f-pozn').value.trim(), volbaNovy = novy;
+  ulozPoptavku(v, pozn).then(r => {
+    const text = r.jak === 'neovereno' ? (volbaNovy
+        ? 'Uloženo bez zákazníka – údaje sedí i na zákazníka, kterého jsi v nabídce neviděl.'
+        : 'Uloženo bez zákazníka – v evidenci je možná shoda, kterou jsi nevybral.')
+      : r.jak === 'bez' && volbaNovy ? 'Zákazník se nezaložil – chybí jméno nebo platný telefon/e-mail.' : '';
+    poUlozeni = text ? {id: r.id, text} : null;
+    window.posledniVysledek = r;                         // pro automatické testy
+    renderDetail(r.id);
+  }).catch(e => $('#f-err').textContent = 'Uložení selhalo: ' + e.message);
+}
+
+/* ===== Detail ===== */
+/* v1.18: tlačítko Zpět prohlížeče (i gesto/myš) vrací z detailu a formuláře o krok zpět, ne ven z appky. */
+let ignorujPop = false, jeVedouci = false;
+document.addEventListener('keydown', e => {   // v1.19: Esc = zpět na přehled (ne při psaní do pole)
+  if (e.key !== 'Escape' || e.defaultPrevented || !user) return;
+  const t = e.target && e.target.tagName; if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT') return;
+  if (view === 'detail') { e.preventDefault(); zpetNaPrehled(); }
+});
+document.addEventListener('keydown', e => {   // v1.31: ← → listují poptávkami (ne při psaní, ne s Ctrl/Alt/Cmd/Shift)
+  if ((e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') || e.defaultPrevented || !user || view !== 'detail' || e.ctrlKey || e.altKey || e.metaKey || e.shiftKey) return;
+  const t = e.target && e.target.tagName; if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT' || (e.target && e.target.isContentEditable)) return;
+  if (!$('#md-panel').classList.contains('hidden')) return;   // panel „Další akce“ je otevřený
+  e.preventDefault(); jdiNaSousedni(e.key === 'ArrowLeft' ? -1 : 1);
+});
+const PODSTR = ['detail', 'form', 'tyden', 'porada'];
+function stavHistorie(v, id){
+  const st = history.state;
+  try {
+    if (v === 'detail' && st && st.v === 'form' && st.id && !ignorujPop) { ignorujPop = true; history.back(); return; }   // úprava hotová → zpět na záznam detailu
+    if (v === 'detail' && ignorujPop) return;
+    if (st && st.v === v) history.replaceState({v, id}, '');
+    else if (v === 'form' && st && st.v === 'detail') history.pushState({v, id}, '');
+    else if (v === 'detail' && st && (st.v === 'tyden' || st.v === 'porada')) history.pushState({v, id}, '');
+    else if (st && PODSTR.includes(st.v) && v !== 'tyden' && v !== 'porada') history.replaceState({v, id}, '');
+    else history.pushState({v, id}, '');
+  } catch (e) { /* např. file:// v některých prohlížečích */ }
+}
+function zpetNaPrehled(){
+  if (history.state && PODSTR.includes(history.state.v) && history.length > 1) { history.back(); return; }
+  renderHome();
+}
+window.addEventListener('popstate', e => {
+  if (ignorujPop) { ignorujPop = false; return; }
+  const st = e.state;
+  if (!user) return;
+  if (st && st.v === 'detail' && data[st.id]) renderDetail(st.id);
+  else if (st && st.v === 'tyden') renderTyden(true);
+  else if (st && st.v === 'porada' && jeVedouci) renderPorada(true);
+  else if (view !== 'home') renderHome(true);
+});
+function renderDetail(id){
+  const p = data[id]; if (!p) { renderHome(); return; }
+  stavHistorie('detail', id);
+  view = 'detail'; curId = id; $('#fab').classList.add('hidden');
+  if (simId !== id) { simId = id; simUstupek = 0; }   // v1.33: posuvník začíná u každé poptávky na nule
+  if (MOBIL.matches) { renderDetailMobil(id, p); return; }   // v1.5: iPhone; níže beze změny detail z v1.4 pro PC
+  const hist = Object.values(p.historie || {}).sort((a,b) => (b.t||0) - (a.t||0));
+  const telCist = (p.telefon||'').replace(/[^\d+]/g,'');
+  $('#view').innerHTML = `<div class="pc-detail">
+    <div class="pc-lista"><button class="btn zpet-pc" onclick="zpetNaPrehled()" title="Stejně funguje tlačítko Zpět v prohlížeči a klávesa Esc">← Všechny poptávky</button>
+      <span class="drobek">Poptávky › <span class="jm">${esc(p.jmeno || '(bez jména)')}</span></span>${sipky(id)}<span class="drobek" style="flex:0 0 auto">zpět: <kbd>Esc</kbd> · listovat: <kbd>←</kbd> <kbd>→</kbd></span></div>
+    <div class="pc-zalozky" role="tablist">${[['prehled', 'Přehled'], ['ekonomika', 'Ekonomika'], ['historie', `Historie (${hist.length})`]].map(([k, t]) =>
+      `<button type="button" role="tab" aria-selected="${detailTab === k}" class="${detailTab === k ? 'on' : ''}" onclick="prepniZalozku('${k}')">${t}</button>`).join('')}</div>
+    ${detailTab === 'ekonomika' ? ekoStranka(id, p) : detailTab === 'historie' ? historieStranka(id, p, hist) : `
+    <div class="pc-lev">
+    <div class="box pribeh">
+      <div class="top" style="display:flex;justify-content:space-between;gap:8px">
+        <h2 style="margin:0">${esc(p.jmeno || '(bez jména)')}</h2><span class="badge b-${p.stav}">${STAVY[p.stav]}</span></div>
+      <div class="sub" style="color:var(--muted);font-size:13px;margin-top:4px">${KANALY[p.kanal]||''} · ${fmtTs(p.vytvoreno)} · <span title="${esc(p.prodejce||'')}">👤 ${esc(jmenoProdejce(p.prodejce))}</span></div>
+      ${zakaznikDetailu(p)}
+      ${poUlozeni && poUlozeni.id === id ? `<div class="hint" style="margin-top:6px">${esc(poUlozeni.text)}</div>` : ''}
+      <div class="pr-label">Co chce</div>
+      <div class="pr-cochce">${esc(p.zajem || '—')}</div>
+      ${vuzTxt(p) ? `<div class="vuz-detail">🚗 ${esc(vuzTxt(p))}</div>` : ''}
+      <div class="pr-kroky">
+        <div><span class="pr-label">Naposledy${(posledniPoznamka(p) || hist[0]) ? ' · ' + esc(predKolika((posledniPoznamka(p) || hist[0]).t)) : ''}</span>${(posledniPoznamka(p) || hist[0]) ? esc((posledniPoznamka(p) || hist[0]).text) : '<span class="hint">Zatím nic nezapsáno.</span>'}</div>
+        <div><span class="pr-label">Teď</span><span class="md-termin ${terminMobil(p).cls}">${esc(terminMobil(p).txt)}</span></div>
+      </div>
+      <div class="row">
+        ${p.telefon ? `<a class="btn" href="tel:${esc(telCist)}">📞 ${esc(p.telefon)}</a>` : ''}
+        ${p.email ? `<a class="btn sec" href="mailto:${esc(p.email)}">✉️ ${esc(p.email)}</a>` : ''}
+      </div>
+      ${nabidkaBlok(id, p)}
+      <details class="dalsi"><summary>Další: označení kontaktu, uložit do kontaktů${gdprOdkazy(p).length ? ', souhlas GDPR' : ''}</summary>
+        <label class="f" for="d-oznaceni">Označení kontaktu (nepovinné)</label>
+        <div class="row kontakt" style="margin-top:0">
+          <input id="d-oznaceni" placeholder="např. SUV, Auto pro dceru" maxlength="40" autocomplete="off"
+            value="${esc(oznaceni.id === id ? oznaceni.text : '')}" oninput="oznaceni = {id: '${id}', text: this.value}">
+          <button class="btn sec" onclick="ulozKontakt('${id}')">📱 Uložit do kontaktů</button>
+        </div>
+        ${gdprOdkazy(p).length ? `<div class="row gdpr"><span class="hint">Souhlas GDPR:</span>${gdprOdkazy(p).map(([href, txt]) =>
+          `<a class="btn sec sm" href="${href}">${txt}</a>`).join('')}</div>` : ''}
+      </details>
+    </div>
+    ${dohodaBlok(id, p)}
+    </div>
+
+    <div class="pc-prav">
+    <div class="box">
+      <label class="f" style="margin-top:0">Zapsat kontakt / poznámku</label>
+      <textarea id="d-pozn" placeholder="Volal jsem, chce ještě srovnat s leasingem…" style="min-height:60px" oninput="poznRozepsana = {id: '${id}', text: this.value}">${esc(poznRozepsana.id === id ? poznRozepsana.text : '')}</textarea>
+      <div class="row"><button class="btn" onclick="pridejPozn('${id}')">Zapsat</button></div>
+      ${hist.length ? `<div class="posl-zapis" onclick="prepniZalozku('historie')" title="Otevře celou historii"><a>Celá historie (${hist.length}) →</a></div>` : ''}
+    </div>
+
+    <div class="box">
+      <label class="f" style="margin-top:0">Další kontakt ${kdyKontakt(p) ? '– ' + kdyKontakt(p) : ''}${volnoDen(p.dalsiKontakt) && OTEVRENE.includes(p.stav) ? ` <span class="volno">⚠ ${esc(volnoDen(p.dalsiKontakt))}</span>` : ''}</label>
+      <input type="date" value="${esc(p.dalsiKontakt||'')}" onchange="nastavKontakt('${id}', this.value)">
+      <div class="chips">${[[1,'Zítra'],[3,'+3 dny'],[7,'+týden'],[14,'+2 týdny']].map(([n,t]) => `<span class="chip" onclick="nastavKontakt('${id}','${pracovniDen(n)}')">${t}</span>`).join('')}</div>
+      <div class="hint" style="margin-top:6px">Víkendy a svátky se přeskočí.</div>
+      <label class="f">Stav</label>
+      <div class="chips">${Object.keys(STAVY).filter(k => k !== 'jednani' || p.stav === 'jednani').map(k => `<span class="chip ${p.stav===k?'on':''}" onclick="zmenStav('${id}','${k}')">${STAVY[k]}</span>`).join('')}</div>
+    </div>
+    </div>
+
+    `}
+    <div class="row pc-konec">
+      <button class="btn sec" onclick="renderForm('${id}')">✏️ Upravit údaje</button>
+      <button class="btn red" onclick="smazat('${id}')">Smazat</button>
+    </div></div>`;
+}
+
+/* v1.13: odkaz do Mercedes Offer Studio (lokální appka na PC prodejce, pevný port 8774).
+   Jen navigace – Offer Studio předvyplní zákazníka; do Poptávek se nic nezapisuje, stav se nemění. */
+const OFFER_STUDIO = 'http://127.0.0.1:8774/nova';
+/* v1.37: blok „Nabídka“ v příběhu případu. Bez nabídky: hlavní tlačítko + návod, jak Offer Studio spustit (kolega netušil).
+   Appka ověření „běží Offer Studio?“ nedělá – prohlížeč by u dotazu na 127.0.0.1 z https stránky mohl ukázat dotaz na přístup k místní síti
+   a odmítnutí by vypadalo jako „neběží“. Místo toho hned po klepnutí ukáže, co dělat, když se okno nenačte.
+   Po vzniku nabídky u nové poptávky nabídne jedno klepnutí „Nabídka odeslána“ (stav se nemění sám, rozhodnutí z 2026-10-28). */
+function osStart(){ const e = document.getElementById('os-info'); if (e) e.hidden = false; }
+const OS_NAVOD = `<ol><li>Otevři složku <b>Offer Studio</b> a dvakrát klepni na <b>START.bat</b>.</li><li>Otevře se jen černé okno „Offer Studio BĚŽÍ“ – nech ho otevřené (je to motor Offer Studia). Prohlížeč se sám neotevře.</li><li>Vrať se sem a klepni na „Udělat nabídku“ – otevře se Offer Studio s vyplněným zákazníkem.</li></ol>`;
+function nabidkaBlok(id, p){
+  const nab = nabidkySerazene(p), url = esc(odkazNabidky(id, p));
+  if (!nab.length) return `<div class="os-blok"><a class="btn os-hlavni" href="${url}" target="offerstudio" onclick="osStart();return otevriOS(this)">📄 Udělat nabídku</a>
+      <span class="hint">Otevře Offer Studio v novém okně s vyplněným zákazníkem. Až vytvoříš PDF, vrať se na tuhle kartu – nabídka se tu objeví sama.</span>
+      <div id="os-info" class="os-info" hidden><b>Otevírám Offer Studio…</b> Když se místo něj ukáže chyba připojení, Offer Studio neběží:${OS_NAVOD}</div>
+      <details class="os-pomoc"><summary>Offer Studio se neotevřelo? Jak ho spustit</summary>${OS_NAVOD}</details></div>`;
+  return `<div class="os-blok">${nabidkySoubory(p)}
+      ${p.stav === 'nova' ? `<div class="os-vyzva">✅ Nabídka je hotová. Už jsi ji poslal zákazníkovi?
+        <button type="button" class="btn" onclick="zmenStav('${id}','nabidka')">Ano – nabídka odeslána</button>
+        <span class="hint">Stav se přepne a další kontakt bude ${esc(fmtD(pracovniDen(3)))} (za 3 pracovní dny).</span></div>` : ''}
+      <div class="os-jine"><a href="${url}&amp;nova=1" target="offerstudio" onclick="osStart();return otevriOS(this)">➕ Nabídka na jiné auto</a>
+        <span class="hint">nová prázdná nabídka, převezme zákazníka a poznámky</span></div>
+      <div id="os-info" class="os-info" hidden><b>Otevírám Offer Studio…</b> Když se místo něj ukáže chyba připojení, Offer Studio neběží:${OS_NAVOD}</div></div>`;
+}
+function odkazNabidky(id, p){
+  const q = new URLSearchParams({poptavka: id, jmeno: p.jmeno || '', telefon: p.telefon || '', email: p.email || '', zajem: (p.zajem || '').slice(0, 1500)});
+  return OFFER_STUDIO + '?' + q.toString();
+}
+
+/* v1.14: nabídky zapsané z Offer Studia (/poptavky/{id}/nabidky/{id konceptu}). Poptávky nic nepočítají,
+   jen ukazují. Interní údaje (zisk, marže) jen na PC a schované do klepnutí (showroom). Hranice „nízké marže“
+   přichází jako příznak z Offer Studia, v kódu Poptávek není (veřejné repo). */
+let nabidkyOdkryte = false;
+const pctCz = n => (Math.round(n * 10) / 10).toLocaleString('cs-CZ') + ' %';
+const nabidkySerazene = p => Object.values(p.nabidky || {}).filter(n => n && n.model != null).sort((a, b) => (b.t || 0) - (a.t || 0));
+/* v1.33: „Co když ustoupím?“ – hraní si s posuvníkem během telefonu. Jen simulace nad poslední nabídkou z Offer Studia:
+   zisk se mění o ústupek bez DPH (zisk = prodejní cena bez DPH − nákupní cena, takže při změně jen slevy je změna přesně ústupek / 1,21;
+   nákupní cena ani vzorec marže se do Poptávek nepřenášejí). Nic se nezapisuje, nová sleva se udělá novou nabídkou v Offer Studiu.
+   Hranice „nízké marže“ v kódu není: ⚠ pod nákupní cenou plyne ze znaménka zisku, „nízká marže“ jen z příznaku už zapsaného Offer Studiem. */
+const SIM_DPH = 1.21, SIM_MAX = 100000, SIM_KROK = 10000;
+let simUstupek = 0, simId = null;
+/* v1.34: „Ekonomika případu“ (návrh A) – vlevo co platí zákazník, vpravo co zůstane prodejci (schované do klepnutí), dole posuvník.
+   Poptávky nic nepočítají: čísla zapsalo Offer Studio. Odvozuje se jen nákupní cena (cena vozu bez DPH − zisk) a při posuvníku změna zisku o ústupek / 1,21. */
+function ekoOdkazy(klic, x){
+  return (x.soubor ? `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(klic) + '/pdf')}" target="offerstudio_pdf" title="Otevře PDF nabídky (přes Offer Studio na tomhle PC)">📄 PDF</a> · ` : '')
+    + `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(klic))}" target="offerstudio" onclick="return otevriOS(this)" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF (Offer Studio musí běžet)">✏️ Upravit (jiná sleva / cena)</a>`;
+}
+/* v1.36: nabídky (soubor, 📄 PDF, 📂 Offer Studio) jsou v Přehledu u poptávky; odkazy otevírají Offer Studio na tomhle PC */
+function odkazyNabidky(k, o){
+  return (o.soubor ? `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(k) + '/pdf')}" target="offerstudio_pdf" title="Otevře PDF nabídky (přes Offer Studio na tomhle PC)">📄 PDF</a> · ` : '')
+    + `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(k))}" target="offerstudio" onclick="return otevriOS(this)" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF (Offer Studio musí běžet)">✏️ Upravit (jiná sleva / cena)</a>`;
+}
+function nabidkySoubory(p){
+  const nab = nabidkySerazene(p); if (!nab.length) return '';
+  const klic = o => Object.keys(p.nabidky || {}).find(q => p.nabidky[q] === o) || '';
+  return `<label class="f">${nab.length > 1 ? 'Nabídky' : 'Nabídka'}</label><div class="nab-soubory">${nab.map(o =>
+    `<div class="eko-sou">${o.soubor ? `<span class="eko-soubor" title="${esc(o.soubor)}">${esc(o.soubor)}</span> · ` : `<span class="eko-soubor">${esc(o.model || 'Nabídka')}</span> · `}${odkazyNabidky(klic(o), o)}</div>`).join('')}</div>`;
+}
+function prepniZalozku(k){
+  const t = document.getElementById('d-pozn'); if (t && curId) poznRozepsana = {id: curId, text: t.value};   // rozepsaná poznámka přežije přepnutí záložky
+  detailTab = k; renderDetail(curId); window.scrollTo(0, 0);
+}
+function historieStranka(id, p, hist){
+  return `<div class="box pc-hist-str"><h3 class="pc-nadpis">Historie kontaktů (${hist.length} ${zaznamu(hist.length)})</h3>
+    ${hist.length ? hist.map(h => `<div class="hist">${esc(h.text)}<small>${fmtTs(h.t)} · ${esc(h.kdo || '')}</small></div>`).join('') : '<div class="hint">Zatím nic nezapsáno.</div>'}</div>`;
+}
+/* v1.35: záložka Ekonomika (návrh B). Nahoře cena pro zákazníka a pruh „Kam jde cena“, pod ním čísla případu a posuvník. */
+function ekoStranka(id, p){
+  const nab = nabidkySerazene(p);
+  if (!nab.length) return `<div class="box ekop"><h3 class="pc-nadpis">Ekonomika případu</h3><div class="hint">Zatím tu není žádná nabídka z Offer Studia. Až ji uděláš, ukážu cenu, slevu i zisk.</div>
+    <div class="row"><a class="btn sec sm" href="${esc(odkazNabidky(id, p))}" target="offerstudio" onclick="return otevriOS(this)">📄 Udělat nabídku</a></div></div>`;
+  const x = nab[0], i = x.interni, katalog = (x.cena_vuz_sdph || 0) + (x.sleva_sdph || 0), celkem = x.cena_sdph || 0;
+  const datum = t => t ? new Date(t).toLocaleDateString('cs-CZ') : '';
+  const rr = (a, b, cls = '') => `<div class="kr ${cls}"><span>${a}</span><b>${b}</b></div>`;
+  const hlava = `<div class="box eko-hlava"><div class="eko-cena"><b>${esc(kc(celkem))}</b><span class="m">cena pro zákazníka s DPH${x.sleva_sdph ? ` · sleva ${esc(kc(x.sleva_sdph))} (${esc(pctCz(x.sleva_pct || 0))}) z ceníkové ${esc(kc(katalog))}` : ' · bez slevy'}${x.doplnky_sdph ? ` · z toho doplňky ${esc(kc(x.doplnky_sdph))}` : ''}</span></div>
+    <h3 class="pc-nadpis">Kam jde cena ${i ? `<button type="button" class="btn sec sm" onclick="nabidkyOdkryte = !nabidkyOdkryte; renderDetail(curId)">${nabidkyOdkryte ? '🙈 Schovat' : '👁 Ukázat'}</button>` : ''}</h3>
+    ${i && nabidkyOdkryte ? ekoPruh(x, i) : `<div class="skryte" ${i ? 'onclick="nabidkyOdkryte = true; renderDetail(curId)"' : ''}><b>••• Kč</b>${i ? 'nákupní cena · zisk · marže (klepni, ukáže se)' : 'Nabídka vznikla bez interní kalkulace (nákupní marže), zisk se neukáže.'}</div>`}</div>`;
+  let cisla = '';
+  if (i) {
+    if (nabidkyOdkryte) {
+      const zisk = i.zisk, skut = i.skutecny_zisk != null ? i.skutecny_zisk : i.zisk, nakup = (x.cena_vuz_sdph || 0) / SIM_DPH - zisk, rozdil = skut - (zisk - (i.korekce || 0));
+      const mz = i.skutecna_marze != null ? i.skutecna_marze : i.obchodni_marze;
+      cisla = `${rr('Nákupní cena bez DPH', esc(kc(nakup)), 'm')}${rr('Zisk', esc(kc(zisk)))}
+        ${i.korekce ? rr('− korekce', '− ' + esc(kc(i.korekce)), 'm') : ''}${Math.abs(rozdil) > 0.5 ? rr('+ dobropis a další', (rozdil > 0 ? '+ ' : '− ') + esc(kc(Math.abs(rozdil))), 'm') : ''}
+        ${rr('Skutečný zisk', esc(kc(skut)), 'tl')}
+        <div class="ekomini">obchodní marže ${esc(pctCz(i.obchodni_marze))}${i.skutecna_marze != null && i.skutecna_marze !== i.obchodni_marze ? ` · skutečná ${esc(pctCz(mz))}` : ''}
+        ${i.negativni ? ' · <span class="varovani">⚠ pod nákupní cenou</span>' : i.nestandardni ? ' · <span class="nizka">⚠ nízká marže</span>' : ''}</div>`;
+    } else cisla = `${rr('Skutečný zisk', '••• Kč', 'm')}<div class="ekomini">marže •••</div>`;
+  } else cisla = '<div class="hint">Bez interní kalkulace.</div>';
+  const leva = `<div class="box"><h3 class="pc-nadpis">Čísla případu</h3>
+    <div class="eko-model">📄 <b>${esc(x.model || 'Nabídka')}</b>${datum(x.t) ? ` · ${esc(datum(x.t))}` : ''}</div>
+    ${x.doplnky_sdph ? rr('Cena vozu', esc(kc(x.cena_vuz_sdph || 0))) + rr('Doplňkový prodej', '+ ' + esc(kc(x.doplnky_sdph))) : ''}
+    ${cisla}
+  </div>`;
+  return `<div class="ekop"><div class="pc-eko">${hlava}${leva}${simBlok(id, p)}</div></div>`;
+}
+function ekoPruh(x, i){   // pruh s kolika % ceny je DPH, nákup, korekce a zisk (jen s odkrytým ziskem)
+  const celkem = x.cena_sdph || 0, dph = celkem - celkem / SIM_DPH, skut = i.skutecny_zisk != null ? i.skutecny_zisk : i.zisk;
+  const nakup = Math.max(0, (x.cena_vuz_sdph || 0) / SIM_DPH - i.zisk), dop = (x.doplnky_sdph || 0) / SIM_DPH, kor = i.korekce || 0;
+  const seg = [['DPH', dph, '#64748b'], ['Nákupní cena', nakup, '#0f766e'], ...(dop > 0 ? [['Doplňky', dop, '#4f46e5']] : []), ...(kor > 0 ? [['Korekce', kor, '#d97706']] : []), ['Skutečný zisk', Math.max(0, skut), '#15803d']].filter(z => z[1] > 0);
+  const sum = seg.reduce((a, z) => a + z[1], 0) || 1;
+  return `<div class="pruh">${seg.map(([t, v, c]) => `<div style="flex:${v};background:${c}" title="${esc(t)} ${esc(kc(v))}">${v / sum >= 0.09 ? esc(t) : ''}</div>`).join('')}</div>
+    <div class="leg">${seg.map(([t, v, c]) => `<span><i style="background:${c}"></i>${esc(t)} ${esc(kc(v))}</span>`).join('')}</div>`;
+}
+
+function simEkvivalent(kcDph){   // „co za to koupíš“ – jen pro srandu, orientační ceny
+  if (kcDph <= 0) return '';
+  const pol = kcDph >= 50000 ? ['dovolená pro celou rodinu 🏝️', Math.max(1, Math.round(kcDph / 60000))] : kcDph >= 16000 ? ['týden u moře 🏖️', Math.max(1, Math.round(kcDph / 20000))]
+    : kcDph >= 6000 ? ['víkend na horách 🏔️', Math.max(1, Math.round(kcDph / 8000))] : kcDph >= 2000 ? ['plná nádrž ⛽', Math.max(1, Math.round(kcDph / 2500))]
+    : kcDph >= 500 ? ['oběd 🍽️', Math.max(1, Math.round(kcDph / 200))] : ['káva ☕', Math.max(1, Math.round(kcDph / 60))];
+  return pol[1] > 1 ? `${pol[1]}× ${pol[0]}` : pol[0];
+}
+function simVyhra(id){   // levá část pod posuvníkem
+  const u = simUstupek; if (!u) return '<div class="ekomini">Posuň posuvník a uvidíš, co ústupek znamená pro zákazníka i pro tebe.</div>';
+  return `<div class="sim-vyhra">🏆 Zákazník právě vyhrál <b>${esc(kc(u))}</b> a má radost.<br><span class="ekomini">Tvůj ústupek = ${esc(simEkvivalent(u))}</span></div>`;
+}
+function simVystup(id){   // pravá část: dopad na cenu, slevu, zisk a marži
+  const p = data[id], x = p && nabidkySerazene(p)[0]; if (!x) return '';
+  const u = simUstupek, i = x.interni, katalog = (x.cena_vuz_sdph || 0) + (x.sleva_sdph || 0);
+  const slevaCelkem = (x.sleva_sdph || 0) + u, slevaPct = katalog ? slevaCelkem / katalog * 100 : 0;
+  const rr = (a, b) => `<div class="kr"><span>${a}</span><b>${b}</b></div>`, mn = t => u ? ` <span class="ekomini">(${t})</span>` : '';
+  let h = rr('Zákazník zaplatí', esc(kc((x.cena_sdph || 0) - u))) + rr('Sleva', `${esc(kc(slevaCelkem))} (${esc(pctCz(slevaPct))})`);
+  if (i) {
+    const skut = i.skutecny_zisk != null ? i.skutecny_zisk : i.zisk, ubytek = u / SIM_DPH, skut1 = skut - ubytek;
+    if (nabidkyOdkryte) {
+      const marze1 = katalog ? i.obchodni_marze - u / katalog * 100 : i.obchodni_marze;
+      h += rr('Skutečný zisk', esc(kc(skut1)) + mn('− ' + esc(kc(ubytek)) + (skut > 0 ? ' = ' + esc(pctCz(ubytek / skut * 100)) + ' zisku' : '')))
+        + rr('Obchodní marže', esc(pctCz(marze1)) + mn('v nabídce ' + esc(pctCz(i.obchodni_marze))));
+      if (skut1 < 0) h += `<div class="sim-var">⚠ Pod nákupní cenou – tady už to bolí.</div>`;
+      else if (i.nestandardni || i.negativni) h += `<div class="sim-var">⚠ Marže je už v nabídce nízká – ústupek ji jen dál zmenší.</div>`;
+    } else {
+      h += rr('Skutečný zisk', '••• Kč');
+      if (skut1 < 0) h += `<div class="sim-var">⚠ Tady už to bolí – jsi pod nákupní cenou.</div>`;
+    }
+  }
+  return h;
+}
+function simZmena(v){
+  simUstupek = Math.max(0, Math.min(SIM_MAX, Math.round(Number(v) / SIM_KROK) * SIM_KROK)) || 0;
+  const e = document.getElementById('sim-vystup'); if (e) e.innerHTML = simVystup(curId);
+  const w = document.getElementById('sim-vyhra'); if (w) w.innerHTML = simVyhra(curId);
+  const l = document.getElementById('sim-hodnota'); if (l) l.textContent = simUstupek ? '+ ' + kc(simUstupek) : 'bez ústupku';
+}
+function simBlok(id, p){
+  const x = nabidkySerazene(p)[0]; if (!x || !x.cena_sdph) return '';
+  if (simId !== id) { simId = id; simUstupek = 0; }
+  return `<div class="box sim"><h3 class="pc-nadpis">🎚 Co když ustoupím?</h3>
+    <div class="sim-pop">Jen na hraní během telefonu, nic se nezapisuje. Skutečná sleva = nová nabídka v Offer Studiu.</div>
+    <div class="sim-mrizka"><div>
+      <div>Ústupek navíc: <b id="sim-hodnota">${simUstupek ? '+ ' + esc(kc(simUstupek)) : 'bez ústupku'}</b></div>
+      <input type="range" id="sim-posuvnik" min="0" max="${SIM_MAX}" step="${SIM_KROK}" value="${simUstupek}" oninput="simZmena(this.value)" aria-label="Ústupek navíc v Kč s DPH">
+      <div class="sim-osa"><span>0</span><span>${esc(kc(SIM_MAX / 2))}</span><span>${esc(kc(SIM_MAX))}</span></div>
+      <div id="sim-vyhra">${simVyhra(id)}</div></div>
+      <div id="sim-vystup">${simVystup(id)}</div></div></div>`;
+}
+
+const zaznamu = n => n === 1 ? 'záznam' : n >= 2 && n <= 4 ? 'záznamy' : 'záznamů';
+
+function log(id, text){ return db.ref(`poptavky/${id}/historie`).push({t: TS(), kdo: user.email, text}); }
+
+function zmenStav(id, stav){
+  if (data[id].stav === stav) return;
+  const upd = {stav, upraveno: TS()};
+  if (stav === 'nabidka') upd.dalsiKontakt = pracovniDen(3);   // po odeslání nabídky připomenout za 3 dny (v1.37: přeskočí víkend a svátky)
+  if (stav === 'prodano' || stav === 'ztraceno') upd.dalsiKontakt = null;
+  db.ref('poptavky/' + id).update(upd);
+  log(id, 'Stav → ' + STAVY[stav] + (upd.dalsiKontakt ? ' (další kontakt ' + fmtD(upd.dalsiKontakt) + ')' : ''));
+}
+
+function nastavKontakt(id, d){ db.ref('poptavky/' + id).update({dalsiKontakt: d || null, upraveno: TS()}); }
+
+function pridejPozn(id){
+  const t = $('#d-pozn').value.trim(); if (!t) return;
+  $('#d-pozn').value = ''; $('#d-pozn').blur();
+  log(id, t);
+}
+
+function smazat(id){
+  if (confirm('Opravdu smazat poptávku ' + (data[id].jmeno || '') + '? Nejde to vrátit.')) smazatPotvrzeno(id);
+}
+function smazatPotvrzeno(id){ db.ref('poptavky/' + id).remove().then(renderHome); }   // v1.5: i z potvrzení v panelu „Další akce“
+
+/* ===== Detail na mobilu (v1.5) – podle schváleného prototypu =====
+   Nahoře kdo a co chce + Zavolat / Napsat, uprostřed „Po hovoru“ (poznámka → další kontakt → stav), sbalená historie.
+   Méně časté akce (kontakt do iPhonu, úprava, smazání) v panelu „Další akce“. Ukládá stejné funkce jako detail na PC. */
+const DNY = ['neděle','pondělí','úterý','středa','čtvrtek','pátek','sobota'];
+function hezkeDatum(iso){
+  if (!iso) return '';
+  const [y, m, d] = iso.split('-').map(Number), x = new Date(y, m - 1, d);
+  const zaklad = `${DNY[x.getDay()]} ${d}. ${m}.` + (y !== new Date().getFullYear() ? ` ${y}` : '');
+  return iso === dnes() ? 'dnes, ' + zaklad : iso === dnes(1) ? 'zítra, ' + zaklad : zaklad;
+}
+function terminMobil(p){
+  if (!OTEVRENE.includes(p.stav)) return {txt: 'Uzavřeno', cls: ''};
+  if (!p.dalsiKontakt) return {txt: 'Bez termínu', cls: ''};
+  if (p.dalsiKontakt < dnes()) return {txt: '⚠ Zavolat – prošlé ' + hezkeDatum(p.dalsiKontakt), cls: 'pozde'};
+  if (p.dalsiKontakt === dnes()) return {txt: 'Zavolat dnes', cls: 'dnes'};
+  return {txt: 'Další kontakt ' + hezkeDatum(p.dalsiKontakt), cls: ''};
+}
+function renderDetailMobil(id, p){
+  const hist = Object.values(p.historie || {}).sort((a,b) => (b.t||0) - (a.t||0));
+  const telCist = (p.telefon||'').replace(/[^\d+]/g,''), t = terminMobil(p);
+  const zajem = p.zajem || '', kratky = zajem.length < 160 && zajem.split('\n').length <= 3;
+  const kontakty = [p.telefon ? `<a class="md-akce hlavni" href="tel:${esc(telCist)}"><b>📞 Zavolat</b><span>${esc(p.telefon)}</span></a>` : '',
+                    p.email ? `<a class="md-akce" href="mailto:${esc(p.email)}"><b>✉️ Napsat</b><span>${esc(p.email)}</span></a>` : ''].filter(Boolean);
+  const chip = (n, txt) => `<button type="button" class="md-chip ${p.dalsiKontakt === pracovniDen(n) ? 'on' : ''}" onclick="nastavKontakt('${id}','${pracovniDen(n)}')">${txt}</button>`;
+  $('#view').innerHTML = `
+    <div class="row zpet" style="margin-top:0"><button class="btn sec sm" style="flex:0" onclick="zpetNaPrehled()">← Přehled</button></div>
+    <button type="button" class="md-vic" onclick="otevriAkce('${id}')" aria-haspopup="dialog">Další akce ⋯</button>
+    ${sipky(id, true)}
+    <section class="md-karta" aria-label="Zákazník">
+      <div class="md-stavy"><span class="badge b-${p.stav}">${STAVY[p.stav]}</span><span class="md-termin ${t.cls}">${esc(t.txt)}</span></div>
+      <h2 class="md-jmeno">${esc(p.jmeno || '(bez jména)')}</h2>
+      <div class="md-meta">${KANALY[p.kanal]||''} · ${fmtTs(p.vytvoreno)}${jeVedouci ? ` · 👤 ${esc(jmenoProdejce(p.prodejce))}` : ''}</div>
+      ${zakaznikDetailu(p)}
+      ${poUlozeni && poUlozeni.id === id ? `<div class="hint" style="margin-top:6px">${esc(poUlozeni.text)}</div>` : ''}
+      <div class="md-label">Co chce</div>
+      <div class="md-cochce ${celyText === id || kratky ? '' : 'zkr'}">${esc(zajem || '—')}</div>
+      ${kratky ? '' : `<button type="button" class="md-odkaz" onclick="celyText = celyText === '${id}' ? null : '${id}'; renderDetail('${id}')">${celyText === id ? 'Zobrazit méně' : 'Zobrazit celý text'}</button>`}
+      ${vuzTxt(p) ? `<div class="md-label">Vůz</div><div>🚗 ${esc(vuzTxt(p))}</div>` : ''}
+      ${dohodaBlok(id, p, true)}
+      ${(n => n ? `<div class="md-label">Nabídka</div><div>📄 ${esc(n.model || 'Nabídka')} · <b>${esc(kcK(n.cena_sdph || 0))}</b>${n.sleva_sdph ? ` · sleva ${esc(pctCz(n.sleva_pct || 0))}` : ''}${n.t ? ` · ${esc(predKolika(n.t))}` : ''}</div>` : '')(posledniNabidka(p))}
+      ${kontakty.length ? `<div class="md-kontakt ${kontakty.length === 1 ? 'jeden' : ''}">${kontakty.join('')}</div>` : ''}
+    </section>
+
+    <section class="md-karta" aria-label="Po hovoru">
+      <h3 class="md-nadpis">Po hovoru</h3>
+      <p class="md-pod">Zapiš, co jste domluvili, a naplánuj další kontakt.</p>
+      <textarea id="d-pozn" placeholder="Např. chce ještě srovnat s leasingem…" oninput="$('#md-zapsat').disabled = !this.value.trim()"></textarea>
+      <div class="md-zapsat"><button type="button" class="btn" id="md-zapsat" disabled onclick="pridejPozn('${id}')">Zapsat poznámku</button></div>
+      <div class="md-oddel"></div>
+      <div class="md-datum"><span class="md-label">Další kontakt</span><b class="${t.cls === 'pozde' ? 'pozde' : ''}">${p.dalsiKontakt ? esc(hezkeDatum(p.dalsiKontakt)) : '—'}</b></div>
+      ${volnoDen(p.dalsiKontakt) && OTEVRENE.includes(p.stav) ? `<div class="volno" style="margin-top:4px">⚠ ${esc(volnoDen(p.dalsiKontakt))} – nezvolit radši pracovní den?</div>` : ''}
+      <div class="md-chipy">
+        ${chip(1,'Zítra')}${chip(3,'+3 dny')}${chip(7,'+týden')}${chip(14,'+2 týdny')}
+        <label class="md-chip">📅 Datum…<input type="date" value="${esc(p.dalsiKontakt||'')}" onchange="nastavKontakt('${id}', this.value)" aria-label="Vybrat datum dalšího kontaktu"></label>
+      </div>
+      <div class="md-oddel"></div>
+      <span class="md-label">Stav obchodu</span>
+      <div class="md-seg" role="group" aria-label="Rozpracováno">
+        ${['nova','nabidka', ...(p.stav === 'jednani' ? ['jednani'] : [])].map(k => `<button type="button" class="${p.stav === k ? 'on' : ''}" onclick="zmenStav('${id}','${k}')">${STAVY[k]}</button>`).join('')}
+      </div>
+      <div class="md-uzavrit" role="group" aria-label="Uzavřít obchod">
+        <button type="button" class="prodano ${p.stav === 'prodano' ? 'on' : ''}" onclick="zmenStav('${id}','prodano')">✓ Prodáno</button>
+        <button type="button" class="ztraceno ${p.stav === 'ztraceno' ? 'on' : ''}" onclick="zmenStav('${id}','ztraceno')">✕ Ztraceno</button>
+      </div>
+    </section>
+
+    <section class="md-karta">
+      <details class="historie md-hist" ${historieOtevrena === id ? 'open' : ''} ontoggle="historieOtevrena = this.open ? '${id}' : null">
+        <summary>Historie kontaktů (${hist.length} ${zaznamu(hist.length)})
+          ${hist[0] ? `<span class="posledni">Naposledy ${fmtTs(hist[0].t)}: ${esc(hist[0].text)}</span>` : ''}</summary>
+        ${hist.map(h => `<div class="hist">${esc(h.text)}<small>${fmtTs(h.t)} · ${esc(h.kdo||'')}</small></div>`).join('')}
+      </details>
+    </section>`;
+}
+/* v1.9: Souhlas GDPR – připraví SMS s odkazem na formulář souhlasu Mercedes-Benz (bez předvyplnění, formulář údaje
+   z odkazu nepřebírá). Odešle prodejce sám ve Zprávách; do Poptávek se nic nezapisuje.
+   E-mail záměrně není: mailto: umí jen prostý text, nový Outlook z něj klikací odkaz neudělá a kopírování přes schránku
+   by prodejci přidalo práci (rozhodnutí uživatele). */
+const GDPR_ODKAZ = 'https://www.mercedes-benz.cz/passengercars/content-pool/marketing-pool/contact-forms/doc.html?d=2021-06-22&can=RetailWeb&cpid=doc_ms_7672&le=D-Outlet.9058&s=generic_landing_page';
+// Odkaz na samostatném řádku – Zprávy ho tak spolehlivě rozpoznají (v okně psaní bývá ještě černý, modrý je až po odeslání)
+const GDPR_TEXT = `Dobrý den,\nposílám odkaz na souhlas se zpracováním osobních údajů pro Mercedes-Benz:\n\n${GDPR_ODKAZ}\n\nDěkuji, S. & W. Automobily`;
+function gdprOdkazy(p){
+  const tel = (p.telefon || '').replace(/[^\d+]/g, '');
+  return tel ? [[`sms:${tel}?&body=${encodeURIComponent(GDPR_TEXT)}`, '💬 Poslat SMS']] : [];   // „?&body=“ funguje v iPhonu i Androidu
+}
+/* Panel „Další akce“ – kontakt do iPhonu, úprava, smazání (s potvrzením přímo v panelu) */
+function otevriAkce(id){
+  const p = data[id]; if (!p) return;
+  $('#md-panel').innerHTML = `<div class="md-uchyt"></div>
+    <h3>${esc(p.jmeno || p.telefon || p.email || 'Poptávka')}</h3>
+    <div class="md-vcf">
+      <label for="d-oznaceni">Označení kontaktu (nepovinné)</label>
+      <div class="md-r">
+        <input id="d-oznaceni" placeholder="např. SUV, Auto pro dceru" maxlength="40" autocomplete="off"
+          value="${esc(oznaceni.id === id ? oznaceni.text : '')}" oninput="oznaceni = {id: '${id}', text: this.value}">
+        <button type="button" class="btn" onclick="ulozKontakt('${id}')">📱 Uložit do kontaktů</button>
+      </div>
+    </div>
+    ${gdprOdkazy(p).map(([href, txt]) => `<a class="md-radek" href="${href}" onclick="zavriAkce()"><span>🛡</span>Souhlas GDPR – ${txt.replace(/^\S+ /, '')}</a>`).join('')}
+    <button type="button" class="md-radek" onclick="zavriAkce(); renderForm('${id}')"><span>✏️</span>Upravit údaje</button>
+    <button type="button" class="md-radek cervena" onclick="$('#md-potvrd').classList.remove('hidden')"><span>🗑</span>Smazat poptávku…</button>
+    <div id="md-potvrd" class="md-potvrd hidden">
+      <p>Opravdu smazat poptávku <b>${esc(p.jmeno || '')}</b>? Nejde to vrátit.</p>
+      <div class="md-r2"><button type="button" class="btn sec" onclick="$('#md-potvrd').classList.add('hidden')">Ponechat</button>
+        <button type="button" class="btn md-smazat" onclick="zavriAkce(); smazatPotvrzeno('${id}')">Smazat</button></div>
+    </div>`;
+  $('#md-zavoj').classList.remove('hidden'); $('#md-panel').classList.remove('hidden');
+}
+function zavriAkce(){ $('#md-zavoj')?.classList.add('hidden'); const pn = $('#md-panel'); if (pn) { pn.classList.add('hidden'); pn.style.transform = ''; pn.classList.remove('tahne'); } }
+/* v1.22: panel „Další akce“ se zavře i posunutím dolů (nalezeno uživatelem v provozu – šlo jen klepnout na pozadí).
+   Táhne se za celý panel, když je odrolovaný nahoru; ne při psaní do pole. Krátké potáhnutí se vrátí zpět. */
+(function(){
+  const pn = $('#md-panel'); if (!pn) return;
+  let y0 = null, dy = 0;
+  pn.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1 || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) { y0 = null; return; }
+    y0 = e.touches[0].clientY; dy = 0;
+  }, {passive: true});
+  pn.addEventListener('touchmove', e => {
+    if (y0 === null) return;
+    const d = e.touches[0].clientY - y0;
+    if (d <= 0 || pn.scrollTop > 0) { if (dy) { dy = 0; pn.style.transform = ''; } return; }   // nahoru nebo ještě se rolují akce
+    dy = d; pn.classList.add('tahne'); pn.style.transform = `translateY(${dy}px)`;
+    if (e.cancelable) e.preventDefault();   // ať se při tažení nehýbe stránka pod panelem
+  }, {passive: false});
+  const konec = () => {
+    if (y0 === null) return;
+    const zavrit = dy > 70 || dy > pn.offsetHeight * .25;
+    y0 = null; pn.classList.remove('tahne');
+    if (zavrit) zavriAkce(); else pn.style.transform = '';
+    dy = 0;
+  };
+  pn.addEventListener('touchend', konec); pn.addEventListener('touchcancel', konec);
+})();
+document.addEventListener('keydown', e => { if (e.key === 'Escape') zavriAkce(); });
+MOBIL.addEventListener('change', () => { zavriAkce(); if (view === 'detail' && !psani()) renderDetail(curId); else if (view === 'home' && !psani()) renderHome(); });   // otočení telefonu, změna okna
+
+/* ===== Známý zákazník (v1.2) =====
+   Převzato z experimentu v0.5 ověřeného v emulátoru (repo Fenclotéka, experimenty/zakaznik_poptavka_v0.5).
+   Rozhodnutí: zákazníka hledat automaticky, poptávku k němu přiřadit jen po klepnutí na Vybrat. Telefon nebo e-mail
+   může mít víc lidí. Při nepotvrzené možné shodě se poptávka uloží bez zákazníka a nový zákazník nevznikne.
+   „Je to nový zákazník“ založí nového i při podobném jménu nebo stejném telefonu – jen proti zákazníkům, které prodejce viděl.
+   Vazba je jednosměrná: poptávka.zakaznik → /zakaznici/{key}. Starší poptávky zůstávají bez zákazníka. */
+const TEL_RE = /^[0-9 +()\/-]+$/;              // stejné omezení jako pravidla /zakaznici/telefon
+const EMAIL_RE = /^[^@ ]+@[^@ ]+\.[^@ ]+$/;    // stejné omezení jako pravidla /zakaznici/email
+
+/* Normalizace – podmnožina matching.js z Fenclotéky (telefon bez předvolby +420, e-mail malými písmeny) */
+const Norm = {
+  phone(v){ return (v||'').toString().replace(/[\s\-().\/]/g,'').replace(/^00/,'+').replace(/^\+?420/,''); },
+  phoneValid(v){ const s = this.phone(v); return (s && s.replace(/\D/g,'').length >= 6) ? s : null; },
+  emailValid(v){
+    const s = (v||'').toString().trim().toLowerCase().replace(/\s+/g,''), at = s.indexOf('@');
+    if (at < 1 || s.indexOf('@', at + 1) !== -1) return null;
+    const domain = s.slice(at + 1); return domain.indexOf('.') >= 1 ? s : null;
+  }
+};
+/* Vyhledávací klíče; klíč v databázi nesmí obsahovat . # $ [ ] /, e-mail proto „.“ → „,“ */
+function klicTelefonu(t){ const n = Norm.phoneValid(t); return n && /^\+?\d{6,15}$/.test(n) ? 'ph:' + n : null; }
+function klicEmailu(e){ const n = Norm.emailValid(e); return n && !/[#$\[\]\/]/.test(n) ? 'em:' + n.replace(/\./g, ',') : null; }
+function klicePro(telefon, email){
+  const k = {}; const t = klicTelefonu(telefon), e = klicEmailu(email);
+  if (t) k[t] = true; if (e) k[e] = true; return k;
+}
+/* Převzato z Fenclotéky (app.js, splitName): poslední slovo je příjmení */
+function splitName(full){
+  const parts = (full||'').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return {firstName:'', lastName:''};
+  if (parts.length === 1) return {firstName:'', lastName:parts[0]};
+  const lastName = parts.pop(); return {firstName:parts.join(' '), lastName};
+}
+/* Nový zákazník z údajů poptávky – jen pole, která pravidla povolí. Bez jména nebo bez platného telefonu/e-mailu → null. */
+function zakaznikZPoptavky(v){
+  const klice = klicePro(v.telefon, v.email), {firstName, lastName} = splitName(v.jmeno);
+  const z = {zdroj:'poptavka', vytvoreno:TS(), upraveno:TS(), upravil:user.uid, klice};
+  if (firstName && firstName.length <= 100) z.jmeno = firstName;
+  if (lastName && lastName.length <= 100) z.prijmeni = lastName;
+  if (!Object.keys(klice).length || (!z.jmeno && !z.prijmeni)) return null;
+  if (v.telefon && v.telefon.length <= 30 && TEL_RE.test(v.telefon)) z.telefon = v.telefon;
+  if (v.email && v.email.length <= 120 && EMAIL_RE.test(v.email)) z.email = v.email;
+  return z;
+}
+/* Existující zákazník se shodným telefonem nebo e-mailem; krome = zákazníci, které prodejce viděl */
+function najdiPodleKlicu(zakaznici, klice, krome = []){
+  for (const [key, z] of Object.entries(zakaznici || {}))
+    if (!krome.includes(key) && Object.keys(klice).some(k => z.klice && z.klice[k])) return key;
+  return null;
+}
+function naKatalog(key, z){
+  return {key, firstName:z.jmeno||'', lastName:z.prijmeni||'', company:z.firma||'', phone:z.telefon||'', email:z.email||''};
+}
+const celeJmeno = c => [c.firstName, c.lastName].filter(Boolean).join(' ') || c.company || '(bez jména)';
+
+/* Vyhledání: telefon – shoda části čísla (aspoň 3 číslice); jméno – každé slovo bez diakritiky sedí na jméno, příjmení nebo firmu */
+const bezDiakritiky = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+function hledejZakaznika(jmeno, telefon){
+  const qTel = Norm.phone(telefon || ''), telOk = qTel.replace(/\D/g,'').length >= 3;
+  const slova = bezDiakritiky(jmeno).split(/\s+/).filter(Boolean), jmOk = slova.join('').length >= 3;
+  const vysledky = [];
+  for (const c of ZAKAZNICI) {
+    const podleTel = telOk && Norm.phone(c.phone).includes(qTel);
+    const pole = [c.firstName, c.lastName, c.company].map(bezDiakritiky);
+    const podleJm = jmOk && slova.every(w => pole.some(x => x.includes(w)));
+    if (podleTel || podleJm) vysledky.push({c, podleTel, podleJm});
+  }
+  vysledky.sort((a,b) => (b.podleTel - a.podleTel) || (a.c.lastName||'').localeCompare(b.c.lastName||'','cs'));
+  return vysledky;
+}
+
+/* Poptávky zákazníka (dopočítané z /poptavky), nejnovější první */
+function poptavkyZakaznika(key){
+  return vsechny().filter(p => p.zakaznik === key).sort((a,b) => (b.vytvoreno||0) - (a.vytvoreno||0));
+}
+function radkyPoptavek(key){
+  const p = poptavkyZakaznika(key);
+  if (!p.length) return '<div class="sub">Poptávek: 0</div>';
+  return `<div class="sub">Poptávek: ${p.length}</div><table>${p.map(x => `<tr><td>${esc(x.zajem || '(bez popisu)')}</td>
+    <td class="d">${x.vytvoreno ? new Date(x.vytvoreno).toLocaleDateString('cs-CZ') : ''}</td></tr>`).join('')}</table>`;
+}
+function kartaZakaznika({c, podleTel}, akce){
+  return `<div class="zak ${podleTel?'silna':''}">
+    <div class="top"><span class="name">${esc(celeJmeno(c))}</span>
+      <span class="badge ${podleTel?'b-tel':'b-jm'}">${podleTel?'shoda telefonu':'podobné jméno'}</span></div>
+    <div class="sub">${esc([c.company, c.phone, c.email].filter(Boolean).join(' · '))}</div>
+    ${radkyPoptavek(c.key)}
+    <div class="row">${akce}</div>
+  </div>`;
+}
+
+/* Panel pod telefonem ve formuláři nové poptávky */
+function prekresli(){
+  const box = $('#zakaznici'); if (!box) return;
+  if (vybrany) {
+    const c = ZAKAZNICI.find(z => z.key === vybrany);
+    if (c) { box.innerHTML = `<div class="panel"><b>✔ Známý zákazník – údaje doplněny</b>
+      ${kartaZakaznika({c, podleTel:true}, `<button class="btn sec sm" onclick="zrusVyber()">Není to on – zrušit výběr</button>`)}</div>`; return; }
+    vybrany = null;
+  }
+  const jm = $('#f-jmeno').value, tel = $('#f-tel').value;
+  const v = (jm.trim() || tel.trim()) ? hledejZakaznika(jm, tel) : [];
+  if (novy && v.length && v.every(x => novy.includes(x.c.key))) {
+    box.innerHTML = `<div class="panel"><b>✔ Nový zákazník – při uložení se založí</b>
+      <div class="sub hint">Nikdo z podobných v evidenci (${v.length}) to není.</div>
+      <div class="row"><button class="btn sec sm" onclick="zrusNovy()">Zrušit – ukázat podobné</button></div></div>`;
+    return;
+  }
+  novy = null;                                          // vyhledávání ukazuje někoho dalšího → volbu potvrdit znovu
+  if (!v.length) { box.innerHTML = ''; return; }        // nikdo podobný: formulář pokračuje jako ve v1.1
+  const nadpis = v.length === 1 ? 'Známý zákazník?' : `Možní známí zákazníci (${v.length}) – vyber správného`;
+  box.innerHTML = `<div class="panel"><b>${nadpis}</b>
+    ${v.map(x => kartaZakaznika(x, `<button class="btn sm" data-k="${esc(x.c.key)}" onclick="vyber(this.dataset.k)">Vybrat</button>`)).join('')}
+    <div class="row"><button class="btn sec sm" onclick="jeNovy()">Je to nový zákazník</button></div>
+    <div class="hint" style="margin-top:8px">Když nevybereš nic, poptávka se uloží bez přiřazení k zákazníkovi.</div></div>`;
+}
+/* Výběr: jméno se nahradí celým jménem, telefon a e-mail se doplní jen do prázdných polí */
+function vyber(key){
+  const c = ZAKAZNICI.find(z => z.key === key); if (!c) return;
+  vybrany = key; novy = null;
+  $('#f-jmeno').value = celeJmeno(c);
+  if (!$('#f-tel').value.trim() && c.phone) $('#f-tel').value = c.phone;
+  if (!$('#f-mail').value.trim() && c.email) $('#f-mail').value = c.email;
+  $('#f-err').textContent = '';
+  prekresli();
+}
+function zrusVyber(){ vybrany = null; prekresli(); }
+function jeNovy(){ novy = hledejZakaznika($('#f-jmeno').value, $('#f-tel').value).map(x => x.c.key); prekresli(); }
+function zrusNovy(){ novy = null; prekresli(); }
+
+/* Uložení nové poptávky jedním zápisem: poptávka (tvar v1.1 + zakaznik) a případně nový zákazník.
+   Pořadí: 1) vybraný tlačítkem Vybrat, 1a) „Je to nový zákazník“ (jen proti viděným zákazníkům),
+           2) možná shoda (stejný telefon/e-mail, nebo ji ukázalo vyhledávání) → BEZ zákazníka,
+           3) žádná shoda → nový zákazník, 4) jinak bez zákazníka.
+   Když /zakaznici nejde načíst, poptávka se uloží bez zákazníka jako ve v1.1. */
+async function ulozPoptavku(v, pozn){
+  const zakaznici = await db.ref('zakaznici').once('value').then(s => s.val() || {}, () => null);
+  const upd = {}; let key = null, jak = 'bez';
+  if (zakaznici) {
+    const novyZ = zakaznikZPoptavky(v);
+    if (vybrany && zakaznici[vybrany]) { key = vybrany; jak = 'vybrany'; }
+    else {
+      const shodaKlic = novyZ ? najdiPodleKlicu(zakaznici, novyZ.klice) : null;
+      const nalezeni = hledejZakaznika(v.jmeno, v.telefon).map(x => x.c.key);
+      if (novy && novyZ && nalezeni.every(k => novy.includes(k)) && !najdiPodleKlicu(zakaznici, novyZ.klice, novy))
+        { key = db.ref('zakaznici').push().key; jak = 'novyPotvrzeny'; upd['zakaznici/' + key] = novyZ; }
+      else if (novy) jak = novyZ ? 'neovereno' : 'bez';
+      else if (shodaKlic || nalezeni.length) jak = 'neovereno';
+      else if (novyZ) { key = db.ref('zakaznici').push().key; jak = 'novy'; upd['zakaznici/' + key] = novyZ; }
+    }
+  }
+  const id = db.ref('poptavky').push().key;
+  const zaznam = {...v, stav:'nova', vytvoreno: TS(), prodejce: user.email, historie: {}};
+  if (key) zaznam.zakaznik = key;
+  zaznam.historie[db.ref().push().key] = {t: TS(), kdo: user.email, text: 'Založeno (' + KANALY[v.kanal] + ')'};
+  if (pozn) zaznam.historie[db.ref().push().key] = {t: TS(), kdo: user.email, text: pozn};
+  upd['poptavky/' + id] = zaznam;
+  await db.ref().update(upd);
+  return {id, zakaznik: key, jak};
+}
+
+/* Detail poptávky: ke komu patří */
+function zakaznikDetailu(p){
+  if (!p.zakaznik) return '';
+  const c = ZAKAZNICI.find(z => z.key === p.zakaznik); if (!c) return '';
+  return `<div class="hint" style="margin-top:4px">👤 Zákazník: ${esc(celeJmeno(c))}${c.company ? ' (' + esc(c.company) + ')' : ''}</div>`;
+}
+
+/* ===== Kontakt do iPhonu (v1.4) =====
+   Převzato z experimentu experimenty/vcard_v0.1 (ověřeno na skutečném iPhonu): vCard 3.0, UTF-8, řádky CRLF,
+   escapování \ , ; a nových řádků, zalomení po 75 bajtech (nikdy uprostřed znaku). Jen ruční export po klepnutí,
+   nic se nezapisuje do databáze ani do telefonu automaticky. iPhone skládá jméno z pole N, proto je označení i v příjmení. */
+const vcEsc = s => String(s ?? '').replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/,/g, '\\,').replace(/;/g, '\\;');
+const utf8Len = s => new TextEncoder().encode(s).length;
+function zalom(radek){
+  const casti = []; let akt = '';
+  for (const ch of radek) {
+    if (utf8Len(akt + ch) > 75) { casti.push(akt); akt = ' ' + ch; }
+    else akt += ch;
+  }
+  casti.push(akt);
+  return casti.join('\r\n');
+}
+/* Telefon do mezinárodního tvaru: 777 123 456 / 00420… → +420 777 123 456; jiné (zahraniční) tvary beze změny */
+function telefonCZ(t){
+  const c = String(t || '').replace(/[^\d+]/g, '');
+  if (/^\d{9}$/.test(c)) return '+420 ' + c.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+  if (/^(\+|00)420\d{9}$/.test(c)) return '+420 ' + c.slice(-9).replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
+  return String(t || '').trim();
+}
+/* vCard z poptávky: jméno (+ volitelné označení), telefon, e-mail, poznámka = celé „Co chce“ */
+function vCardZPoptavky(p, znacka, id){
+  const jmeno = String(p.jmeno || '').trim(), oz = String(znacka || '').trim();
+  const zaklad = jmeno || telefonCZ(p.telefon) || String(p.email || '').trim() || 'Zákazník z Poptávek';
+  const {firstName, lastName} = jmeno ? splitName(jmeno) : {firstName: '', lastName: zaklad};
+  const prijmeni = [lastName, oz].filter(Boolean).join(' · ');
+  const radky = ['BEGIN:VCARD', 'VERSION:3.0', `N:${vcEsc(prijmeni)};${vcEsc(firstName)};;;`, `FN:${vcEsc([zaklad, oz].filter(Boolean).join(' · '))}`];
+  if (String(p.telefon || '').trim()) radky.push(`TEL;TYPE=CELL,VOICE:${vcEsc(telefonCZ(p.telefon))}`);
+  if (String(p.email || '').trim()) radky.push(`EMAIL;TYPE=INTERNET:${vcEsc(String(p.email).trim())}`);
+  if (String(p.zajem || '').trim()) radky.push(`NOTE:${vcEsc(p.zajem)}`);
+  if (id) radky.push(`item1.URL;TYPE=pref:${odkazNaPoptavku(id)}`, 'item1.X-ABLabel:Poptávky');   // v1.6: popisek „Poptávky“ v Kontaktech
+  radky.push('END:VCARD');
+  return {vcf: radky.map(zalom).join('\r\n') + '\r\n',
+          soubor: (bezDiakritiky([zaklad, oz].filter(Boolean).join(' ')).replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '') || 'kontakt') + '.vcf'};
+}
+/* ===== Odkaz z kontaktu v iPhonu (v1.6) – ověřeno experimentem vcard_odkaz_v0.1 =====
+   Kontakt nese odkaz na stálou adresu poptavky.html (přesměruje na aktuální verzi), aby staré kontakty otevíraly
+   vždy nejnovější Poptávky. Odkaz obsahuje jen ID poptávky; údaje se ukážou až po přihlášení. Adresa je odvozená
+   od místa, odkud appka běží (větev při testování, main po sloučení). */
+const odkazNaPoptavku = id => new URL('poptavky.html', location.href).href + '#poptavka=' + encodeURIComponent(id);
+function idZOdkazu(){
+  const m = location.hash.match(/^#poptavka=([^&]+)$/); if (!m) return null;
+  try { return decodeURIComponent(m[1]); } catch (e) { return ''; }   // poškozený odkaz → hláška na přehledu
+}
+let cekaOdkaz = idZOdkazu(), dataNactena = false, hlaskaPrehled = '';
+function otevriOdkaz(){
+  const id = cekaOdkaz; cekaOdkaz = null;
+  history.replaceState(null, '', location.pathname + location.search);   // obnovení stránky už detail znovu neotevře
+  if (id && data[id]) { renderDetail(id); return; }
+  hlaskaPrehled = 'Poptávku z kontaktu jsem nenašel – možná byla smazaná.';
+  renderHome();
+}
+window.addEventListener('hashchange', () => { cekaOdkaz = idZOdkazu(); if (cekaOdkaz !== null && dataNactena) otevriOdkaz(); });
+
+/* ===== Aktualizace za chodu (v1.10) =====
+   Ikona na ploše iPhonu i záložka na PC si pamatují adresu konkrétní verze (poptavky.html na ni hned přesměruje).
+   Proto si každá verze sama zjistí v poptavky.html, která je aktuální (AKTUALNI) a která nejstarší ještě smí běžet (MINIMALNI):
+   - novější verze → lišta „Aktualizovat“ (nic nepřepne samo, prodejce může dopsat),
+   - tahle verze je pod minimální (např. po změně tvaru dat) → lišta bez „Později“ a přepnutí, jakmile to nic nepřeruší:
+     na přihlášení nebo na přehledu a mimo psaní do pole.
+   Otevřená poptávka zůstane otevřená (předá se jako #poptavka=…, viz v1.6). Bez připojení se nic neděje. */
+const VERZE = [1, 41];
+const cisloVerze = soubor => { const m = /_v(\d+)\.(\d+)\.html/.exec(soubor || ''); return m ? [+m[1], +m[2]] : null; };
+const novejsi = (a, b) => a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1];     // 1.10 je novější než 1.9
+let nabidnutaVerze = null, odlozenaVerze = null, nutnaVerze = null;
+async function zkontrolujVerzi(){
+  try {
+    const r = await fetch(new URL('poptavky.html', location.href).href + '?t=' + Date.now(), {cache: 'no-store'});
+    if (!r.ok) return;
+    const t = await r.text(), akt = /AKTUALNI\s*=\s*'([^']+)'/.exec(t)?.[1], min = /MINIMALNI\s*=\s*'([^']+)'/.exec(t)?.[1];
+    const va = cisloVerze(akt), vm = cisloVerze(min);
+    if (!va || !novejsi(va, VERZE)) return;
+    nabidnutaVerze = akt; nutnaVerze = vm && novejsi(vm, VERZE) ? akt : null;
+    ukazListuVerze(va);
+    prepniNaNutnou();
+  } catch (e) { /* bez připojení nebo z lokálního souboru: zkusí se příště */ }
+}
+function ukazListuVerze(va){
+  const l = $('#nova-verze'), nutna = !!nutnaVerze;
+  if (!nutna && odlozenaVerze === nabidnutaVerze) return;
+  l.className = 'nova-verze' + (nutna ? ' nutna' : '');
+  l.innerHTML = nutna
+    ? `<span>⚠ Tahle verze Poptávek už dosloužila – přepnu tě na v${va.join('.')}, jakmile dopíšeš.</span><button type="button" onclick="aktualizuj()">Aktualizovat</button>`
+    : `<span>🎉 Je tu nová verze Poptávek (v${va.join('.')})</span><button type="button" onclick="aktualizuj()">Aktualizovat</button>`
+      + `<button type="button" class="pozdeji" onclick="odlozenaVerze = nabidnutaVerze; skryjListuVerze()">Později</button>`;
+  document.documentElement.style.setProperty('--lista', l.offsetHeight + 'px');
+}
+window.addEventListener('resize', () => { const l = $('#nova-verze'); if (!l.classList.contains('hidden')) document.documentElement.style.setProperty('--lista', l.offsetHeight + 'px'); });
+function skryjListuVerze(){ $('#nova-verze').classList.add('hidden'); document.documentElement.style.setProperty('--lista', '0px'); }
+function aktualizuj(){
+  if (!nabidnutaVerze) return;
+  const id = view === 'detail' && curId ? curId : null;
+  location.replace(new URL(nabidnutaVerze, location.href).href + (id ? '#poptavka=' + encodeURIComponent(id) : ''));
+}
+function prepniNaNutnou(){
+  if (nutnaVerze && !psani() && (!user || view === 'home')) aktualizuj();
+}
+zkontrolujVerzi();
+setInterval(() => { if (document.visibilityState === 'visible') zkontrolujVerzi(); }, 30 * 60000);
+setInterval(prepniNaNutnou, 5000);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') zkontrolujVerzi(); });
+
+/* Po klepnutí: soubor .vcf ke stažení (na iPhonu otevřít a „Vytvořit nový kontakt“) */
+function ulozKontakt(id){
+  const p = data[id]; if (!p) return;
+  const {vcf, soubor} = vCardZPoptavky(p, oznaceni.id === id ? oznaceni.text : '', id);
+  const url = URL.createObjectURL(new Blob([vcf], {type: 'text/vcard;charset=utf-8'}));
+  const a = document.createElement('a');
+  a.href = url; a.download = soubor; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
+}
+
+
+/* ===== v1.20: dohody z porady, Můj týden, Porada =====
+   Dohoda = jedna věta, kterou vedoucí napíše k obchodu (/poptavky/{id}/dohody/{id}): text, do (YYYY-MM-DD), vyjde
+   ('' | 'uzavřít jako ztracený' | 'vrátit na poradu'), zadal, t, stav (otevrena | hotovo | potvrzena | dopracovat | preneseno), tip.
+   Prodejce jen klepne „Hotovo“, vedoucí v pondělí potvrdí nebo vrátí k dopracování. Bez slova „nesplněno“, bez pořadí prodejců.
+   Čas klepnutí „Hotovo“ se neukládá ani neukazuje. Role vedoucího = /uzivatele/{uid}/vedouci: true (nastavuje správce v konzoli). */
+const AUTO_ZAPIS = /^(Založeno|Stav →|📄|🤝|✓ Hotovo)/;
+const dohodyP = p => Object.entries(p.dohody || {}).map(([k, d]) => ({k, ...d})).filter(d => d && d.text).sort((a, b) => (b.t || 0) - (a.t || 0));
+const aktivniDohoda = p => dohodyP(p).find(d => ['otevrena', 'hotovo', 'dopracovat'].includes(d.stav)) || null;
+const krat = iso => { if (!iso) return ''; const [y, m, d] = iso.split('-'); return `${+d}. ${+m}.`; };
+function kontakty(p){   // počet zápisů „kontakt“ v historii (bez automatických řádků), celkem a za 14 dní
+  const h = Object.values(p.historie || {}).filter(x => x && x.text && !AUTO_ZAPIS.test(x.text));
+  const hranice = Date.now() - 14 * 86400000;
+  return {celkem: h.length, ctrnact: h.filter(x => (x.t || 0) >= hranice).length, posledni: h.length ? Math.max(...h.map(x => x.t || 0)) : (p.vytvoreno || 0)};
+}
+const dnuOd = ts => Math.floor((Date.now() - ts) / 86400000);
+function jmenoProdejce(e){ if (!e) return '(bez prodejce)'; return e.split('@')[0].split(/[._]/).map(cap).join(' '); }
+function flagy(p){
+  if (!OTEVRENE.includes(p.stav)) return [];
+  const f = [], k = kontakty(p), n = posledniNabidka(p), t = dnes();
+  if (dnuOd(k.posledni) >= 14) f.push(p.duvodTicha && p.duvodTicha.text ? ['důvod: ' + p.duvodTicha.text, 'ok'] : ['bez kontaktu ' + dnuOd(k.posledni) + ' dní', '']);
+  if (p.dalsiKontakt && p.dalsiKontakt < t) f.push(['prošlý termín kontaktu', '']);
+  if (!n && ['nova', 'jednani'].includes(p.stav) && dnuOd(p.vytvoreno || Date.now()) >= 7) f.push(['týden řešení a není nabídka', '']);
+  if (n && n.interni && n.interni.negativni) f.push(['pod nákupní cenou', 'bad']);
+  else if (n && n.interni && n.interni.nestandardni) f.push(['nízká marže', '']);
+  return f;
+}
+const flagyHtml = p => flagy(p).length ? `<div class="fl-r">${flagy(p).map(([t, c]) => `<span class="fl ${c}">${esc(t)}</span>`).join('')}</div>` : '';
+function dohodaRadek(p){
+  const d = aktivniDohoda(p); if (!d || !OTEVRENE.includes(p.stav)) return '';
+  const hotovo = d.stav === 'hotovo';
+  return `<div class="dh-radek"><span class="dh-t ${hotovo ? 'cekam' : d.stav === 'dopracovat' ? 'dop' : ''}" title="${esc(d.text)}">🤝 ${esc(d.text)}${d.do ? ' · do ' + krat(d.do) : ''}</span>${
+    hotovo ? '<span class="dh-t cekam">čeká na potvrzení</span>' : `<button type="button" class="mini" onclick="event.stopPropagation(); dohodaHotovo('${p.id}','${d.k}')">✓ Hotovo</button>`}</div>`;
+}
+function dohodaHotovo(id, k){
+  const d = (data[id].dohody || {})[k]; if (!d) return;
+  db.ref(`poptavky/${id}/dohody/${k}`).update({stav: 'hotovo'});
+  log(id, '✓ Hotovo: ' + d.text);
+}
+function dalsiPondeli(){ const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return dnes(Math.round((d - new Date(new Date().toDateString())) / 86400000)); }
+function terminy(){
+  const dd = n => dnes(n), kon = (() => { const d = new Date(); return dnes(Math.round((new Date(d.getFullYear(), d.getMonth() + 1, 0) - new Date(d.toDateString())) / 86400000)); })();
+  const pa = (() => { const x = new Date(); return dnes((5 - x.getDay() + 7) % 7 || 7); })();
+  return [['do příštího pondělí', dalsiPondeli()], ['do pátku', pa], ['za 14 dní', dd(14)], ['do konce měsíce', kon]];
+}
+const SABLONY = ['Zavolej mu a dej mu 1 % navíc.', 'Domluv zkušební jízdu.', 'Pošli upravenou nabídku.', 'Připrav kupní smlouvu.'];
+let dohodaForm = null;   // id obchodu s otevřeným formulářem dohody
+function dohodaFormular(id, ctx){
+  return `<form onsubmit="return dohodaUloz(event,'${id}')" data-ctx="${ctx}">
+    <label class="f" for="dh-t-${ctx}${id}" style="margin:0">Jednou větou: co má prodejce udělat?</label>
+    <input id="dh-t-${ctx}${id}" required maxlength="140" placeholder="např. Zavolej mu a dej mu 1 % navíc." autocomplete="off">
+    <div class="sab">${SABLONY.map(t => `<button type="button" class="mini" onclick="this.closest('form').querySelector('input').value=this.textContent">${esc(t)}</button>`).join('')}</div>
+    <div class="rada"><select name="do" aria-label="Do kdy">${terminy().map(([t, d]) => `<option value="${d}">${t} (${krat(d)})</option>`).join('')}</select>
+    <select name="vyjde" aria-label="Když to nevyjde"><option value="">Když to nevyjde: bez pokynu</option><option>uzavřít jako ztracený</option><option>vrátit na poradu</option></select></div>
+    <div class="rada"><button class="mini pri" type="submit">Uložit dohodu</button><button class="mini" type="button" onclick="dohodaForm=null;prekresliAkt()">Zrušit</button></div></form>`;
+}
+function dohodaUloz(e, id){
+  e.preventDefault(); const f = e.target;
+  const d = {text: f.querySelector('input').value.trim(), do: f.querySelector('[name=do]').value, vyjde: f.querySelector('[name=vyjde]').value, zadal: user.email, t: TS(), stav: 'otevrena'};
+  if (!d.text) return false;
+  db.ref(`poptavky/${id}/dohody`).push(d); log(id, '🤝 Dohoda: ' + d.text + (d.do ? ' (do ' + krat(d.do) + ')' : ''));
+  dohodaForm = null; poForm = null; return false;
+}
+function dohodaVerdikt(id, k, v){
+  const d = (data[id].dohody || {})[k]; if (!d) return;
+  if (v === 'prenest') {
+    db.ref(`poptavky/${id}/dohody/${k}`).update({stav: 'preneseno'});
+    db.ref(`poptavky/${id}/dohody`).push({text: d.text, do: dalsiPondeli(), vyjde: d.vyjde || '', zadal: user.email, t: TS(), stav: 'otevrena'});
+    log(id, '🤝 Dohoda přenesena na další týden: ' + d.text);
+  } else {
+    db.ref(`poptavky/${id}/dohody/${k}`).update({stav: v});
+    log(id, v === 'potvrzena' ? '🤝 Dohoda dotažena: ' + d.text : '🤝 Dohoda k dopracování: ' + d.text);
+  }
+}
+function dohodaTip(id, k, v){ db.ref(`poptavky/${id}/dohody/${k}/tip`).set(v.trim() || null); }
+function prekresliAkt(){ if (view === 'detail') renderDetail(curId); else if (view === 'porada') renderPorada(true); else if (view === 'tyden') renderTyden(true); }
+function dohodaBlok(id, p, mobil){
+  const d = aktivniDohoda(p), stare = dohodyP(p).filter(x => x !== d);
+  if (!d && !jeVedouci) return '';
+  const cls = mobil ? 'md-karta-lite' : 'box';
+  let h = `<div class="${cls} dh-box"><h3>Dohoda s vedoucím</h3>`;
+  if (d) {
+    h += `<div class="tipsef"><span class="kdo">Tip od šéfa</span>${esc(d.text)}<small>${d.do ? 'do ' + krat(d.do) : ''}${d.vyjde ? ' · když to nevyjde: ' + esc(d.vyjde) : ''}${d.tip ? ' · 💡 ' + esc(d.tip) : ''}</small></div>`;
+    if (d.stav === 'hotovo') h += `<p class="hint" style="margin:8px 0 0">Hotovo 🎉 Vedoucí to uvidí na poradě.${jeVedouci ? '' : ''}</p>`;
+    else h += `<div class="rada" style="margin-top:8px"><button class="mini pri" type="button" onclick="dohodaHotovo('${id}','${d.k}')">✓ Hotovo</button></div>`;
+    if (jeVedouci) h += `<div class="rada" style="margin-top:8px"><button class="mini" type="button" onclick="dohodaVerdikt('${id}','${d.k}','potvrzena')">Potvrdit ✓</button><button class="mini" type="button" onclick="dohodaVerdikt('${id}','${d.k}','dopracovat')">Dopracovat</button><button class="mini" type="button" onclick="dohodaVerdikt('${id}','${d.k}','prenest')">↻ Na další týden</button></div>`;
+    if (jeVedouci && d.stav === 'dopracovat') h += `<form onsubmit="return false"><input placeholder="Tip na příště (nepovinné)" maxlength="120" value="${esc(d.tip || '')}" onchange="dohodaTip('${id}','${d.k}',this.value)" aria-label="Tip na příště"></form>`;
+  } else h += '<p class="hint" style="margin:0">Zatím bez dohody.</p>';
+  if (jeVedouci) h += dohodaForm === id ? dohodaFormular(id, mobil ? 'm' : 'p') : `<div class="rada" style="margin-top:8px"><button class="mini" type="button" onclick="dohodaForm='${id}';prekresliAkt()">${d ? '+ Další krok' : '+ Dohoda'}</button></div>`;
+  if (stare.length) h += `<details class="stare"><summary>Dřívější dohody (${stare.length})</summary>${stare.map(x => `<div>${x.stav === 'potvrzena' ? '✓' : x.stav === 'dopracovat' ? '↻' : x.stav === 'preneseno' ? '→' : '…'} ${esc(x.text)}${x.do ? ' <i>(do ' + krat(x.do) + ')</i>' : ''}</div>`).join('')}</details>`;
+  return h + '</div>';
+}
+
+/* --- Můj týden: co na mě šéf uvidí (prodejce si připraví obchody před poradou) --- */
+function mojeObchody(){ return vsechny().filter(p => p.prodejce === user.email && OTEVRENE.includes(p.stav)); }
+let duvodForm = null;
+function duvodUloz(e, id){ e.preventDefault(); const t = e.target.querySelector('input').value.trim();
+  if (t) { db.ref('poptavky/' + id + '/duvodTicha').set({text: t.slice(0, 80), kdo: user.email}); } duvodForm = null; return false; }
+function renderTyden(zPop){
+  if (!zPop) stavHistorie('tyden', null);
+  view = 'tyden'; curId = null; $('#fab').classList.add('hidden'); zavriAkce();
+  const m = mojeObchody(), t = dnes();
+  const dohody = m.map(p => [p, aktivniDohoda(p)]).filter(x => x[1]);
+  const zv = m.filter(p => flagy(p).length).sort((a, b) => kontakty(b).posledni * -1 - kontakty(a).posledni * -1);
+  const kartaT = p => { const k = kontakty(p), n = posledniNabidka(p);
+    return `<div class="card" onclick="renderDetail('${p.id}')"><div class="top"><span class="name">${esc(p.jmeno || p.telefon || p.email || '(bez jména)')}</span><span class="badge b-${p.stav}">${STAVY[p.stav]}</span></div>
+      ${vuzTxt(p) ? `<div class="sub">🚗 ${esc(vuzTxt(p))}</div>` : ''}${n ? `<div class="nab-radek" style="margin-top:3px">📄 ${esc(n.model || 'Nabídka')} · <b>${esc(kcK(n.cena_sdph || 0))}</b></div>` : ''}
+      <div class="sub">kontaktů celkem ${k.celkem} · za 14 dní ${k.ctrnact} · poslední před ${dnuOd(k.posledni)} dny</div>${flagyHtml(p)}${dohodaRadek(p)}
+      ${flagy(p).some(f => f[0].startsWith('bez kontaktu')) && !(p.duvodTicha && p.duvodTicha.text) ? (duvodForm === p.id
+        ? `<form onsubmit="return duvodUloz(event,'${p.id}')" onclick="event.stopPropagation()" style="display:flex;gap:6px;margin-top:6px"><input required maxlength="80" placeholder="Co se děje? např. na dovolené do 9. 11." aria-label="Co se u zákazníka děje" style="flex:1;font:inherit;border:1px solid var(--line);border-radius:8px;padding:6px 8px"><button class="mini pri" type="submit">Uložit</button></form>`
+        : `<button type="button" class="mini" style="margin-top:6px" onclick="event.stopPropagation(); duvodForm='${p.id}'; renderTyden(true)">Zapsat, co se děje</button>`) : ''}</div>`; };
+  $('#view').innerHTML = `<div class="row zpet" style="margin-top:0"><button class="btn sec sm" style="flex:0;white-space:nowrap" onclick="zpetNaPrehled()">← Přehled</button></div>
+    <h2 style="margin-top:6px">Můj týden: co na mě šéf uvidí</h2>
+    <p class="hint">Připrav si obchody před pondělní poradou. Nikomu se tím nic neposílá, je to jen pohled.</p>
+    <div class="tyden-sekce"><h2>🤝 Dohody s vedoucím (${dohody.length})</h2>${dohody.length ? dohody.map(([p, d]) => `<div style="padding:6px 0;border-top:1px solid var(--line)"><b>${esc(p.jmeno || '(bez jména)')}</b><br>${esc(d.text)} <span class="hint">${d.do ? '· do ' + krat(d.do) : ''}</span> ${d.stav === 'hotovo' ? '<span class="hint">· čeká na potvrzení</span>' : `<button class="mini pri" onclick="dohodaHotovo('${p.id}','${d.k}')">✓ Hotovo</button>`}</div>`).join('') : '<p class="hint">Zatím žádné. Až si něco domluvíte, objeví se to tady i u obchodu.</p>'}</div>
+    <div class="tyden-sekce"><h2>Obchody, které stojí za rozbor (${zv.length})</h2>${zv.length ? zv.map(kartaT).join('') : '<p class="hint">Nic nehoří. Dobrá zpráva do pondělí 🙂</p>'}</div>
+    <div class="tyden-sekce"><h2>Ostatní otevřené (${m.length - zv.length})</h2>${m.filter(p => !flagy(p).length).map(kartaT).join('') || '<p class="hint">—</p>'}</div>`;
+}
+
+/* --- Porada (jen vedoucí, PC) --- */
+let poVybr = null, poRazeni = 'ticho', poJenRozb = true, poZisk = false, poForm = null;
+function renderPorada(zPop){
+  if (!jeVedouci) { renderHome(); return; }
+  if (!zPop) stavHistorie('porada', null);
+  view = 'porada'; curId = null; $('#fab').classList.add('hidden'); zavriAkce();
+  const vse = vsechny().filter(p => OTEVRENE.includes(p.stav)), lide = [...new Set(vse.map(p => p.prodejce || ''))].sort((a, b) => jmenoProdejce(a).localeCompare(jmenoProdejce(b), 'cs'));
+  const vsechnyDohody = vsechny().flatMap(p => dohodyP(p).map(d => ({p, d})));
+  const minule = vsechnyDohody.filter(x => ['hotovo', 'otevrena', 'dopracovat'].includes(x.d.stav));
+  const sk = lide.map(e => [e, minule.filter(x => (x.p.prodejce || '') === e)]).filter(g => g[1].length);
+  const dot = vsechnyDohody.filter(x => x.d.stav === 'potvrzena').length, vse2 = vsechnyDohody.length;
+  const tym = lide.map(e => { const o = vse.filter(p => (p.prodejce || '') === e), rz = o.filter(p => flagy(p).length).length,
+      hod = o.reduce((a, p) => a + ((posledniNabidka(p) || {}).cena_sdph || 0), 0), tichoMax = Math.max(0, ...o.map(p => dnuOd(kontakty(p).posledni)));
+    const c = k => o.filter(p => p.stav === k).length;
+    return `<button type="button" class="po-os" aria-pressed="${poVybr === e}" onclick="poVybr = poVybr === '${esc(e)}' ? null : '${esc(e)}'; renderPorada(true)">
+      <b>${esc(jmenoProdejce(e))}</b><span class="vel">${o.length} <span style="font-size:14px;font-weight:400;color:var(--muted)">otevřených</span></span>
+      <span class="hint">nové ${c('nova')} · nabídka ${c('nabidka')}${c('jednani') ? ` · jednáme ${c('jednani')}` : ''}</span>
+      <span class="hint">nabídky za ${esc(kcK(hod))} · nejdelší ticho ${tichoMax} dní</span>
+      <span class="rz ${rz ? '' : 'nic'}">${rz ? rz + ' k probrání' : '✓ nic nehoří'}</span></button>`; }).join('');
+  let L = vse.filter(p => poVybr === null || (p.prodejce || '') === poVybr);
+  if (poJenRozb) L = L.filter(p => flagy(p).length);
+  const klic = {ticho: p => -kontakty(p).posledni * -1, hodnota: p => -((posledniNabidka(p) || {}).cena_sdph || 0), resi: p => (p.vytvoreno || 0), marze: p => { const n = posledniNabidka(p); return n && n.interni ? (n.interni.skutecna_marze ?? n.interni.obchodni_marze ?? 99) : 99; }}[poRazeni];
+  L.sort((a, b) => klic(a) - klic(b));
+  const radek = p => { const k = kontakty(p), n = posledniNabidka(p), d = aktivniDohoda(p), pz = posledniPoznamka(p);
+    const zisk = n && n.interni ? (poZisk ? `${esc(kc(ziskNabidky(n)))}<span class="m">marže ${esc(pctCz(n.interni.skutecna_marze ?? n.interni.obchodni_marze))}</span>` : '<span class="muted">••• Kč</span>') : '<span class="m">–</span>';
+    return `<tr><td><a href="#" onclick="renderDetail('${p.id}');return false" style="color:inherit;font-weight:700;text-decoration:none">${esc(p.jmeno || p.telefon || '(bez jména)')}</a>${vuzTxt(p) ? `<span class="m">🚗 ${esc(vuzTxt(p))}</span>` : ''}${flagyHtml(p)}</td>
+      ${poVybr === null ? `<td>${esc(jmenoProdejce(p.prodejce))}</td>` : ''}<td><span class="badge b-${p.stav}">${STAVY[p.stav]}</span></td>
+      <td>${n ? `<b>${esc(kcK(n.cena_sdph || 0))}</b><span class="m">${esc(n.model || '')} · sleva ${esc(pctCz(n.sleva_pct || 0))}</span>` : '<span class="m">bez nabídky</span>'}</td><td>${zisk}</td>
+      <td>${Math.max(0, dnuOd(p.vytvoreno || Date.now()))} dní</td>
+      <td><span class="${dnuOd(k.posledni) >= 14 ? 'dl' : ''}">před ${dnuOd(k.posledni)} dny</span>${pz ? `<span class="m">💬 ${esc(pz.text.slice(0, 70))}</span>` : ''}<span class="m">kontaktů celkem ${k.celkem} · za 14 dní ${k.ctrnact}</span></td>
+      <td>${kdyKontakt(p) || '–'}</td>
+      <td>${d ? `<span class="dh-t ${d.stav === 'hotovo' ? 'cekam' : ''}">🤝 ${esc(d.text)}</span>${d.stav === 'hotovo' ? '<span class="m">čeká na potvrzení</span>' : ''}` : '<span class="m">bez dohody</span>'}
+        ${poForm === p.id ? dohodaFormular(p.id, 'po') : `<div style="margin-top:4px"><button type="button" class="mini" onclick="poForm='${p.id}';dohodaForm='${p.id}';renderPorada(true)">${d ? '+ Další krok' : '+ Dohoda'}</button></div>`}</td></tr>`; };
+  $('#view').innerHTML = `<div class="po-wide"></div><div class="row zpet" style="margin-top:0"><button class="btn sec sm" style="flex:0;white-space:nowrap" onclick="zpetNaPrehled()">← Všechny poptávky</button></div>
+    <h2 style="margin-top:6px;font-size:20px">Pondělní porada</h2>
+    <div class="tyden-sekce"><h2>Začněte tady: co jste si řekli minule${vse2 ? ` · dotaženo ${dot} z ${vse2}` : ''}</h2>${sk.length ? sk.map(([e, arr]) => `<h3 style="margin:8px 0 4px;font-size:14px">${esc(jmenoProdejce(e))}</h3>` + arr.map(({p, d}) => `<div class="po-min"><span><b>${esc(p.jmeno || '(bez jména)')}</b><small>${esc((vuzTxt(p) || '').split(' · ')[0])}</small></span>
+      <span>${esc(d.text)}<small>${d.do ? 'do ' + krat(d.do) : ''}${d.vyjde ? ' · když to nevyjde: ' + esc(d.vyjde) : ''}</small></span>
+      <span class="ak">${d.stav === 'hotovo' ? '<span class="dh-t cekam">prodejce hlásí hotovo</span>' : ''}<button class="mini ${d.stav === 'hotovo' ? 'pri' : ''}" onclick="dohodaVerdikt('${p.id}','${d.k}','potvrzena')">Potvrdit ✓</button> <button class="mini" onclick="dohodaVerdikt('${p.id}','${d.k}','dopracovat')">Dopracovat</button> <button class="mini" onclick="dohodaVerdikt('${p.id}','${d.k}','prenest')">↻ Na další týden</button></span>
+      ${d.stav === 'dopracovat' ? `<span class="tip"><input placeholder="Tip na příště (nepovinné)" maxlength="120" value="${esc(d.tip || '')}" onchange="dohodaTip('${p.id}','${d.k}',this.value)" aria-label="Tip na příště"></span>` : ''}</div>`).join('')).join('') : '<p class="hint">Zatím žádné otevřené dohody. Domluvte první u obchodu níže.</p>'}</div>
+    <div class="po-tym">${tym}</div>
+    <div class="po-nastroje"><label>Řadit <select onchange="poRazeni=this.value;renderPorada(true)">${[['ticho', 'nejdéle bez kontaktu'], ['hodnota', 'nejvyšší hodnota nabídky'], ['resi', 'nejdéle řeším'], ['marze', 'nejnižší marže']].map(([k, t]) => `<option value="${k}" ${poRazeni === k ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label><input type="checkbox" ${poJenRozb ? 'checked' : ''} onchange="poJenRozb=this.checked;renderPorada(true)"> jen to, co stojí za rozbor</label>
+      <button class="btn sec sm" onclick="poZisk=!poZisk;renderPorada(true)">${poZisk ? '🙈 Schovat zisk' : '👁 Ukázat zisk'}</button><span class="hint">${L.length} obchodů</span></div>
+    <div style="overflow-x:auto"><table class="po-tab"><thead><tr><th>Zákazník a vůz</th>${poVybr === null ? '<th>Prodejce</th>' : ''}<th>Stav</th><th>Nabídka</th><th>Zisk</th><th>Řeším</th><th>Kontakt zákazníka</th><th>Další kontakt</th><th>Dohoda</th></tr></thead>
+      <tbody>${L.map(radek).join('') || '<tr><td colspan="9" class="hint" style="padding:20px">Nic k rozebrání. Dobrá zpráva do pondělí 🙂</td></tr>'}</tbody></table></div>
+    <p class="hint" style="margin-top:10px">Označují se obchody, ne lidé. Prodejci nejsou nijak řazeni. Zisk je schovaný do klepnutí.</p>`;
+}
+
+/* ===== Export ===== */
+function exportCSV(){
+  const q = v => '"' + String(v ?? '').replace(/"/g,'""').replace(/\r?\n/g,' ') + '"';
+  const rows = [['Vytvořeno','Kanál','Jméno','Telefon','E-mail','Co chce','Vůz','Stav','Další kontakt','Prodejce']];
+  vsechny().sort((a,b) => (a.vytvoreno||0) - (b.vytvoreno||0)).forEach(p => rows.push([
+    fmtTs(p.vytvoreno), (KANALY[p.kanal]||'').replace(/^\S+\s/,''), p.jmeno, p.telefon, p.email, p.zajem, vuzTxt(p), STAVY[p.stav], fmtD(p.dalsiKontakt), p.prodejce]));
+  const blob = new Blob(['\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'poptavky_' + dnes() + '.csv'; a.click();
+}
+</script>
+</body>
+</html>

@@ -6,7 +6,7 @@ const { chromium, devices } = require('playwright');
 const fs = require('fs'), path = require('path'), os = require('os');
 
 const ROOT = path.join(__dirname, '..'), NS = 'demo-poptavky-default-rtdb', EMU = 'http://127.0.0.1:9000', AUTH = 'http://127.0.0.1:9099';
-const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.40.html';
+const FB = process.env.FIREBASE10, SOUBOR = process.env.SOUBOR || 'poptavky_v1.41.html';
 let html = fs.readFileSync(path.join(ROOT, SOUBOR), 'utf8');
 const a = html.indexOf('const firebaseConfig = {'), b = html.indexOf('};', a) + 2;
 html = html.slice(0, a) + `const firebaseConfig = {apiKey:"demo-key", authDomain:"demo-poptavky.firebaseapp.com", databaseURL:"${EMU}?ns=${NS}", projectId:"demo-poptavky"};` + html.slice(b);
