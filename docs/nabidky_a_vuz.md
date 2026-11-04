@@ -34,3 +34,10 @@
 
 
 - **v1.30 (rozhodnutí uživatele 2026-11-03): čtyři původy vozu.** Skladový (`sklad`) / Skladový – objednaný, neměnný (`objednany`, nový: vůz ve výrobě s hotovou konfigurací, online kód nebo Auftrag) / Na zakázku (`vyroba`, dřív „Do výroby“, klíč v datech zůstal, staré záznamy se jen přejmenují) / Od dealera (`dealer`). Lokace jen u skladového a od dealera. Pravidla DB beze změny. Zápis z Offer Studia dál není (původ musí zadat prodejce).
+
+## Jedna karta Poptávek, jedna karta Offer Studia (v1.38, Offer Studio v1.8.8)
+- **Přání uživatele (2026-11-04):** „Zpět do Poptávek“ z Offer Studia otevřelo další kartu s Poptávkami a z ní nebyla zřejmá cesta zpátky (jen přes ikonu Offer Studia na liště).
+- **Řešení:** karta Poptávek se jmenuje `poptavky` (`window.name`), karta Offer Studia `offerstudio`. Odkazy do Offer Studia (`otevriOS`: „Udělat nabídku“, „Další nabídka“, „📂 Offer Studio“) i „Zpět do Poptávek“ v Offer Studiu (`zpetDoPoptavek`) otevírají přes `window.open(adresa, jméno)` a zkusí kartu přenést do popředí (`focus()`). Nejsou-li karty otevřené (nebo prohlížeč `focus()` nepustí), odkaz se otevře jako dřív.
+- **Podmínka:** pojmenované karty se najdou jen v rámci jedné skupiny karet, tedy když byl Offer Studio otevřen z té karty Poptávek, kterou pak prodejce používá. Po zavření a novém otevření Poptávek první „Zpět“ otevře novou kartu.
+- **Cena:** karta Poptávek se při návratu znovu načte (rozepsaná poznámka se ztratí). Bez načítání by to šlo přes `postMessage`; neděláno, nic dramatického.
+- **Neověřeno na PC uživatele:** jestli prohlížeč kartu opravdu přenese do popředí (to jde vyzkoušet jen ručně; test ověřuje, že se použije stejná karta a nevznikne nová). Test `testy/test_karty_v1.38.js` (lokální HTTP server, bez Firebase).
