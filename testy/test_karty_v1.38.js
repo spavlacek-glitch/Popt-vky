@@ -8,7 +8,7 @@ const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='the
  const b=await chromium.launch(),ctx=await b.newContext({viewport:{width:1440,height:1000}});
  await ctx.route('https://www.gstatic.com/**',r=>r.fulfill({body:STUB,contentType:'application/javascript'}));
  await ctx.route('http://127.0.0.1:8774/**',r=>r.fulfill({body:'<title>OS</title>Offer Studio',contentType:'text/html'}));
- const A=await ctx.newPage();await new Promise(r=>setTimeout(r,900));await A.goto(H+'poptavky_v1.39.html');
+ const A=await ctx.newPage();await new Promise(r=>setTimeout(r,900));await A.goto(H+'poptavky_v1.40.html');
  K('karta Poptávek se jmenuje „poptavky“',await A.evaluate(()=>window.name)==='poptavky');
  await A.evaluate(()=>{user={email:'a@b.cz'};jeVedouci=false;data={a:{jmeno:'Anna',telefon:'777123456',kanal:'telefon',zajem:'GLS',stav:'nova',dalsiKontakt:'2026-11-05',prodejce:'a@b.cz',vytvoreno:1000}};
   document.querySelector('#login').classList.add('hidden');document.querySelector('#app').classList.remove('hidden');renderDetail('a');});
@@ -19,11 +19,13 @@ const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='the
  // druhé klepnutí nesmí otevřít další kartu
  const pred=ctx.pages().length;await tl.click();await A.waitForTimeout(700);
  K('druhé klepnutí použije stejnou kartu Offer Studia (počet karet se nezměnil)',ctx.pages().length===pred);
+ await A.evaluate(()=>{data.a.nabidky={k1:{model:'GLS',cena_sdph:1000000,cena_vuz_sdph:1000000,sleva_sdph:0,sleva_pct:0,soubor:'x.pdf',t:5000,kdo:'a@b.cz',zdroj:'offerstudio'}};renderDetail('a');});
+ K('„➕ Další nabídka“ má v odkazu nova=1 (nová nabídka, ne stávající)',(await A.locator('.row.nabidka a').getAttribute('href')).includes('&nova=1')&&(await A.locator('.row.nabidka a').getAttribute('href')).includes('poptavka=a'));
  // z karty Offer Studia „zpět do Poptávek“ přes window.open(…,'poptavky') se vrátí do původní karty
  const pred2=ctx.pages().length;await A.evaluate(()=>{window.__znacka=1;});
  await B.evaluate(u=>{window.open(u,'poptavky');},H+'poptavky.html#poptavka=a');
  await A.waitForTimeout(1800);
  K('„Zpět do Poptávek“ nevytvoří novou kartu',ctx.pages().length===pred2);
- K('původní karta Poptávek se znovu načetla (kartu použil odkaz, ne nová)',await A.evaluate(()=>window.__znacka===undefined)&&A.url().includes('poptavky_v1.39.html'));
+ K('původní karta Poptávek se znovu načetla (kartu použil odkaz, ne nová)',await A.evaluate(()=>window.__znacka===undefined)&&A.url().includes('poptavky_v1.40.html'));
  await b.close();srv.kill();console.log(s?'SELHÁNÍ '+s:'vše v pořádku');process.exit(s?1:0);
 })();
