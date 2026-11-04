@@ -2,7 +2,7 @@
 //   SOUBOR=poptavky_v1.31.html node testy/test_sipky_v1.31.js
 const {chromium,devices}=require('playwright');
 const path=require('path');
-const SOUBOR=process.env.SOUBOR||'poptavky_v1.38.html';
+const SOUBOR=process.env.SOUBOR||'poptavky_v1.39.html';
 let selhani=0;const K=(popis,ok)=>{console.log(ok?'  ✔':'  ✖',popis,ok?'':'');if(!ok)selhani++;};
 const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='then'?undefined:mk(),apply:()=>mk(),construct:()=>mk()});window.firebase=mk();})();`;
 const dnes=o=>{const d=new Date();d.setDate(d.getDate()+o);return d.toISOString().slice(0,10);};
