@@ -137,6 +137,7 @@ Otevřené, v tomto pořadí:
    - Zdrojový kód kolegové v balíčku mít budou (Python ho ke spuštění potřebuje); neuvidí jen repo, historii a ostatní podklady.
    - Bez sdílené složky by šlo totéž e-mailem (ZIP + `AKTUALIZOVAT.bat`), jen bez věty „Je nová verze“.
 10. **Offer Studio (2026-11-05/06, v repu `Mercedes-Offer-Studio`, vše ve `main`):** v1.8.10 nabídka bez fotek (prázdná „URL vozu“, PR #18); třetí zdroj fotek `vozy.suw.cz` (skladové vozy S. & W., 5 fotek, modul `suw_gallery.py`, PR #19, udělal uživatel s ChatGPT, FotoLab beze změny, tři zdroje musí zůstat); testy 125 ✔ (PR #20). Podrobnosti v `docs/nabidky_a_vuz.md`. Poptávky se nemění, kolegové si musí ručně nahradit soubory `.py` (viz bod 9).
+11. **v1.42 + Offer Studio v1.8.12 (2026-11-09):** „📄 PDF“ najde soubor i bez konceptu (podle názvu) a Offer Studio si samo zálohuje databázi nabídek do `Dokumenty\OfferStudio_zaloha`. Podrobnosti v `docs/nabidky_a_vuz.md`.
 Poznámky pro práci: na emulátory Firebase v tomhle prostředí viz sekce Testy (odpojit proxy, `127.0.0.1`, jar přes curl); náhledy nesloučených větví přes raw.githack.com adresu větve; po sloučení vždy říct uživateli, že Pages/githack zdržuje, a ke každé nové verzi přepsat `AKTUALNI` i `VERZE` (hlídá `testy/test_verze.js`).
 
 ## Nápady na později
