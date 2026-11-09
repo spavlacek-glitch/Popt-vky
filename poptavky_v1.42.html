@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="cs">
 <head>
-<!-- Poptávky – evidence poptávek | verze 1.41 | 2026-11-04
+<!-- Poptávky – evidence poptávek | verze 1.42 | 2026-11-09
      v1.1: hecovací věta dne v „Dnes zavolat“
      v1.2: známý zákazník u nové poptávky (/zakaznici) – vyhledání, Vybrat, „Je to nový zákazník“; převzato z ověřeného experimentu v0.5
      v1.3: jen vzhled přehledu – „Dnes zavolat“ odděleně od evidence, na PC dva sloupce, nízká hlavička na mobilu;
@@ -27,6 +27,7 @@
      v1.14: nabídky z Offer Studia (od v1.5.0) v detailu na PC – model, cena, sleva a zisk (schovaný do klepnutí);
            v hlavičce na PC „Zisk z prodaných aut“ tento měsíc; jen čtení, Poptávky nic nepočítají ani nezapisují
      v1.41: u nabídky je „✏️ Upravit (jiná sleva / cena)“ (otevře stejnou nabídku) a „➕ Nabídka na jiné auto“ je nenápadný odkaz; v bloku Nabídka je nejvýš jedno modré tlačítko.
+     v1.42: odkaz „📄 PDF“ u nabídky posílá Offer Studiu i název souboru (?soubor=…), takže PDF otevře i když koncept v databázi Offer Studia už není (Offer Studio v1.8.12).
      v1.40: „➕ Další nabídka“ otevře rovnou novou nabídku pro stejného zákazníka (odkaz má nova=1), ne stávající nabídku s hláškou.
      v1.39: návod ke spuštění Offer Studia odpovídá Offer Studiu v1.8.9 (po START.bat se prohlížeč sám neotevře, otevře se z „Udělat nabídku“).
      v1.38: jedna karta Poptávek a jedna karta Offer Studia. Karta Poptávek se jmenuje „poptavky“, takže „← Zpět do Poptávek“ z Offer Studia
@@ -68,7 +69,7 @@
 <meta name="apple-mobile-web-app-title" content="Poptávky">
 <meta name="theme-color" content="#111111">
 <link rel="manifest" href="manifest.json">   <!-- v1.12: start ze stálé adresy, rozsah = celá složka -->
-<title>Poptávky v1.41</title>
+<title>Poptávky v1.42</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -477,7 +478,7 @@ a.md-radek{text-decoration:none}
 
 <div id="app" class="hidden">
   <header>
-    <h1 onclick="renderHome()">Poptávky <small>v1.41</small></h1>
+    <h1 onclick="renderHome()">Poptávky <small>v1.42</small></h1>
     <small id="who"></small>
     <button id="b-tyden" class="hidden" onclick="renderTyden()">Můj týden</button>
     <button id="b-porada" class="hidden" onclick="renderPorada()">Porada</button>
@@ -865,7 +866,7 @@ function ekonomika(p){
     else zisk = '<div><h4>Zisk</h4><div class="muted">V nabídce nebyla zadaná nákupní marže.</div></div>';
     info = `<div><h4>${esc(n.model || 'Nabídka')}</h4>${r('Připravena', esc(n.t ? new Date(n.t).toLocaleDateString('cs-CZ') + ' · ' + predKolika(n.t) : '—'))}
       ${n.soubor ? r('Soubor', `<span class="soub" title="${esc(n.soubor)}">${esc(n.soubor)}</span>`) : ''}${dalsich > 0 ? r('Starší nabídky', esc(String(dalsich))) : ''}
-      ${MOBIL.matches ? '' : (kl => `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${n.soubor ? `<a class="btn sec sm" href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(kl) + '/pdf')}" target="offerstudio_pdf" onclick="event.stopPropagation()" title="Otevře poslední PDF nabídky (přes Offer Studio na tomhle PC)">📄 Otevřít PDF</a>` : ''}<a class="btn sec sm" href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(kl))}" target="offerstudio" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF" onclick="event.stopPropagation();return otevriOS(this)">✏️ Upravit (jiná sleva / cena)</a></div>`)(Object.keys(p.nabidky).find(k => p.nabidky[k] === n) || '')}</div>`;
+      ${MOBIL.matches ? '' : (kl => `<div style="margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">${n.soubor ? `<a class="btn sec sm" href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(kl) + '/pdf?soubor=' + encodeURIComponent(n.soubor))}" target="offerstudio_pdf" onclick="event.stopPropagation()" title="Otevře poslední PDF nabídky (přes Offer Studio na tomhle PC)">📄 Otevřít PDF</a>` : ''}<a class="btn sec sm" href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(kl))}" target="offerstudio" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF" onclick="event.stopPropagation();return otevriOS(this)">✏️ Upravit (jiná sleva / cena)</a></div>`)(Object.keys(p.nabidky).find(k => p.nabidky[k] === n) || '')}</div>`;
   }
   const hist = Object.values(p.historie || {}).sort((a, b) => (b.t || 0) - (a.t || 0)).slice(0, 4);
   return `<div class="eko" onclick="event.stopPropagation()">${cena}${zisk}${info}
@@ -1124,12 +1125,12 @@ let simUstupek = 0, simId = null;
 /* v1.34: „Ekonomika případu“ (návrh A) – vlevo co platí zákazník, vpravo co zůstane prodejci (schované do klepnutí), dole posuvník.
    Poptávky nic nepočítají: čísla zapsalo Offer Studio. Odvozuje se jen nákupní cena (cena vozu bez DPH − zisk) a při posuvníku změna zisku o ústupek / 1,21. */
 function ekoOdkazy(klic, x){
-  return (x.soubor ? `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(klic) + '/pdf')}" target="offerstudio_pdf" title="Otevře PDF nabídky (přes Offer Studio na tomhle PC)">📄 PDF</a> · ` : '')
+  return (x.soubor ? `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(klic) + '/pdf?soubor=' + encodeURIComponent(x.soubor))}" target="offerstudio_pdf" title="Otevře PDF nabídky (přes Offer Studio na tomhle PC)">📄 PDF</a> · ` : '')
     + `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(klic))}" target="offerstudio" onclick="return otevriOS(this)" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF (Offer Studio musí běžet)">✏️ Upravit (jiná sleva / cena)</a>`;
 }
 /* v1.36: nabídky (soubor, 📄 PDF, 📂 Offer Studio) jsou v Přehledu u poptávky; odkazy otevírají Offer Studio na tomhle PC */
 function odkazyNabidky(k, o){
-  return (o.soubor ? `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(k) + '/pdf')}" target="offerstudio_pdf" title="Otevře PDF nabídky (přes Offer Studio na tomhle PC)">📄 PDF</a> · ` : '')
+  return (o.soubor ? `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(k) + '/pdf?soubor=' + encodeURIComponent(o.soubor))}" target="offerstudio_pdf" title="Otevře PDF nabídky (přes Offer Studio na tomhle PC)">📄 PDF</a> · ` : '')
     + `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(k))}" target="offerstudio" onclick="return otevriOS(this)" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF (Offer Studio musí běžet)">✏️ Upravit (jiná sleva / cena)</a>`;
 }
 function nabidkySoubory(p){
@@ -1630,7 +1631,7 @@ window.addEventListener('hashchange', () => { cekaOdkaz = idZOdkazu(); if (cekaO
    - tahle verze je pod minimální (např. po změně tvaru dat) → lišta bez „Později“ a přepnutí, jakmile to nic nepřeruší:
      na přihlášení nebo na přehledu a mimo psaní do pole.
    Otevřená poptávka zůstane otevřená (předá se jako #poptavka=…, viz v1.6). Bez připojení se nic neděje. */
-const VERZE = [1, 41];
+const VERZE = [1, 42];
 const cisloVerze = soubor => { const m = /_v(\d+)\.(\d+)\.html/.exec(soubor || ''); return m ? [+m[1], +m[2]] : null; };
 const novejsi = (a, b) => a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1];     // 1.10 je novější než 1.9
 let nabidnutaVerze = null, odlozenaVerze = null, nutnaVerze = null;
