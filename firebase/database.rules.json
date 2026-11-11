@@ -32,6 +32,7 @@
             "sleva_pct":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
             "doplnky_sdph":  { ".validate": "newData.isNumber() && newData.val() >= 0" },
             "soubor":        { ".validate": "newData.isString() && newData.val().length <= 120" },
+            "onedrive":      { ".validate": "newData.isString() && newData.val().length <= 200 && !newData.val().contains('..')" },
             "zdroj":         { ".validate": "newData.val() === 'offerstudio'" },
             "t":             { ".validate": "newData.isNumber() && newData.val() <= now" },
             "kdo":           { ".validate": "newData.val() === auth.token.email" },

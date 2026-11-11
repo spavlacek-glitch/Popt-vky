@@ -1,7 +1,7 @@
 // test_zalozky_v1.36.js – záložky detailu na PC (Přehled / Ekonomika / Historie), Ekonomika podle návrhu B a posuvník „Co když ustoupím?“;
-// iPhone záložky nemá. Bez Firebase (SDK = atrapa).   SOUBOR=poptavky_v1.42.html node testy/test_zalozky_v1.36.js   (SCREEN_DIR=… uloží snímky)
+// iPhone záložky nemá. Bez Firebase (SDK = atrapa).   SOUBOR=poptavky_v1.43.html node testy/test_zalozky_v1.36.js   (SCREEN_DIR=… uloží snímky)
 const {chromium,devices}=require('playwright');const path=require('path');
-const SOUBOR=process.env.SOUBOR||'poptavky_v1.42.html',OUT=process.env.SCREEN_DIR;
+const SOUBOR=process.env.SOUBOR||'poptavky_v1.43.html',OUT=process.env.SCREEN_DIR;
 let selhani=0;const K=(popis,ok)=>{console.log(ok?'  ✔':'  ✖',popis);if(!ok)selhani++;};
 const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='then'?undefined:mk(),apply:()=>mk(),construct:()=>mk()});window.firebase=mk();})();`;
 const NAB={model:'GLS 450 d 4MATIC',cena_sdph:3064977,cena_vuz_sdph:3064977,sleva_sdph:230697,sleva_pct:7,soubor:'x.pdf',t:5000,kdo:'a@b.cz',zdroj:'offerstudio',

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="cs">
 <head>
-<!-- Poptávky – evidence poptávek | verze 1.42 | 2026-11-09
+<!-- Poptávky – evidence poptávek | verze 1.43 | 2026-11-11
      v1.1: hecovací věta dne v „Dnes zavolat“
      v1.2: známý zákazník u nové poptávky (/zakaznici) – vyhledání, Vybrat, „Je to nový zákazník“; převzato z ověřeného experimentu v0.5
      v1.3: jen vzhled přehledu – „Dnes zavolat“ odděleně od evidence, na PC dva sloupce, nízká hlavička na mobilu;
@@ -28,6 +28,7 @@
            v hlavičce na PC „Zisk z prodaných aut“ tento měsíc; jen čtení, Poptávky nic nepočítají ani nezapisují
      v1.41: u nabídky je „✏️ Upravit (jiná sleva / cena)“ (otevře stejnou nabídku) a „➕ Nabídka na jiné auto“ je nenápadný odkaz; v bloku Nabídka je nejvýš jedno modré tlačítko.
      v1.42: odkaz „📄 PDF“ u nabídky posílá Offer Studiu i název souboru (?soubor=…), takže PDF otevře i když koncept v databázi Offer Studia už není (Offer Studio v1.8.12).
+     v1.43: odkaz na PDF ve firemním OneDrivu („📄 Otevřít PDF (OneDrive)“ v mobilním detailu, „☁️ OneDrive“ u nabídky na PC). Offer Studio v1.8.13 zapisuje k nabídce cestu v OneDrivu (pole `onedrive`), odkaz se skládá z ní a z e-mailu prodejce. Potřebuje nová pravidla DB (pole `onedrive`).
      v1.40: „➕ Další nabídka“ otevře rovnou novou nabídku pro stejného zákazníka (odkaz má nova=1), ne stávající nabídku s hláškou.
      v1.39: návod ke spuštění Offer Studia odpovídá Offer Studiu v1.8.9 (po START.bat se prohlížeč sám neotevře, otevře se z „Udělat nabídku“).
      v1.38: jedna karta Poptávek a jedna karta Offer Studia. Karta Poptávek se jmenuje „poptavky“, takže „← Zpět do Poptávek“ z Offer Studia
@@ -69,7 +70,7 @@
 <meta name="apple-mobile-web-app-title" content="Poptávky">
 <meta name="theme-color" content="#111111">
 <link rel="manifest" href="manifest.json">   <!-- v1.12: start ze stálé adresy, rozsah = celá složka -->
-<title>Poptávky v1.42</title>
+<title>Poptávky v1.43</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -478,7 +479,7 @@ a.md-radek{text-decoration:none}
 
 <div id="app" class="hidden">
   <header>
-    <h1 onclick="renderHome()">Poptávky <small>v1.42</small></h1>
+    <h1 onclick="renderHome()">Poptávky <small>v1.43</small></h1>
     <small id="who"></small>
     <button id="b-tyden" class="hidden" onclick="renderTyden()">Můj týden</button>
     <button id="b-porada" class="hidden" onclick="renderPorada()">Porada</button>
@@ -1115,6 +1116,19 @@ function odkazNabidky(id, p){
    přichází jako příznak z Offer Studia, v kódu Poptávek není (veřejné repo). */
 let nabidkyOdkryte = false;
 const pctCz = n => (Math.round(n * 10) / 10).toLocaleString('cs-CZ') + ' %';
+/* v1.43: odkaz na PDF ve firemním OneDrivu. Offer Studio v1.8.13 zapíše k nabídce cestu uvnitř OneDrivu (`onedrive`, např. „Poptávky/Jméno Model/soubor.pdf“);
+   osobní část adresy se skládá z e-mailu prodejce, který nabídku zapsal (`kdo`): jan.novak@suw.cz → /personal/jan_novak_suw_cz/. Žádné API ani sdílení:
+   odkaz otevře soubor jen přihlášenému majiteli (nebo tomu, komu soubor/složku sdílí). Host je pevný, cesta se kóduje, „..“ se zahazuje. */
+const OD_HOST = 'https://suwautomobily-my.sharepoint.com';
+function odUrl(n){
+  if (!n || !n.onedrive || !n.kdo) return '';
+  const m = /^([a-z0-9._+-]+)@([a-z0-9.-]+)$/.exec(String(n.kdo).toLowerCase()); if (!m) return '';
+  const osobni = (m[1] + '_' + m[2]).replace(/[.]/g, '_');
+  const casti = String(n.onedrive).split('/').filter(x => x && x !== '.' && x !== '..'); if (!casti.length) return '';
+  const zaklad = '/personal/' + osobni + '/Documents/';
+  return OD_HOST + '/personal/' + encodeURIComponent(osobni) + '/_layouts/15/onedrive.aspx?id=' + encodeURIComponent(zaklad + casti.join('/')) + '&parent=' + encodeURIComponent(zaklad + casti.slice(0, -1).join('/'));
+}
+const odOdkaz = n => odUrl(n) ? ` · <a href="${esc(odUrl(n))}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Otevře PDF ve firemním OneDrivu (přihlášení firemním účtem)">☁️ OneDrive</a>` : '';
 const nabidkySerazene = p => Object.values(p.nabidky || {}).filter(n => n && n.model != null).sort((a, b) => (b.t || 0) - (a.t || 0));
 /* v1.33: „Co když ustoupím?“ – hraní si s posuvníkem během telefonu. Jen simulace nad poslední nabídkou z Offer Studia:
    zisk se mění o ústupek bez DPH (zisk = prodejní cena bez DPH − nákupní cena, takže při změně jen slevy je změna přesně ústupek / 1,21;
@@ -1126,12 +1140,12 @@ let simUstupek = 0, simId = null;
    Poptávky nic nepočítají: čísla zapsalo Offer Studio. Odvozuje se jen nákupní cena (cena vozu bez DPH − zisk) a při posuvníku změna zisku o ústupek / 1,21. */
 function ekoOdkazy(klic, x){
   return (x.soubor ? `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(klic) + '/pdf?soubor=' + encodeURIComponent(x.soubor))}" target="offerstudio_pdf" title="Otevře PDF nabídky (přes Offer Studio na tomhle PC)">📄 PDF</a> · ` : '')
-    + `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(klic))}" target="offerstudio" onclick="return otevriOS(this)" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF (Offer Studio musí běžet)">✏️ Upravit (jiná sleva / cena)</a>`;
+    + `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(klic))}" target="offerstudio" onclick="return otevriOS(this)" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF (Offer Studio musí běžet)">✏️ Upravit (jiná sleva / cena)</a>` + odOdkaz(x);
 }
 /* v1.36: nabídky (soubor, 📄 PDF, 📂 Offer Studio) jsou v Přehledu u poptávky; odkazy otevírají Offer Studio na tomhle PC */
 function odkazyNabidky(k, o){
   return (o.soubor ? `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(k) + '/pdf?soubor=' + encodeURIComponent(o.soubor))}" target="offerstudio_pdf" title="Otevře PDF nabídky (přes Offer Studio na tomhle PC)">📄 PDF</a> · ` : '')
-    + `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(k))}" target="offerstudio" onclick="return otevriOS(this)" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF (Offer Studio musí běžet)">✏️ Upravit (jiná sleva / cena)</a>`;
+    + `<a href="${esc(OS_ADRESA + '/draft/' + encodeURIComponent(k))}" target="offerstudio" onclick="return otevriOS(this)" title="Otevře tuhle nabídku v Offer Studiu: změníš slevu nebo cenu a vytvoříš nové PDF (Offer Studio musí běžet)">✏️ Upravit (jiná sleva / cena)</a>` + odOdkaz(o);
 }
 function nabidkySoubory(p){
   const nab = nabidkySerazene(p); if (!nab.length) return '';
@@ -1302,7 +1316,7 @@ function renderDetailMobil(id, p){
       ${kratky ? '' : `<button type="button" class="md-odkaz" onclick="celyText = celyText === '${id}' ? null : '${id}'; renderDetail('${id}')">${celyText === id ? 'Zobrazit méně' : 'Zobrazit celý text'}</button>`}
       ${vuzTxt(p) ? `<div class="md-label">Vůz</div><div>🚗 ${esc(vuzTxt(p))}</div>` : ''}
       ${dohodaBlok(id, p, true)}
-      ${(n => n ? `<div class="md-label">Nabídka</div><div>📄 ${esc(n.model || 'Nabídka')} · <b>${esc(kcK(n.cena_sdph || 0))}</b>${n.sleva_sdph ? ` · sleva ${esc(pctCz(n.sleva_pct || 0))}` : ''}${n.t ? ` · ${esc(predKolika(n.t))}` : ''}</div>` : '')(posledniNabidka(p))}
+      ${(n => n ? `<div class="md-label">Nabídka</div><div>📄 ${esc(n.model || 'Nabídka')} · <b>${esc(kcK(n.cena_sdph || 0))}</b>${n.sleva_sdph ? ` · sleva ${esc(pctCz(n.sleva_pct || 0))}` : ''}${n.t ? ` · ${esc(predKolika(n.t))}` : ''}</div>${odUrl(n) ? `<a class="md-odkaz" href="${esc(odUrl(n))}" target="_blank" rel="noopener">📄 Otevřít PDF (OneDrive)</a>` : ''}` : '')(posledniNabidka(p))}
       ${kontakty.length ? `<div class="md-kontakt ${kontakty.length === 1 ? 'jeden' : ''}">${kontakty.join('')}</div>` : ''}
     </section>
 
@@ -1631,7 +1645,7 @@ window.addEventListener('hashchange', () => { cekaOdkaz = idZOdkazu(); if (cekaO
    - tahle verze je pod minimální (např. po změně tvaru dat) → lišta bez „Později“ a přepnutí, jakmile to nic nepřeruší:
      na přihlášení nebo na přehledu a mimo psaní do pole.
    Otevřená poptávka zůstane otevřená (předá se jako #poptavka=…, viz v1.6). Bez připojení se nic neděje. */
-const VERZE = [1, 42];
+const VERZE = [1, 43];
 const cisloVerze = soubor => { const m = /_v(\d+)\.(\d+)\.html/.exec(soubor || ''); return m ? [+m[1], +m[2]] : null; };
 const novejsi = (a, b) => a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1];     // 1.10 je novější než 1.9
 let nabidnutaVerze = null, odlozenaVerze = null, nutnaVerze = null;
