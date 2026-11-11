@@ -113,6 +113,11 @@ describe('Navrhovaná pravidla (database.rules.json)', () => {
     test('chybí model nebo cena', () => { const n = nab(); delete n.cena_sdph; return assertFails(zapis(n)); });
     test('cena jako text', () => assertFails(zapis(nab({ cena_sdph: '1 274 000' }))));
     test('neznámé pole v nabídce', () => assertFails(zapis(nab({ poznamka: 'x' }))));
+    test('onedrive (v1.43): cesta k PDF ve firemním OneDrivu se zapíše', () => assertSucceeds(zapis(nab({ onedrive: 'Poptávky/Karolína Cahelová GLB/Karolína_Cahelová_GLB_nabidka1_20261109_145603.pdf' }))));
+    test('onedrive: nabídka bez pole dál projde (starší Offer Studio)', () => assertSucceeds(zapis(nab())));
+    test('onedrive: cesta jako číslo', () => assertFails(zapis(nab({ onedrive: 123 }))));
+    test('onedrive: příliš dlouhá cesta (201 znaků)', () => assertFails(zapis(nab({ onedrive: 'x'.repeat(201) }))));
+    test('onedrive: cesta s „..“ se nezapíše', () => assertFails(zapis(nab({ onedrive: 'Poptávky/../../jine/a.pdf' }))));
     test('neznámé pole v interních údajích', () => assertFails(zapis(nab({ interni: { zisk: 1, nakupni_cena: 2 } }))));
     test('nepřihlášený nabídku nezapíše', () => assertFails(set(ref(db(null), 'poptavky/p1/nabidky/koncept1'), nab())));
     test('neschválený nabídku nezapíše', () => assertFails(set(ref(db(NESCHVALENY), 'poptavky/p1/nabidky/koncept1'), nab({ kdo: NESCHVALENY + '@example.cz' }))));

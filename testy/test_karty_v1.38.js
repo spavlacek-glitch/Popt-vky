@@ -8,7 +8,7 @@ const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='the
  const b=await chromium.launch(),ctx=await b.newContext({viewport:{width:1440,height:1000}});
  await ctx.route('https://www.gstatic.com/**',r=>r.fulfill({body:STUB,contentType:'application/javascript'}));
  await ctx.route('http://127.0.0.1:8774/**',r=>r.fulfill({body:'<title>OS</title>Offer Studio',contentType:'text/html'}));
- const A=await ctx.newPage();await new Promise(r=>setTimeout(r,900));await A.goto(H+'poptavky_v1.42.html');
+ const A=await ctx.newPage();await new Promise(r=>setTimeout(r,900));await A.goto(H+'poptavky_v1.43.html');
  K('karta Poptávek se jmenuje „poptavky“',await A.evaluate(()=>window.name)==='poptavky');
  await A.evaluate(()=>{user={email:'a@b.cz'};jeVedouci=false;data={a:{jmeno:'Anna',telefon:'777123456',kanal:'telefon',zajem:'GLS',stav:'nova',dalsiKontakt:'2026-11-05',prodejce:'a@b.cz',vytvoreno:1000}};
   document.querySelector('#login').classList.add('hidden');document.querySelector('#app').classList.remove('hidden');renderDetail('a');});
@@ -26,6 +26,6 @@ const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='the
  await B.evaluate(u=>{window.open(u,'poptavky');},H+'poptavky.html#poptavka=a');
  await A.waitForTimeout(1800);
  K('„Zpět do Poptávek“ nevytvoří novou kartu',ctx.pages().length===pred2);
- K('původní karta Poptávek se znovu načetla (kartu použil odkaz, ne nová)',await A.evaluate(()=>window.__znacka===undefined)&&A.url().includes('poptavky_v1.42.html'));
+ K('původní karta Poptávek se znovu načetla (kartu použil odkaz, ne nová)',await A.evaluate(()=>window.__znacka===undefined)&&A.url().includes('poptavky_v1.43.html'));
  await b.close();srv.kill();console.log(s?'SELHÁNÍ '+s:'vše v pořádku');process.exit(s?1:0);
 })();
