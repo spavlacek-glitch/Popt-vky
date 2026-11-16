@@ -1,7 +1,7 @@
 // test_onedrive_v1.43.js – odkaz na PDF ve firemním OneDrivu (odUrl, mobilní detail, odkaz u nabídky na PC). Bez Firebase (SDK = atrapa).
-//   SOUBOR=poptavky_v1.43.html node testy/test_onedrive_v1.43.js
+//   SOUBOR=poptavky_v1.44.html node testy/test_onedrive_v1.43.js
 const {chromium,devices}=require('playwright');const path=require('path');
-const SOUBOR=process.env.SOUBOR||'poptavky_v1.43.html';
+const SOUBOR=process.env.SOUBOR||'poptavky_v1.44.html';
 let selhani=0;const K=(popis,ok)=>{console.log(ok?'  ✔':'  ✖',popis);if(!ok)selhani++;};
 const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='then'?undefined:mk(),apply:()=>mk(),construct:()=>mk()});window.firebase=mk();})();`;
 const CESTA='Poptávky/Karolína Cahelová GLB/Karolína_Cahelová_GLB_nabidka1_20261109_145603.pdf';
@@ -27,6 +27,11 @@ const NAB={model:'GLB 200',cena_sdph:1500000,cena_vuz_sdph:1500000,sleva_sdph:0,
     const zly=await p.evaluate(n=>odUrl({...n,onedrive:'../../x/../"><script>alert(1)</script>/a.pdf'}),NAB);
     K('odUrl: „..“ se zahazuje, nebezpečné znaky se kódují, host je pevný',zly.startsWith('https://suwautomobily-my.sharepoint.com/personal/')&&!/[<>"]/.test(zly)&&!zly.includes('%2E%2E')&&!decodeURIComponent(zly).includes('/../'));
     K('odUrl: cizí host se nedá vnutit přes e-mail',(await p.evaluate(n=>odUrl({...n,kdo:'x@evil.com/../..'}),NAB))==='');
+    // v1.44: e-mail do Poptávek (stanislav.pavlacek@) se liší od přihlášení k OneDrivu (spavlacek@) – 404 u Ivana Holovka
+    const RS={...NAB,kdo:'stanislav.pavlacek@suw.cz'};
+    K('odUrl: bez onedrive_ucet se použije e-mail prodejce (stanislav_pavlacek_suw_cz)',(await p.evaluate(n=>odUrl(n),RS)).includes('/personal/stanislav_pavlacek_suw_cz/'));
+    K('odUrl: s onedrive_ucet se použije účet OneDrivu, ne e-mail prodejce (spavlacek_suw_cz = ověřená adresa)',await p.evaluate(n=>odUrl(n),{...RS,onedrive_ucet:'spavlacek@suw.cz'})===OVERENA);
+    K('odUrl: onedrive_ucet má přednost i když e-mail prodejce chybí; nesmysl v účtu se nevnutí',await p.evaluate(n=>[odUrl({...n,kdo:'',onedrive_ucet:'spavlacek@suw.cz'})===n.ov,odUrl({...n,onedrive_ucet:'x@evil.com/../..'})===''],{...NAB,ov:OVERENA}).then(r=>r[0]&&r[1]));
     await pripravit('a');
     const a=p.locator('#view a',{hasText:'OneDrive'});
     K('PC: u nabídky je odkaz „☁️ OneDrive“ s ověřenou adresou',await a.count()>=1&&await a.first().getAttribute('href')===OVERENA&&await a.first().getAttribute('target')==='_blank');

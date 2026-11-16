@@ -118,6 +118,15 @@ describe('Navrhovaná pravidla (database.rules.json)', () => {
     test('onedrive: cesta jako číslo', () => assertFails(zapis(nab({ onedrive: 123 }))));
     test('onedrive: příliš dlouhá cesta (201 znaků)', () => assertFails(zapis(nab({ onedrive: 'x'.repeat(201) }))));
     test('onedrive: cesta s „..“ se nezapíše', () => assertFails(zapis(nab({ onedrive: 'Poptávky/../../jine/a.pdf' }))));
+    test('onedrive_ucet (v1.44): přihlašovací jméno k OneDrivu se zapíše', () => assertSucceeds(zapis(nab({ onedrive: 'Poptávky/X/a.pdf', onedrive_ucet: 'spavlacek@suw.cz' }))));
+    test('onedrive_ucet: e-mail s velkými písmeny se nezapíše (Offer Studio posílá malá)', () => assertFails(zapis(nab({ onedrive_ucet: 'Spavlacek@suw.cz' }))));
+    test('onedrive_ucet: nesmysl, lomítko a skript se nezapíšou', async () => {
+      await assertFails(zapis(nab({ onedrive_ucet: 'neni e-mail' })));
+      await assertFails(zapis(nab({ onedrive_ucet: 'a@evil.com/../..' })));
+      return assertFails(zapis(nab({ onedrive_ucet: '<script>@x.cz' }))); });
+    test('onedrive_ucet: číslo a příliš dlouhý text se nezapíšou', async () => {
+      await assertFails(zapis(nab({ onedrive_ucet: 5 })));
+      return assertFails(zapis(nab({ onedrive_ucet: 'a'.repeat(80) + '@suw.cz' }))); });
     test('neznámé pole v interních údajích', () => assertFails(zapis(nab({ interni: { zisk: 1, nakupni_cena: 2 } }))));
     test('nepřihlášený nabídku nezapíše', () => assertFails(set(ref(db(null), 'poptavky/p1/nabidky/koncept1'), nab())));
     test('neschválený nabídku nezapíše', () => assertFails(set(ref(db(NESCHVALENY), 'poptavky/p1/nabidky/koncept1'), nab({ kdo: NESCHVALENY + '@example.cz' }))));

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="cs">
 <head>
-<!-- Poptávky – evidence poptávek | verze 1.43 | 2026-11-11
+<!-- Poptávky – evidence poptávek | verze 1.44 | 2026-11-16
      v1.1: hecovací věta dne v „Dnes zavolat“
      v1.2: známý zákazník u nové poptávky (/zakaznici) – vyhledání, Vybrat, „Je to nový zákazník“; převzato z ověřeného experimentu v0.5
      v1.3: jen vzhled přehledu – „Dnes zavolat“ odděleně od evidence, na PC dva sloupce, nízká hlavička na mobilu;
@@ -29,6 +29,7 @@
      v1.41: u nabídky je „✏️ Upravit (jiná sleva / cena)“ (otevře stejnou nabídku) a „➕ Nabídka na jiné auto“ je nenápadný odkaz; v bloku Nabídka je nejvýš jedno modré tlačítko.
      v1.42: odkaz „📄 PDF“ u nabídky posílá Offer Studiu i název souboru (?soubor=…), takže PDF otevře i když koncept v databázi Offer Studia už není (Offer Studio v1.8.12).
      v1.43: odkaz na PDF ve firemním OneDrivu („📄 Otevřít PDF (OneDrive)“ v mobilním detailu, „☁️ OneDrive“ u nabídky na PC). Offer Studio v1.8.13 zapisuje k nabídce cestu v OneDrivu (pole `onedrive`), odkaz se skládá z ní a z e-mailu prodejce. Potřebuje nová pravidla DB (pole `onedrive`).
+     v1.44: odkaz na PDF v OneDrivu se skládá z přihlašovacího jména k OneDrivu, které zapíše Offer Studio v1.8.14 (`onedrive_ucet`); e-mail do Poptávek může být jiný (stanislav.pavlacek@ × spavlacek@ → 404). Bez pole se jako dřív použije e-mail prodejce. Pravidla DB: pole `onedrive_ucet`.
      v1.40: „➕ Další nabídka“ otevře rovnou novou nabídku pro stejného zákazníka (odkaz má nova=1), ne stávající nabídku s hláškou.
      v1.39: návod ke spuštění Offer Studia odpovídá Offer Studiu v1.8.9 (po START.bat se prohlížeč sám neotevře, otevře se z „Udělat nabídku“).
      v1.38: jedna karta Poptávek a jedna karta Offer Studia. Karta Poptávek se jmenuje „poptavky“, takže „← Zpět do Poptávek“ z Offer Studia
@@ -70,7 +71,7 @@
 <meta name="apple-mobile-web-app-title" content="Poptávky">
 <meta name="theme-color" content="#111111">
 <link rel="manifest" href="manifest.json">   <!-- v1.12: start ze stálé adresy, rozsah = celá složka -->
-<title>Poptávky v1.43</title>
+<title>Poptávky v1.44</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -479,7 +480,7 @@ a.md-radek{text-decoration:none}
 
 <div id="app" class="hidden">
   <header>
-    <h1 onclick="renderHome()">Poptávky <small>v1.43</small></h1>
+    <h1 onclick="renderHome()">Poptávky <small>v1.44</small></h1>
     <small id="who"></small>
     <button id="b-tyden" class="hidden" onclick="renderTyden()">Můj týden</button>
     <button id="b-porada" class="hidden" onclick="renderPorada()">Porada</button>
@@ -1121,8 +1122,8 @@ const pctCz = n => (Math.round(n * 10) / 10).toLocaleString('cs-CZ') + ' %';
    odkaz otevře soubor jen přihlášenému majiteli (nebo tomu, komu soubor/složku sdílí). Host je pevný, cesta se kóduje, „..“ se zahazuje. */
 const OD_HOST = 'https://suwautomobily-my.sharepoint.com';
 function odUrl(n){
-  if (!n || !n.onedrive || !n.kdo) return '';
-  const m = /^([a-z0-9._+-]+)@([a-z0-9.-]+)$/.exec(String(n.kdo).toLowerCase()); if (!m) return '';
+  if (!n || !n.onedrive || !(n.onedrive_ucet || n.kdo)) return '';
+  const m = /^([a-z0-9._+-]+)@([a-z0-9.-]+)$/.exec(String(n.onedrive_ucet || n.kdo).toLowerCase()); if (!m) return '';   // v1.44: nejdřív účet OneDrivu, jinak e-mail prodejce
   const osobni = (m[1] + '_' + m[2]).replace(/[.]/g, '_');
   const casti = String(n.onedrive).split('/').filter(x => x && x !== '.' && x !== '..'); if (!casti.length) return '';
   const zaklad = '/personal/' + osobni + '/Documents/';
@@ -1645,7 +1646,7 @@ window.addEventListener('hashchange', () => { cekaOdkaz = idZOdkazu(); if (cekaO
    - tahle verze je pod minimální (např. po změně tvaru dat) → lišta bez „Později“ a přepnutí, jakmile to nic nepřeruší:
      na přihlášení nebo na přehledu a mimo psaní do pole.
    Otevřená poptávka zůstane otevřená (předá se jako #poptavka=…, viz v1.6). Bez připojení se nic neděje. */
-const VERZE = [1, 43];
+const VERZE = [1, 44];
 const cisloVerze = soubor => { const m = /_v(\d+)\.(\d+)\.html/.exec(soubor || ''); return m ? [+m[1], +m[2]] : null; };
 const novejsi = (a, b) => a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1];     // 1.10 je novější než 1.9
 let nabidnutaVerze = null, odlozenaVerze = null, nutnaVerze = null;

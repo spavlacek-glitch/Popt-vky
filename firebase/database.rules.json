@@ -33,6 +33,7 @@
             "doplnky_sdph":  { ".validate": "newData.isNumber() && newData.val() >= 0" },
             "soubor":        { ".validate": "newData.isString() && newData.val().length <= 120" },
             "onedrive":      { ".validate": "newData.isString() && newData.val().length <= 200 && !newData.val().contains('..')" },
+            "onedrive_ucet": { ".validate": "newData.isString() && newData.val().length <= 80 && newData.val().matches(/^[a-z0-9._+-]+@[a-z0-9.-]+$/)" },
             "zdroj":         { ".validate": "newData.val() === 'offerstudio'" },
             "t":             { ".validate": "newData.isNumber() && newData.val() <= now" },
             "kdo":           { ".validate": "newData.val() === auth.token.email" },
