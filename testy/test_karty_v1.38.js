@@ -22,10 +22,13 @@ const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='the
  await A.evaluate(()=>{data.a.nabidky={k1:{model:'GLS',cena_sdph:1000000,cena_vuz_sdph:1000000,sleva_sdph:0,sleva_pct:0,soubor:'x.pdf',t:5000,kdo:'a@b.cz',zdroj:'offerstudio'}};renderDetail('a');});
  K('„➕ Nabídka na jiné auto“ má v odkazu nova=1 (nová nabídka, ne stávající)',(await A.locator('.os-jine a').getAttribute('href')).includes('&nova=1')&&(await A.locator('.os-jine a').getAttribute('href')).includes('poptavka=a'));
  // z karty Offer Studia „zpět do Poptávek“ přes window.open(…,'poptavky') se vrátí do původní karty
- const pred2=ctx.pages().length;await A.evaluate(()=>{window.__znacka=1;});
+ // od v1.45 má karta Poptávek v řádku stálou adresu poptavky.html, takže „Zpět do Poptávek“ (window.open na poptavky.html#poptavka=…) změní jen hash:
+ // stránka se nenačítá znovu (rozepsané zůstane) a detail se otevře přes hashchange
+ const pred2=ctx.pages().length;await A.evaluate(()=>{window.__znacka=1;dataNactena=true;renderHome();});
  await B.evaluate(u=>{window.open(u,'poptavky');},H+'poptavky.html#poptavka=a');
  await A.waitForTimeout(1800);
  K('„Zpět do Poptávek“ nevytvoří novou kartu',ctx.pages().length===pred2);
- K('původní karta Poptávek se znovu načetla (kartu použil odkaz, ne nová)',await A.evaluate(()=>window.__znacka===undefined)&&A.url().includes('poptavky.html')&&!/_v\d/.test(A.url())&&await A.evaluate(()=>VERZE.join('.'))==='1.45');   // od v1.45 je adresa v řádku stálá, obsah je aktuální verze
+ K('původní karta se použila a otevřela detail poptávky (bez nového načtení stránky)',await A.evaluate(()=>window.__znacka===1&&view==='detail'&&curId==='a'));
+ K('adresa v řádku je stálá (bez čísla verze), obsah je aktuální verze',A.url().includes('poptavky.html')&&!/_v\d/.test(A.url())&&await A.evaluate(()=>VERZE.join('.'))==='1.45');
  await b.close();srv.kill();console.log(s?'SELHÁNÍ '+s:'vše v pořádku');process.exit(s?1:0);
 })();
