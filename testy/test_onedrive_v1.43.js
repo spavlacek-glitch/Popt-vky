@@ -1,7 +1,7 @@
 // test_onedrive_v1.43.js – odkaz na PDF ve firemním OneDrivu (odUrl, mobilní detail, odkaz u nabídky na PC). Bez Firebase (SDK = atrapa).
-//   SOUBOR=poptavky_v1.44.html node testy/test_onedrive_v1.43.js
+//   SOUBOR=poptavky_v1.45.html node testy/test_onedrive_v1.43.js
 const {chromium,devices}=require('playwright');const path=require('path');
-const SOUBOR=process.env.SOUBOR||'poptavky_v1.44.html';
+const SOUBOR=process.env.SOUBOR||'poptavky_v1.45.html';
 let selhani=0;const K=(popis,ok)=>{console.log(ok?'  ✔':'  ✖',popis);if(!ok)selhani++;};
 const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='then'?undefined:mk(),apply:()=>mk(),construct:()=>mk()});window.firebase=mk();})();`;
 const CESTA='Poptávky/Karolína Cahelová GLB/Karolína_Cahelová_GLB_nabidka1_20261109_145603.pdf';

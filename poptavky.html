@@ -4,15 +4,15 @@
 <!-- Poptávky – stálá adresa | od v1.6 (aktuální verze viz AKTUALNI níž)
      Přesměruje na aktuální verzi Poptávek a předá #poptavka=<id> (odkazy z kontaktů v iPhonu).
      Při nové verzi změň AKTUALNI – staré kontakty pak otevřou novou verzi a běžící verze od v1.10 nabídnou „Aktualizovat“.
-     MINIMALNI = nejstarší verze, která ještě smí běžet. Zvyš ji jen při změně tvaru dat – starší verze (od v1.10)
-     se pak přepnou samy, jakmile to nic nepřeruší. Oba řádky čte appka, tvar řádků neměnit. -->
+     MINIMALNI = nejstarší verze, která ještě smí běžet. Zvyš ji při změně tvaru dat, nebo aby se zastaralé záložky na číslovanou verzi
+     přepnuly samy (v1.45) – starší verze (od v1.10) se pak přepnou samy, jakmile to nic nepřeruší. Oba řádky čte appka, tvar řádků neměnit. -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="manifest" href="manifest.json">   <!-- od v1.12: ikona na ploše startuje odsud, celá složka patří k appce -->
 <title>Poptávky</title>
 <script>
-const AKTUALNI = 'poptavky_v1.44.html';
-const MINIMALNI = 'poptavky_v1.24.html';
+const AKTUALNI = 'poptavky_v1.45.html';
+const MINIMALNI = 'poptavky_v1.45.html';
 // Přesun hostingu z raw.githack.com na GitHub Pages (viz PRESUN_NA_PAGES.md). Vypínač je ZAPNUTÝ (2026-11-03, všechna zařízení přepnutá):
 // při true stará adresa …raw.githack.com/…/main/poptavky.html přesměruje na Pages. Náhledy větví na githacku se nepřesměrovávají (cesta bez /main/).
 const PRESMEROVAT_NA_PAGES = true;
