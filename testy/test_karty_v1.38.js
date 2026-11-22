@@ -26,6 +26,6 @@ const STUB=`(function(){const mk=()=>new Proxy(function(){},{get:(t,k)=>k==='the
  await B.evaluate(u=>{window.open(u,'poptavky');},H+'poptavky.html#poptavka=a');
  await A.waitForTimeout(1800);
  K('„Zpět do Poptávek“ nevytvoří novou kartu',ctx.pages().length===pred2);
- K('původní karta Poptávek se znovu načetla (kartu použil odkaz, ne nová)',await A.evaluate(()=>window.__znacka===undefined)&&A.url().includes('poptavky_v1.45.html'));
+ K('původní karta Poptávek se znovu načetla (kartu použil odkaz, ne nová)',await A.evaluate(()=>window.__znacka===undefined)&&A.url().includes('poptavky.html')&&!/_v\d/.test(A.url())&&await A.evaluate(()=>VERZE.join('.'))==='1.45');   // od v1.45 je adresa v řádku stálá, obsah je aktuální verze
  await b.close();srv.kill();console.log(s?'SELHÁNÍ '+s:'vše v pořádku');process.exit(s?1:0);
 })();
