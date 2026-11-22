@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<!-- Poptávky – chybějící stránka (GitHub Pages ji ukáže u každé neexistující adresy) | od v1.45
+     Staré záložky na číslovanou verzi (poptavky_v1.NN.html), která už není, přesměruje na stálou adresu poptavky.html (ta otevře nejnovější verzi a předá #poptavka=…). -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stránka nenalezena – Poptávky</title>
+<script>
+const m = /^(.*\/)poptavky_v\d+\.\d+\.html$/.exec(location.pathname);
+if (m) location.replace(m[1] + 'poptavky.html' + location.search + location.hash);
+</script>
+<style>body{font:16px -apple-system,Segoe UI,Arial,sans-serif;margin:40px;color:#111}a{color:#0b63c5}</style>
+</head>
+<body>
+<h2>Tuhle stránku jsem nenašel</h2>
+<p>Poptávky otevřeš na stálé adrese: <a id="dal" href="poptavky.html">poptavky.html</a></p>
+</body>
+</html>

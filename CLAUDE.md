@@ -48,7 +48,8 @@ Leady z webu MB se evidují v jiném systému → **do této appky nepatří**, 
 - Hosting (dosud): GitHub + raw.githack.com (stejně jako appka Zkušební jízdy).
   - **Po sloučení do `main` trvá několik minut** (ověřeno: víc než minutu, někdy 5–10 minut), než raw.githack.com ukáže novou verzi. Uživateli to vždy říct předem a nepovažovat to za chybu. Rychlá kontrola je přímá adresa nové verze (`…/main/poptavky_vX.Y.html`). Safari obejde svou mezipaměť přes `poptavky.html?cokoli`.
 - **Stálá adresa `poptavky.html`** (od v1.6): přesměruje na aktuální verzi a předá `#poptavka=…`. **Při každé nové verzi v ní změnit `AKTUALNI`**, jinak odkazy z kontaktů otevřou starou verzi a běžící appky nenabídnou aktualizaci (viz „Aktualizace za chodu“).
-  - `MINIMALNI` (od v1.10) zvýšit **jen při změně tvaru dat**. Starší verze se pak přepnou samy.
+  - `MINIMALNI` (od v1.10) zvýšit při změně tvaru dat, nebo aby se zastaralé záložky přepnuly samy (v1.45 ji zvýšila na v1.45). Starší verze se pak přepnou samy.
+  - **Adresa v řádku je od v1.45 vždy stálá `poptavky.html`** (verze si ji přepíše), takže záložky a ikony nenesou číslo verze; chybějící číslovanou verzi přesměruje `404.html`.
   - Tvar obou řádků (`const AKTUALNI = '…';`) neměnit, appka je čte.
   - **V nové verzi přepsat i `const VERZE = [1, N];` v kódu appky** (spolu s názvem souboru, `<title>` a hlavičkou). Ve v1.22 zůstalo `[1, 21]`: appka se pak považuje za starší než `AKTUALNI`, lišta „Aktualizovat“ se ukazuje pořád a klepnutí nic neudělá (přepne na stejný soubor). Opraveno ve v1.23, hlídá to `testy/test_verze.js` (spouštět před každým pull requestem).
 - **`manifest.json`** (od v1.12), odkazuje na něj `poptavky.html` i každá verze (`<link rel="manifest">`):
@@ -142,6 +143,7 @@ Otevřené, v tomto pořadí:
 12. **v1.43 + Offer Studio v1.8.13 (2026-11-11):** odkaz „📄 Otevřít PDF (OneDrive)“ i na mobilu (cesta v OneDrivu se zapisuje do `nabidky/{id}/onedrive`, adresa se skládá z e-mailu prodejce; vzorec ověřil uživatel). Nová pravidla DB (pole `onedrive`) nasadit v konzoli před novým Offer Studiem. Podrobnosti v `docs/nabidky_a_vuz.md`.
 13. **v1.44 + Offer Studio v1.8.14 (2026-11-16):** oprava 404 u odkazu na OneDrive (účet OneDrivu ≠ e-mail do Poptávek; nové pole `onedrive_ucet`, pravidla DB 142 testů, nasadit před Offer Studiem) a oprava ukládání složky v `AKTUALIZOVAT.bat`. Podrobnosti v `docs/nabidky_a_vuz.md`.
 14. **Offer Studio v1.9.0 / v1.9.1 (2026-11-22/23):** knihovna akčních vozů pro výprodeje (Excel z importéra + výpisy z robota, výběr v nabídce; není to sklad, dostupnost ověřuje prodejce). Zbývá: robot má ukládat `vypis_<Auftrag>.rtf` (repo `Robot-DFE`), ověřit na skutečném výpisu GO a že marže dealera = nákupní marže. Podrobnosti v `docs/nabidky_a_vuz.md`.
+15. **Poptávky v1.45 (2026-11-23):** v adrese nikdy číslo verze (stálá `poptavky.html`, staré záložky se přepnou samy, `404.html`). Podrobnosti v `docs/zarizeni_a_kontakty.md`.
 Poznámky pro práci: na emulátory Firebase v tomhle prostředí viz sekce Testy (odpojit proxy, `127.0.0.1`, jar přes curl); náhledy nesloučených větví přes raw.githack.com adresu větve; po sloučení vždy říct uživateli, že Pages/githack zdržuje, a ke každé nové verzi přepsat `AKTUALNI` i `VERZE` (hlídá `testy/test_verze.js`).
 
 ## Nápady na později

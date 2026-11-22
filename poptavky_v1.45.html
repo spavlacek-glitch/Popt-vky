@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="cs">
 <head>
-<!-- Poptávky – evidence poptávek | verze 1.44 | 2026-11-16
+<!-- Poptávky – evidence poptávek | verze 1.45 | 2026-11-23
      v1.1: hecovací věta dne v „Dnes zavolat“
      v1.2: známý zákazník u nové poptávky (/zakaznici) – vyhledání, Vybrat, „Je to nový zákazník“; převzato z ověřeného experimentu v0.5
      v1.3: jen vzhled přehledu – „Dnes zavolat“ odděleně od evidence, na PC dva sloupce, nízká hlavička na mobilu;
@@ -30,6 +30,7 @@
      v1.42: odkaz „📄 PDF“ u nabídky posílá Offer Studiu i název souboru (?soubor=…), takže PDF otevře i když koncept v databázi Offer Studia už není (Offer Studio v1.8.12).
      v1.43: odkaz na PDF ve firemním OneDrivu („📄 Otevřít PDF (OneDrive)“ v mobilním detailu, „☁️ OneDrive“ u nabídky na PC). Offer Studio v1.8.13 zapisuje k nabídce cestu v OneDrivu (pole `onedrive`), odkaz se skládá z ní a z e-mailu prodejce. Potřebuje nová pravidla DB (pole `onedrive`).
      v1.44: odkaz na PDF v OneDrivu se skládá z přihlašovacího jména k OneDrivu, které zapíše Offer Studio v1.8.14 (`onedrive_ucet`); e-mail do Poptávek může být jiný (stanislav.pavlacek@ × spavlacek@ → 404). Bez pole se jako dřív použije e-mail prodejce. Pravidla DB: pole `onedrive_ucet`.
+     v1.45: adresa v řádku prohlížeče je vždy stálá (poptavky.html), ne číslo verze – záložka, připnutý panel i ikona na ploše pak vždy otevřou nejnovější verzi; staré záložky na číslovanou verzi se přepnou samy (MINIMALNI), chybějící staré verze přesměruje 404.html.
      v1.40: „➕ Další nabídka“ otevře rovnou novou nabídku pro stejného zákazníka (odkaz má nova=1), ne stávající nabídku s hláškou.
      v1.39: návod ke spuštění Offer Studia odpovídá Offer Studiu v1.8.9 (po START.bat se prohlížeč sám neotevře, otevře se z „Udělat nabídku“).
      v1.38: jedna karta Poptávek a jedna karta Offer Studia. Karta Poptávek se jmenuje „poptavky“, takže „← Zpět do Poptávek“ z Offer Studia
@@ -71,7 +72,7 @@
 <meta name="apple-mobile-web-app-title" content="Poptávky">
 <meta name="theme-color" content="#111111">
 <link rel="manifest" href="manifest.json">   <!-- v1.12: start ze stálé adresy, rozsah = celá složka -->
-<title>Poptávky v1.44</title>
+<title>Poptávky v1.45</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
@@ -480,7 +481,7 @@ a.md-radek{text-decoration:none}
 
 <div id="app" class="hidden">
   <header>
-    <h1 onclick="renderHome()">Poptávky <small>v1.44</small></h1>
+    <h1 onclick="renderHome()">Poptávky <small>v1.45</small></h1>
     <small id="who"></small>
     <button id="b-tyden" class="hidden" onclick="renderTyden()">Můj týden</button>
     <button id="b-porada" class="hidden" onclick="renderPorada()">Porada</button>
@@ -1646,7 +1647,14 @@ window.addEventListener('hashchange', () => { cekaOdkaz = idZOdkazu(); if (cekaO
    - tahle verze je pod minimální (např. po změně tvaru dat) → lišta bez „Později“ a přepnutí, jakmile to nic nepřeruší:
      na přihlášení nebo na přehledu a mimo psaní do pole.
    Otevřená poptávka zůstane otevřená (předá se jako #poptavka=…, viz v1.6). Bez připojení se nic neděje. */
-const VERZE = [1, 44];
+/* v1.45: Adresa v řádku prohlížeče nese stálé jméno poptavky.html, ne číslo verze. Dřív poptavky.html přesměrovala na poptavky_v1.NN.html a záložka, připnutý
+   panel nebo „Přidat na plochu“ si zapamatovaly právě tuhle číslovanou adresu → pak se pořád otvírala stará verze a bylo nutné ji aktualizovat.
+   Obnovení stránky (F5) načte poptavky.html, ta přesměruje na aktuální verzi a adresa se opět vrátí na stálou. Jen na http(s); z lokálního souboru se nic nemění. */
+(function(){ try {
+  if (/^https?:$/.test(location.protocol) && /\/poptavky_v\d+\.\d+\.html$/.test(location.pathname))
+    history.replaceState(history.state, '', location.pathname.replace(/poptavky_v\d+\.\d+\.html$/, 'poptavky.html') + location.search + location.hash);
+} catch (e) { /* adresa zůstane číslovaná, nic se nerozbije */ } })();
+const VERZE = [1, 45];
 const cisloVerze = soubor => { const m = /_v(\d+)\.(\d+)\.html/.exec(soubor || ''); return m ? [+m[1], +m[2]] : null; };
 const novejsi = (a, b) => a[0] !== b[0] ? a[0] > b[0] : a[1] > b[1];     // 1.10 je novější než 1.9
 let nabidnutaVerze = null, odlozenaVerze = null, nutnaVerze = null;
