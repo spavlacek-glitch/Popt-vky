@@ -117,6 +117,7 @@ Hlavní pravidla jsou tady, podrobnosti jednotlivých funkcí v souborech níž.
 - `docs/nabidky_a_vuz.md` – Nabídky, Offer Studio a vůz: Udělat nabídku, Vůz u poptávky, Offer Studio v1.8.0, Nabídky z Offer Studia
 - `docs/zarizeni_a_kontakty.md` – Zařízení, aktualizace a kontakty: Aktualizace za chodu, Souhlas GDPR, Uložit do kontaktů, Odkaz z kontaktu v iPhonu
 - `docs/testy.md` – Testy: Testy
+- `docs/predani.md` – **Předání mezi vlákny (stav k 2026-11-23):** repa a verze, co zbývá, jak se pracuje (merge jen po „sluč“, balíčky, testy), prostředí uživatele. Číst jako první v novém vlákně.
 - `docs/vice_prodejcu.md` – Více prodejců a udržitelnost: Více prodejců, Udržitelnost
 - `docs/email_prijem.md` – Příjem poptávek e-mailem: Příjem poptávek e-mailem
 
