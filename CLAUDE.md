@@ -1,6 +1,6 @@
 # Poptávky – evidence poptávek a nabídek
 
-Verze dokumentu: 2.48 (2026-11-04)
+Verze dokumentu: 2.49 (2026-11-26)
 
 > **Před prací si přečti `KONTEXT_obchod.md`.** Jsou v něm odpovědi na 52 otázek o tom, jak prodejce reálně pracuje: odkud chodí poptávky, proč se Fenclotéka a Obchodní záznamník přestaly používat a co firemní IT nepovoluje (žádný automatický přístup k Outlooku). Je to **kontext, ne zadání**. Nové funkce z něj neodvozuj bez výslovného souhlasu uživatele.
 >
@@ -117,7 +117,7 @@ Hlavní pravidla jsou tady, podrobnosti jednotlivých funkcí v souborech níž.
 - `docs/nabidky_a_vuz.md` – Nabídky, Offer Studio a vůz: Udělat nabídku, Vůz u poptávky, Offer Studio v1.8.0, Nabídky z Offer Studia
 - `docs/zarizeni_a_kontakty.md` – Zařízení, aktualizace a kontakty: Aktualizace za chodu, Souhlas GDPR, Uložit do kontaktů, Odkaz z kontaktu v iPhonu
 - `docs/testy.md` – Testy: Testy
-- `docs/predani.md` – **Předání mezi vlákny (stav k 2026-11-23):** repa a verze, co zbývá, jak se pracuje (merge jen po „sluč“, balíčky, testy), prostředí uživatele. Číst jako první v novém vlákně.
+- `docs/predani.md` – **Předání mezi vlákny (stav k 2026-11-26):** repa a verze, co zbývá, jak se pracuje (merge jen po „sluč“, balíčky, testy), prostředí uživatele. Číst jako první v novém vlákně.
 - `docs/vice_prodejcu.md` – Více prodejců a udržitelnost: Více prodejců, Udržitelnost
 - `docs/email_prijem.md` – Příjem poptávek e-mailem: Příjem poptávek e-mailem
 
@@ -143,8 +143,10 @@ Otevřené, v tomto pořadí:
 11. **v1.42 + Offer Studio v1.8.12 (2026-11-09):** „📄 PDF“ najde soubor i bez konceptu (podle názvu) a Offer Studio si samo zálohuje databázi nabídek do `Dokumenty\OfferStudio_zaloha`. Podrobnosti v `docs/nabidky_a_vuz.md`.
 12. **v1.43 + Offer Studio v1.8.13 (2026-11-11):** odkaz „📄 Otevřít PDF (OneDrive)“ i na mobilu (cesta v OneDrivu se zapisuje do `nabidky/{id}/onedrive`, adresa se skládá z e-mailu prodejce; vzorec ověřil uživatel). Nová pravidla DB (pole `onedrive`) nasadit v konzoli před novým Offer Studiem. Podrobnosti v `docs/nabidky_a_vuz.md`.
 13. **v1.44 + Offer Studio v1.8.14 (2026-11-16):** oprava 404 u odkazu na OneDrive (účet OneDrivu ≠ e-mail do Poptávek; nové pole `onedrive_ucet`, pravidla DB 142 testů, nasadit před Offer Studiem) a oprava ukládání složky v `AKTUALIZOVAT.bat`. Podrobnosti v `docs/nabidky_a_vuz.md`.
-14. **Offer Studio v1.9.0 / v1.9.1 (2026-11-22/23):** knihovna akčních vozů pro výprodeje (Excel z importéra + výpisy z robota, výběr v nabídce; není to sklad, dostupnost ověřuje prodejce). Zbývá: robot má ukládat `vypis_<Auftrag>.rtf` (repo `Robot-DFE`), ověřit na skutečném výpisu GO a že marže dealera = nákupní marže. Podrobnosti v `docs/nabidky_a_vuz.md`.
+14. **Offer Studio v1.9.0–v1.9.8 (2026-11-22/26):** knihovna akčních vozů pro výprodeje (Excel z importéra + výpisy z robota, výběr v nabídce; není to sklad, dostupnost ověřuje prodejce). **Black Friday 2026: knihovna naplněná (38 vozů), robot `NabidkaBot v0.6.11` prošel 26 vozů, výpisy jsou HTML.** Zbývá ověřit, že marže dealera = nákupní marže (zisk), Burza (Nabízená vozidla) a 4 vozy bez výpisu. Podrobnosti v `docs/nabidky_a_vuz.md`.
 15. **Poptávky v1.45 (2026-11-23):** v adrese nikdy číslo verze (stálá `poptavky.html`, staré záložky se přepnou samy, `404.html`). Podrobnosti v `docs/zarizeni_a_kontakty.md`.
+16. **Edice 140 let (2026-11-26, rozhodnutí uživatele: zatím nic neprogramovat):** vedení chtělo navýšit základní cenu o pevné částky a ukázat větší slevu. Posouzeno jako riziko zavádějící slevy (cena, ze které se sleva počítá, nikde neexistuje), uživatel to nechal na rozhodnutí vedení. Povolená cesta: věta „vůz obsahuje edici 140 let“ (případně „stejný vůz bez edice by stál X Kč“ jen s ověřitelným X, mimo slevu). Podrobnosti v `docs/nabidky_a_vuz.md`.
+17. **Stahovač fotek pro inzerci (2026-11-26, Offer Studio):** `stahnout_fotky.py` + `STAHNOUT_FOTKY.bat`, fotky z vozy.suw.cz / mercedes-benz.cz bez nabídky.
 Poznámky pro práci: na emulátory Firebase v tomhle prostředí viz sekce Testy (odpojit proxy, `127.0.0.1`, jar přes curl); náhledy nesloučených větví přes raw.githack.com adresu větve; po sloučení vždy říct uživateli, že Pages/githack zdržuje, a ke každé nové verzi přepsat `AKTUALNI` i `VERZE` (hlídá `testy/test_verze.js`).
 
 ## Nápady na později
